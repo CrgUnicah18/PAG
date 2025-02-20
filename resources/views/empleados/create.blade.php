@@ -1,9 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-4"> <!-- Reducimos el margen superior a mt-4 para que se acerque más al navbar -->
+    <div class="container mt-2"> <!-- Reducimos el margen superior a mt-4 para que se acerque más al navbar -->
         <!-- Título del formulario -->
-        <h2 class="mb-4">Crear Empleado</h2>
+        <h2 class="text-xl justify-center font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md mb-2">Crear
+            Empleado</h2>
 
         <!-- Formulario en una card -->
         <div class="card" style="max-width: 800px; margin: 0 auto;"> <!-- Limitar el ancho de la carta -->

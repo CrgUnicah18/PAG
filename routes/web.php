@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\TipoPermisoController;
+use App\Http\Controllers\EmpleadoEliminarController;
 
 // Página principal
 Route::get('/', function () {
@@ -20,3 +21,6 @@ Route::prefix('configuracion')->name('configuracion.')->group(function () {
 
 // Rutas para TipoPermisoController dentro de 'configuracion/tipos-permisos'
 Route::resource('configuracion/tipos-permisos', TipoPermisoController::class)->names('configuracion.tipos-permisos');
+Route::resource('configuracion/eliminar-empleado', EmpleadoEliminarController::class)
+    ->only(['index', 'destroy'])
+    ->names('configuracion.eliminar-empleado');

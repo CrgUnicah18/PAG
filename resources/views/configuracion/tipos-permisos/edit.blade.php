@@ -40,8 +40,12 @@
 
                 </div>
 
-                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Guardar
-                    Cambios</button>
+                <div class="form-group mt-6 flex justify-between">
+                    <button type="submit" class="btn btn-primary w-1/2 mr-2">Guardar
+                        Cambios</button>
+                    <a href="{{ route('configuracion.tipos-permisos.index') }}" class="btn btn-secondary w-1/2">Cancelar</a>
+                </div>
+
             </form>
         </div>
     </div>

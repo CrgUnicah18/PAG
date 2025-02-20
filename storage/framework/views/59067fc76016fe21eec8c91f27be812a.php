@@ -5,7 +5,7 @@
     </div>
     <nav class="flex-1 p-4">
         <ul class="space-y-2">
-            <li><a href="views/home.blade.php" class="block p-2 rounded hover:bg-gray-700">🏠 Inicio</a></li>
+            <li><a href="#" class="block p-2 rounded hover:bg-gray-700">🏠 Inicio</a></li>
             <li><a href="<?php echo e(route('empleados.index')); ?>" class="block p-2 rounded hover:bg-gray-700">👥
                     Empleados</a></li>
             <li><a href="#" class="block p-2 rounded hover:bg-gray-700">📜 Permisos</a></li>

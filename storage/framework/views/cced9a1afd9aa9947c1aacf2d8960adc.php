@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('content'); ?>
     <?php
         $pageTitle = 'Empleados';
@@ -17,18 +15,23 @@
             </div>
         <?php endif; ?>
 
-        <div class="d-flex justify-content-between mb-4">
-            <h2>Listado de Empleados</h2>
-            <a href="<?php echo e(route('empleados.create')); ?>" class="btn btn-primary">Crear Empleado</a>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md">
+                Listado de Empleados
+            </h2>
+            <a href="<?php echo e(route('empleados.create')); ?>" class="btn btn-primary">
+                Crear Empleado
+            </a>
         </div>
 
+
         <form method="GET" action="<?php echo e(route('empleados.index')); ?>">
-            <div class="row mb-4">
-                <div class="col-md-4">
+            <div class="row mb-4 align-items-end">
+                <div class="col-md-3">
                     <input type="text" name="nombre" class="form-control" placeholder="Buscar por nombre"
                         value="<?php echo e(request()->get('nombre')); ?>">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <select name="grupo_id" class="form-control">
                         <option value="">Seleccionar grupo</option>
                         <?php $__currentLoopData = $grupos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grupo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -39,16 +42,24 @@
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <select name="oficina_id" class="form-control">
                         <option value="">Seleccionar oficina</option>
                         <?php $__currentLoopData = $oficinas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $oficina): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($oficina->id); ?>" <?php echo e(request()->get('oficina_id') == $oficina->id ? 'selected' : ''); ?>><?php echo e($oficina->nombre); ?></option>
+                            <option value="<?php echo e($oficina->id); ?>" <?php if(request()->get('oficina_id') == $oficina->id): ?> selected <?php endif; ?>>
+                                <?php echo e($oficina->nombre); ?>
+
+                            </option>
+
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
+                <div class="col-md-3 d-flex">
+                    <button type="submit" class="btn btn-success d-flex align-items-center">
+                        <i class="fas fa-search mr-2"></i> Buscar
+                    </button>
+                </div>
             </div>
-            <button type="submit" class="btn btn-success">Buscar</button>
         </form>
 
         <table class="table">

@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('content'); ?>
     <div class="container mt-4">
         <h2>Editar Empleado</h2>

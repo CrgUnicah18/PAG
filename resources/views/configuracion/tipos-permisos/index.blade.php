@@ -2,7 +2,12 @@
 
 @section('content')
     <div class="container">
-        <h1>Tipos de Permisos</h1>
+        <h1 class="text-xl font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md">
+            Tipos de permisos
+        </h1>
+
+
+
 
         <!-- Mensaje de éxito si existe -->
         @if(session('success'))
@@ -11,9 +16,11 @@
             </div>
         @endif
 
-        <!-- Botón para crear un nuevo tipo de permiso -->
-        <a href="{{ route('configuracion.tipos-permisos.create') }}" class="btn btn-primary mb-3">Crear Nuevo Tipo de
-            Permiso</a>
+        <div class="flex justify-end mb-2 p-3 relative right-7">
+            <a href="{{ route('configuracion.tipos-permisos.create') }}" class="btn btn-primary">
+                Crear permiso
+            </a>
+        </div>
 
         <!-- Tabla de tipos de permisos -->
         <table class="table table-bordered">
@@ -35,13 +42,6 @@
                             <td>
                                 <a href="{{ route('configuracion.tipos-permisos.edit', $tipoPermiso->id) }}"
                                     class="btn btn-warning">Editar</a>
-
-                                <form action="{{ route('configuracion.tipos-permisos.destroy', $tipoPermiso->id) }}" method="POST"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger">Eliminar</button>
-                                </form>
                             </td>
                         </tr>
                     @endforeach

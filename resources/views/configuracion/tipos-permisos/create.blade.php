@@ -2,7 +2,8 @@
 
 @section('content')
     <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-6">Crear Nuevo Tipo de Permiso</h1>
+        <h1 class="text-xl font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md">Crear nuevo tipo de permiso
+        </h1>
 
         <!-- Mostrar mensajes de éxito -->
         @if(session('success'))
@@ -28,15 +29,14 @@
                 <div class="form-group mb-4">
                     <label for="dias">Duración (días)</label>
                     <input type="number" name="dias" id="dias" class="form-control" required placeholder="Ej. 5" min="1">
-
                 </div>
 
-                <!-- Botón de guardar desplazado un poco hacia abajo -->
-                <div class="form-group mt-6">
-                    <button type="submit" class="btn btn-primary w-full">Guardar</button>
+                <!-- Botones de guardar y cancelar -->
+                <div class="form-group mt-6 flex justify-between">
+                    <button type="submit" class="btn btn-primary w-1/2 mr-2">Guardar</button>
+                    <a href="{{ route('configuracion.tipos-permisos.index') }}" class="btn btn-secondary w-1/2">Cancelar</a>
                 </div>
             </form>
         </div>
     </div>
-
 @endsection
