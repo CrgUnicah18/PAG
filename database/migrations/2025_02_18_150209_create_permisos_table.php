@@ -12,10 +12,11 @@ return new class extends Migration {
     {
         Schema::create('permisos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('empleado_id')->constrained('empleados');
-            $table->date('fecha_inicio'); // Asegúrate de que esta columna esté presente
+            $table->foreignId('empleado_id')->constrained()->onDelete('cascade');
+            $table->foreignId('tipo_permiso_id')->constrained()->onDelete('cascade'); // Verifica que este campo exista y esté correctamente definido
+            $table->date('fecha_inicio');
             $table->date('fecha_fin');
-            $table->string('tipo_permiso');
+            $table->integer('duracion_dias')->nullable();
             $table->timestamps();
         });
     }

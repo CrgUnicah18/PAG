@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Empleado extends Model
 {
     use HasFactory;
-
+    protected $fillable = [
+        'nombre',
+        'apellido',
+        'direccion',
+        'telefono',
+        'fecha_nacimiento',
+        'oficina_id',
+        'grupo_id'
+    ];
     // Relación con Oficina
     public function oficina()
     {
@@ -38,4 +46,9 @@ class Empleado extends Model
     {
         return $this->hasOne(User::class);
     }
+    public function supervisor()
+    {
+        return $this->belongsTo(Empleado::class, 'supervisor_id');
+    }
+
 }

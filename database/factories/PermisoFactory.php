@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Permiso;
+use App\Models\Empleado;
+use App\Models\TipoPermiso;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PermisoFactory extends Factory
@@ -12,10 +14,10 @@ class PermisoFactory extends Factory
     public function definition()
     {
         return [
-            'tipo_permiso' => $this->faker->word(),
             'fecha_inicio' => $this->faker->date(),
             'fecha_fin' => $this->faker->date(),
-            'empleado_id' => \App\Models\Empleado::factory(),
+            'empleado_id' => Empleado::inRandomOrder()->first()->id, // Obtiene un empleado aleatorio
+            'tipo_permiso_id' => TipoPermiso::inRandomOrder()->first()->id, // Obtiene un tipo de permiso aleatorio
         ];
     }
 }

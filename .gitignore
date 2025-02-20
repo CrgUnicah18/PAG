@@ -1,23 +1,37 @@
-/.phpunit.cache
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
+# Node modules y dependencias de npm
+node_modules/
 npm-debug.log
 yarn-error.log
-/auth.json
-/.fleet
-/.idea
-/.nova
-/.vscode
-/.zed
+
+# Dependencias de Composer
+/vendor/
+composer.lock
+
+# Archivos de entorno y configuración sensible
+.env
+.env.example
+.env.backup
+
+# Caché y logs de Laravel
+bootstrap/cache/
+storage/framework/
+storage/logs/
+
+# Configuración de IDEs y sistemas operativos (opcional)
+*.swp
+*.swo
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Bases de datos SQLite (si usas)
+database/database.sqlite
+database/database.sqlite-journal
+
+# Archivos generados por Laravel
+/public/storage
+/public/hot
+/public/mix-manifest.json
+/public/build/
+
