@@ -10,7 +10,7 @@ class TipoPermisoController extends Controller
     public function index()
     {
         $tiposPermiso = TipoPermiso::all();
-        return view('configuracion.tipos-permisos.index', compact('tiposPermiso'));
+        return view('admin.configuracion.tipos-permisos.index', compact('tiposPermiso'));
     }
 
     public function show($id)
@@ -19,13 +19,13 @@ class TipoPermisoController extends Controller
         $tipoPermiso = TipoPermiso::findOrFail($id);
 
         // Retornar la vista con el tipo de permiso encontrado
-        return view('configuracion.tipos-permisos.show', compact('tipoPermiso'));
+        return view('admin.configuracion.tipos-permisos.show', compact('tipoPermiso'));
     }
 
 
     public function create()
     {
-        return view('configuracion.tipos-permisos.create');
+        return view('admin.configuracion.tipos-permisos.create');
     }
 
     public function store(Request $request)
@@ -34,28 +34,30 @@ class TipoPermisoController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string|max:255',
-            'dias' => 'required|integer|min:1', // Asegúrate de que 'dias' sea un número válido
+            'dias' => 'required|integer|min:1', //  que 'dias' sea un número válido
+            'es_vacacion' => 'boolean', // Validar el checkbox
         ]);
 
         TipoPermiso::create([
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
-            'dias' => $request->dias, // Asegúrate de guardar el valor de 'dias'
+            'dias' => $request->dias, //  guardar el valor de 'dias'
+            'es_vacacion' => $request->has('es_vacacion'), // Guardar si se marcó
         ]);
 
-        return redirect()->route('configuracion.tipos-permisos.index')->with('success', 'Tipo de permiso creado correctamente.');
+        return redirect()->route('admin.configuracion.tipos-permisos.index')->with('success', 'Tipo de permiso creado correctamente.');
     }
     public function edit($id)
     {
         $tipoPermiso = TipoPermiso::findOrFail($id);  // Encontrar el tipo de permiso
-        return view('configuracion.tipos-permisos.edit', compact('tipoPermiso')); // Pasar la variable a la vista
+        return view('admin.configuracion.tipos-permisos.edit', compact('tipoPermiso')); // Pasar la variable a la vista
     }
 
     public function update(Request $request, $id)
     {
         $tipoPermiso = TipoPermiso::findOrFail($id);  // Encontrar el tipo de permiso
         $tipoPermiso->update($request->all());  // Actualizar los datos
-        return redirect()->route('configuracion.tipos-permisos.index')->with('success', 'Tipo de permiso actualizado con éxito.');
+        return redirect()->route('admin.configuracion.tipos-permisos.index')->with('success', 'Tipo de permiso actualizado con éxito.');
     }
 
 
@@ -91,6 +93,6 @@ class TipoPermisoController extends Controller
     {
         $tipoPermiso->delete();
 
-        return redirect()->route('configuracion.tipos-permisos.index')->with('success', 'Tipo de permiso eliminado correctamente');
+        return redirect()->route('admin.configuracion.tipos-permisos.index')->with('success', 'Tipo de permiso eliminado correctamente');
     }
 }

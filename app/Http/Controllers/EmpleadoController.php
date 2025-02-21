@@ -39,7 +39,7 @@ class EmpleadoController extends Controller
         $oficinas = Oficina::all();
 
         // Retornar la vista con los empleados y los filtros
-        return view('empleados.index', [
+        return view('admin.empleados.index', [
             'empleados' => $empleados,
             'grupos' => $grupos,
             'oficinas' => $oficinas,
@@ -54,7 +54,7 @@ class EmpleadoController extends Controller
         // Obtener todos los empleados que no tengan un supervisor asignado
         $supervisores = Empleado::whereNull('supervisor_id')->get();
 
-        return view('empleados.create', [
+        return view('admin.empleados.create', [
             'oficinas' => Oficina::all(),
             'grupos' => Grupo::all(),
             'supervisores' => $supervisores, // Pasar los empleados disponibles como supervisores
@@ -91,7 +91,7 @@ class EmpleadoController extends Controller
         $empleado->save();
 
         // Redirección con mensaje de éxito
-        return redirect()->route('empleados.index')->with('success', 'Empleado creado exitosamente');
+        return redirect()->route('admin.empleados.index')->with('success', 'Empleado creado exitosamente');
     }
 
 
@@ -115,7 +115,7 @@ class EmpleadoController extends Controller
         // Obtener todos los empleados que no tengan un supervisor asignado
         $supervisores = Empleado::whereNull('supervisor_id')->get();
 
-        return view('empleados.edit', compact('empleado', 'oficinas', 'grupos', 'supervisores'));
+        return view('admin.empleados.edit', compact('empleado', 'oficinas', 'grupos', 'supervisores'));
     }
 
     /**
@@ -139,7 +139,7 @@ class EmpleadoController extends Controller
         $empleado->update($validatedData);
 
         // Redirigir con un mensaje de éxito
-        return redirect()->route('empleados.index')->with('success', 'Empleado actualizado exitosamente');
+        return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado exitosamente');
     }
 
     /**
@@ -154,6 +154,6 @@ class EmpleadoController extends Controller
         $empleado->delete();
 
         // Redirigir de vuelta con un mensaje de éxito
-        return redirect()->route('empleados.index')->with('success', 'Empleado eliminado exitosamente.');
+        return redirect()->route('admin.empleados.index')->with('success', 'Empleado eliminado exitosamente.');
     }
 }

@@ -7,13 +7,32 @@ use App\Models\Empleado;
 
 class EmpleadoEliminarController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
+        // Obtener los empleados filtrados si se proporciona un nombre
+        $empleados = Empleado::when($request->nombre, function ($query) use ($request) {
+            return $query->where('nombre', 'like', '%' . $request->nombre . '%');
+        })->get();
+
+        return view('admin.configuracion.eliminar-empleado.index', compact('empleados'));
+    }
+
+    public function destroy($id)
+    {
+        $empleado = Empleado::findOrFail($id);
+        $empleado->delete();
+
+        // En el controlador, al eliminar el empleado:
+        return redirect()->route('admin.configuracion.eliminar-empleado.index')
+            ->with('success', 'Empleado eliminado exitosamente.');
+
+    }
+    /*public function index(Request $request)
+    {
+
         // Inicializamos la consulta
         $query = Empleado::query();
+
 
         // Filtrar por nombre si se ha enviado el filtro 'nombre'
         if ($request->has('nombre') && !empty($request->nombre)) {
@@ -22,12 +41,13 @@ class EmpleadoEliminarController extends Controller
 
         // Obtener los empleados que serán mostrados
         $empleados = $query->get();
-
+        dd($empleados);
         // Retornar la vista con los empleados y los filtros
         return view('configuracion.eliminar-empleado.index', [
             'empleados' => $empleados,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -72,15 +92,4 @@ class EmpleadoEliminarController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
-    {
-        // Buscar el empleado por su id
-        $empleado = Empleado::findOrFail($id);
-
-        // Eliminar el empleado
-        $empleado->delete();
-
-        // Redirigir de vuelta con un mensaje de éxito
-        return redirect()->route('configuracion.eliminar-empleado.index')->with('success', 'Empleado eliminado exitosamente.');
-    }
 }
