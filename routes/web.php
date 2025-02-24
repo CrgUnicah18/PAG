@@ -18,6 +18,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     //Rutas para permisos
     Route::resource('permisos', PermisoController::class);
 
+    Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
+
     // Rutas específicas para aprobar o declinar permisos
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');

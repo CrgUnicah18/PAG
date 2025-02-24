@@ -52,6 +52,18 @@
         <?php echo $__env->yieldContent('content'); ?> <!-- Aquí va el contenido de cada vista -->
     </main>
 
+    <script>
+        function toggleModal(permisoId) {
+            const modal = document.getElementById('commentModal' + permisoId);
+            if (modal) {
+                modal.classList.toggle('hidden');
+            } else {
+                console.error("No se encontró el modal para el permiso ID:", permisoId);
+            }
+        }
+    </script>
+
+
 
 </body>
 
