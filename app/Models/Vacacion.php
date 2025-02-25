@@ -10,7 +10,7 @@ class Vacacion extends Model
     use HasFactory;
     // Especifica el nombre de la tabla si no es el plural del modelo
     protected $table = 'vacaciones';
-    protected $fillable = ['empleado_id', 'fecha_inicio', 'fecha_fin', 'estado', 'tipo_permiso_id'];
+    protected $fillable = ['empleado_id', 'fecha_inicio', 'fecha_fin', 'estado', 'tipo_permiso_id', 'comentario'];
 
     public function empleado()
     {

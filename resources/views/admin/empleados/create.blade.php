@@ -1,15 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-2"> <!-- Reducimos el margen superior a mt-4 para que se acerque más al navbar -->
-        <!-- Título del formulario -->
-        <h2 class="text-xl justify-center font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md mb-2">Crear
-            Empleado</h2>
+    <div class="container mt-2">
+        <h2 class="text-xl justify-center font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md mb-2">
+            Crear Empleado
+        </h2>
 
-        <!-- Formulario en una card -->
-        <div class="card" style="max-width: 800px; margin: 0 auto;"> <!-- Limitar el ancho de la carta -->
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
             <div class="card-body">
-                <form action="{{ route('admin.empleados.store') }}" method="POST">
+                <form action="{{ route('admin.empleados.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <!-- Nombre -->
@@ -87,10 +86,29 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <!-- Tipo de Contrato -->
+                        <div class="col-md-6 mb-3">
+                            <label for="tipo_contrato_id" class="form-label">Tipo de Contrato</label>
+                            <select name="tipo_contrato_id" class="form-select" id="tipo_contrato_id" required>
+                                <option value="">Seleccionar Tipo de Contrato</option>
+                                @foreach($tiposContratos as $tipo)
+                                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                @endforeach
+                            </select>
+
+                        </div>
                     </div>
-                    <!-- Estado -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
+
+                    <div class="row">
+                        <!-- Fecha de Ingreso -->
+                        <div class="col-md-6 mb-3">
+                            <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
+                            <input type="date" name="fecha_ingreso" class="form-control" id="fecha_ingreso" required>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="col-md-6 mb-3">
                             <label for="estado" class="form-label">Estado</label>
                             <select class="form-control" name="estado" required>
                                 <option value="activo" {{ old('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
@@ -99,6 +117,20 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <!-- Foto de Perfil -->
+                        <div class="col-md-6 mb-3">
+                            <label for="foto_perfil" class="form-label">Foto de Perfil</label>
+                            <input type="file" name="foto_perfil" class="form-control" id="foto_perfil" accept="image/*">
+                        </div>
+
+                        <!-- Contrato -->
+                        <div class="col-md-6 mb-3">
+                            <label for="documento_contrato" class="form-label">Contrato</label>
+                            <input type="file" name="documento_contrato" class="form-control" id="documento_contrato"
+                                accept=".pdf, .doc, .docx">
+                        </div>
+                    </div>
 
                     <div class="row">
                         <!-- Botón de Enviar -->

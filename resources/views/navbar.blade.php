@@ -6,7 +6,7 @@
     <nav class="flex-1 p-4">
         <ul class="space-y-2">
             <li>
-                <a href="#"
+                <a href="{{ route('admin.inicio.home') }}"
                     class="block p-2 rounded-lg hover:bg-yellow-600 hover:text-white hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
                     🏠 Inicio
                 </a>
@@ -24,7 +24,7 @@
                 </a>
             </li>
             <li>
-                <a href="#"
+                <a href="{{ route('admin.vacaciones.index') }}"
                     class="block p-2 rounded-lg hover:bg-yellow-600 hover:text-white hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
                     🎉 Vacaciones
                 </a>

@@ -15,7 +15,15 @@
             class="bg-red-500 p-6 rounded-lg shadow-lg text-center text-white hover:border-none hover:text-white hover:bg-red-600 hover:no-underline">
             <a href="{{ route('admin.configuracion.eliminar-empleado.index') }}"
                 class="text-2xl font-semibold no-underline">
-                🚮 Eliminar Empleados
+                🚮 Terminar Empleados
+            </a>
+        </div>
+
+        <!-- Botón para gestionar tipos de contratos -->
+        <div
+            class="bg-green-500 p-6 rounded-lg shadow-lg text-center text-white hover:border-none hover:text-white hover:bg-green-600 hover:no-underline">
+            <a href="{{ route('admin.configuracion.tipos-contratos.index') }}" class="text-2xl font-semibold no-underline">
+                📄 Tipos de Contratos
             </a>
         </div>
     </div>

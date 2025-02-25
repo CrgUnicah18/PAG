@@ -9,23 +9,31 @@ class EmpleadoEliminarController extends Controller
 {
     public function index(Request $request)
     {
-        // Obtener los empleados filtrados si se proporciona un nombre
+        // Obtener los empleados filtrados por nombre y estado
         $empleados = Empleado::when($request->nombre, function ($query) use ($request) {
             return $query->where('nombre', 'like', '%' . $request->nombre . '%');
-        })->get();
+        })
+            ->when($request->estado, function ($query) use ($request) {
+                // Filtrar por estado (activo, terminado, inactivo)
+                return $query->where('estado', $request->estado);
+            })
+            ->get();
 
         return view('admin.configuracion.eliminar-empleado.index', compact('empleados'));
     }
 
     public function destroy($id)
     {
+        // Encontramos al empleado
         $empleado = Empleado::findOrFail($id);
-        $empleado->delete();
 
-        // En el controlador, al eliminar el empleado:
+        // Cambiamos el estado del empleado a "terminado"
+        $empleado->estado = 'terminado';
+        $empleado->save();
+
+        // Redirigimos a la vista con el mensaje de éxito
         return redirect()->route('admin.configuracion.eliminar-empleado.index')
-            ->with('success', 'Empleado eliminado exitosamente.');
-
+            ->with('success', 'Empleado marcado como terminado exitosamente.');
     }
     /*public function index(Request $request)
     {
