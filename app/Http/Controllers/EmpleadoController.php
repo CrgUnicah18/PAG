@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Empleado;
 use App\Models\Oficina;
 use App\Models\Grupo;
-use App\Models\TipoContrato; // Asegúrate de importar el modelo TipoContrato
+use App\Models\TipoContrato;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\PDF;
+
 
 class EmpleadoController extends Controller
 {
@@ -121,7 +123,6 @@ class EmpleadoController extends Controller
         return redirect()->route('admin.empleados.index')->with('success', 'Empleado creado exitosamente');
     }
 
-
     public function edit($id)
     {
         $empleado = Empleado::findOrFail($id);
@@ -177,12 +178,75 @@ class EmpleadoController extends Controller
             $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;
         }
 
-
         // Guardar los cambios
         $empleado->save();
 
-
         return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente');
+    }
+
+    public function mostrarFormularioReporte()
+    {
+        // Obtener los campos disponibles de los empleados para mostrarlos en el formulario
+        $campos = [
+            'nombre' => 'Nombre',
+            'apellido' => 'Apellido',
+            'direccion' => 'Dirección',
+            'telefono' => 'Teléfono',
+            'fecha_nacimiento' => 'Fecha de Nacimiento',
+            'fecha_ingreso' => 'Fecha de Ingreso',
+            'oficina' => 'Oficina',
+            'grupo' => 'Grupo',
+            'tipo_contrato' => 'Tipo de Contrato',
+        ];
+
+        return view('admin.empleados.reporte_form', compact('campos'));
+    }
+
+    public function generarReporte(Request $request)
+    {
+        $camposSeleccionados = $request->input('campos', []);
+
+        if (empty($camposSeleccionados)) {
+            return redirect()->route('admin.empleados.reporte')->with('error', 'Debe seleccionar al menos un campo');
+        }
+
+        // Definir los campos disponibles y sus relaciones
+        $campos = [
+            'nombre' => 'Nombre',
+            'apellido' => 'Apellido',
+            'direccion' => 'Dirección',
+            'telefono' => 'Teléfono',
+            'fecha_nacimiento' => 'Fecha de Nacimiento',
+            'fecha_ingreso' => 'Fecha de Ingreso',
+            'oficina' => 'Oficina',
+            'grupo' => 'Grupo',
+            'tipo_contrato' => 'Tipo de Contrato',
+        ];
+
+        // Definir qué relaciones cargar si se seleccionan
+        $relaciones = [];
+
+        if (in_array('oficina', $camposSeleccionados)) {
+            $relaciones[] = 'oficina';
+        }
+        if (in_array('grupo', $camposSeleccionados)) {
+            $relaciones[] = 'grupo';
+        }
+        if (in_array('tipo_contrato', $camposSeleccionados)) {
+            $relaciones[] = 'tipoContrato'; // Asegúrate de que este sea el nombre correcto de la relación en el modelo
+        }
+
+        // Cargar empleados con relaciones necesarias
+        $empleados = Empleado::with($relaciones)->get();
+
+        // Determinar la orientación del PDF (vertical si ≤ 6 columnas, horizontal si > 6)
+        $orientacion = count($camposSeleccionados) > 6 ? 'landscape' : 'portrait';
+
+        // Generar el PDF con la orientación dinámica
+        $pdf = PDF::loadView('admin.empleados.reporte_pdf', compact('empleados', 'camposSeleccionados', 'campos'))
+            ->setPaper('a4', $orientacion);
+
+        return $pdf->download('reporte_empleados.pdf');
     }
 
 }

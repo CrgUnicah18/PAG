@@ -9,6 +9,12 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\VacacionController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\TiposContratoController;
+use App\Http\Controllers\OficinaController;
+use App\Http\Controllers\GrupoController;
+use App\Models\Oficina;
+use App\Models\Grupo;
+use App\Models\Empleado;
+use App\Models\Permiso;
 use App\Models\Vacacion;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -18,6 +24,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Rutas para empleados
     Route::resource('empleados', EmpleadoController::class);
+
+    // Ruta para mostrar el formulario de reporte
+    // Route::get('empleados/reporte', [EmpleadoController::class, 'mostrarFormularioReporte'])
+    //    ->name('empleados.mostrarFormularioReporte');
+    Route::get('/reporte', [EmpleadoController::class, 'mostrarFormularioReporte'])->name('empleados.mostrarFormularioReporte');
+
+
+    // Ruta para generar el reporte
+    Route::post('empleados/generar-reporte', [EmpleadoController::class, 'generarReporte'])
+        ->name('empleados.generarReporte');
+
     //Rutas para permisos
     Route::resource('permisos', PermisoController::class);
 
@@ -47,11 +64,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Rutas para tipos de permisos
         Route::resource('tipos-permisos', TipoPermisoController::class);
 
+        // Ruta para listar oficinas
+        Route::get('/oficinas', [OficinaController::class, 'index'])->name('oficinas.index');
+        Route::get('/crear-oficina', [OficinaController::class, 'create'])->name('crear_oficina.create');
+        Route::post('/crear-oficina', [OficinaController::class, 'store'])->name('store_oficina.store');
+
+        // Rutas para grupos
+        Route::get('listar-grupos', [GrupoController::class, 'index'])->name('crear_grupo.index');  // Para listar los grupos
+
+        // Rutas para crear un grupo
+        Route::get('/crear-grupo', [GrupoController::class, 'create'])->name('crear_grupo.create');
+        Route::post('/crear-grupo', [GrupoController::class, 'store'])->name('store_grupo.store');
+
+
         // Rutas para tipos de contrato
         Route::resource('tipos-contratos', TiposContratoController::class)->parameters([
             'tipos-contratos' => 'tipoContrato', // Cambiar el nombre del parámetro a 'tipoContrato'
         ]);
-
 
 
         // Rutas para eliminar empleados

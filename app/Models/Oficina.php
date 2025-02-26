@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Oficina extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['nombre', 'direccion'];
     //Relacion
     public function empleados()
     {

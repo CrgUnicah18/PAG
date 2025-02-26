@@ -16,6 +16,8 @@
             <a href="{{ route('admin.empleados.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus-circle"></i> Crear Empleado
             </a>
+            <a href="{{ route('admin.empleados.mostrarFormularioReporte') }}" class="btn btn-success">Generar Reporte</a>
+
         </div>
 
         {{-- FORMULARIO DE BÚSQUEDA --}}
@@ -64,33 +66,6 @@
                 </div>
             </div>
         </form>
-
-        {{-- FORMULARIO DE SELECCIÓN DE CAMPOS PARA REPORTE --}}
-        <div class="mb-3">
-            <h4>Generar Reporte</h4>
-            <form method="GET" action="{{ route('admin.empleados.report') }}">
-                <div class="form-group">
-                    <label for="campos" class="text-sm">Seleccionar campos para reporte:</label><br>
-                    <input type="checkbox" name="campos[]" value="nombre" checked> Nombre
-                    <input type="checkbox" name="campos[]" value="apellido" checked> Apellido
-                    <input type="checkbox" name="campos[]" value="telefono" checked> Teléfono
-                    <input type="checkbox" name="campos[]" value="grupo" checked> Grupo
-                    <input type="checkbox" name="campos[]" value="oficina" checked> Oficina
-                    <input type="checkbox" name="campos[]" value="supervisor" checked> Supervisor
-                    <input type="checkbox" name="campos[]" value="estado" checked> Estado
-                </div>
-                <div class="form-group">
-                    <label for="formato" class="text-sm">Seleccionar formato:</label>
-                    <select name="formato" id="formato" class="form-control form-control-sm">
-                        <option value="pdf">PDF</option>
-                        <option value="excel">Excel</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-info btn-sm">
-                    <i class="fas fa-download"></i> Descargar Reporte
-                </button>
-            </form>
-        </div>
 
         {{-- TABLA DE EMPLEADOS --}}
         <div class="table-responsive">

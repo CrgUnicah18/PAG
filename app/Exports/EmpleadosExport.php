@@ -3,28 +3,18 @@ namespace App\Exports;
 
 use App\Models\Empleado;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class EmpleadosExport implements FromCollection, WithHeadings
+class EmpleadosExport implements FromCollection
 {
-    // Recupera todos los empleados de la base de datos
-    public function collection()
+    protected $empleados;
+
+    public function __construct($empleados)
     {
-        return Empleado::all(['nombre', 'apellido', 'telefono', 'grupo_id', 'oficina_id', 'fecha_ingreso', 'tipo_contrato', 'estado']);
+        $this->empleados = $empleados;
     }
 
-    // Encabezados de las columnas
-    public function headings(): array
+    public function collection()
     {
-        return [
-            'Nombre',
-            'Apellido',
-            'Teléfono',
-            'Grupo',
-            'Oficina',
-            'Fecha de ingreso',
-            'Tipo de contrato',
-            'Estado'
-        ];
+        return $this->empleados;
     }
 }

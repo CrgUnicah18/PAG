@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Grupo extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['nombre', 'oficina_id'];
     //Relaciones
     public function empleados()
     {

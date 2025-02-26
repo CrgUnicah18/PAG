@@ -20,8 +20,8 @@
         </form>
 
         <!-- Tabla de vacaciones -->
-        <table class="table table-striped">
-            <thead>
+        <table class="table table-striped overflow-x-auto shadow-md sm:rounded-lg">
+            <thead class="bg-indigo-600 text-white text-center">
                 <tr>
                     <th>Empleado</th>
                     <th>Fechas</th>
