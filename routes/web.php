@@ -11,11 +11,29 @@ use App\Http\Controllers\InicioController;
 use App\Http\Controllers\TiposContratoController;
 use App\Http\Controllers\OficinaController;
 use App\Http\Controllers\GrupoController;
-use App\Models\Oficina;
-use App\Models\Grupo;
-use App\Models\Empleado;
-use App\Models\Permiso;
-use App\Models\Vacacion;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+
+// Ruta para mostrar el formulario de Login
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+
+// Ruta para manejar el envío del formulario de Login
+Route::post('login', [LoginController::class, 'login'])->name('login.submit');
+
+// Ruta para mostrar el formulario de Registro
+Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+
+// Ruta para manejar el envío del formulario de Registro
+Route::post('register', [RegisterController::class, 'register'])->name('register.submit');
+
+
+
+Route::get('/admin/usuarios/create/{empleado_id}', [EmpleadoController::class, 'createUsuario'])
+    ->name('admin.createUsuario');
+
+Route::post('/admin/usuarios/store/{empleado_id}', [EmpleadoController::class, 'storeUsuario'])
+    ->name('admin.storeUsuario');
+
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -29,6 +47,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Route::get('empleados/reporte', [EmpleadoController::class, 'mostrarFormularioReporte'])
     //    ->name('empleados.mostrarFormularioReporte');
     Route::get('/reporte', [EmpleadoController::class, 'mostrarFormularioReporte'])->name('empleados.mostrarFormularioReporte');
+
+    // Definición de la ruta storeEmpleado
+    Route::post('/empleados', [EmpleadoController::class, 'storeEmpleado'])->name('empleados.storeEmpleado');
 
 
     // Ruta para generar el reporte
@@ -91,3 +112,4 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('eliminar-empleado.destroy');
     });
 });
+

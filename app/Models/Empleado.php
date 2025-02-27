@@ -52,10 +52,10 @@ class Empleado extends Model
         return $this->belongsTo(TipoContrato::class);
     }
 
-    // Relación con Usuario (nuevo)
+    // Relación con User
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->hasOne(User::class);  // Relación con el modelo User
     }
     public function supervisor()
     {

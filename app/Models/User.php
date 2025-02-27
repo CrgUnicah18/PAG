@@ -12,22 +12,25 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // Permitir la asignación masiva de estos campos
+    protected $fillable = [
+        'empleado_id',
+        'name',
+        'email',
+        'password',
+    ];
+
     // Relación con Empleado
     public function empleado()
     {
         return $this->belongsTo(Empleado::class);
     }
-    
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
 
     /**
      * The attributes that should be hidden for serialization.

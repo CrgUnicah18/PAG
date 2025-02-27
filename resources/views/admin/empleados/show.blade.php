@@ -7,8 +7,8 @@
                 <h3 class="text-2xl font-extrabold text-gray-800">Perfil de Empleado</h3>
             </div>
             <div class="text-center">
-                <img src="{{ asset($empleado->foto_perfil) }}" alt="Foto de Perfil"
-                    class="w-36 h-36 rounded-full object-cover shadow-md">
+                <img src="{{ asset($empleado->foto_perfil) }}" alt="Foto de Perfil">
+
             </div>
             <h4 class="mt-4 text-center text-xl font-semibold text-gray-900">{{ $empleado->nombre }}
                 {{ $empleado->apellido }}

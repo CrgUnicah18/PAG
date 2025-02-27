@@ -2,13 +2,13 @@
 
 @section('content')
     <div class="container mt-2">
-        <h2 class="text-xl justify-center font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md mb-2">
+        <h2 class="text-xl font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md mb-2">
             Crear Empleado
         </h2>
 
         <div class="card" style="max-width: 800px; margin: 0 auto;">
             <div class="card-body">
-                <form action="{{ route('admin.empleados.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.empleados.storeEmpleado') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <!-- Nombre -->
@@ -96,7 +96,6 @@
                                     <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                                 @endforeach
                             </select>
-
                         </div>
                     </div>
 

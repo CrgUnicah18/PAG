@@ -8,6 +8,9 @@ use App\Models\Grupo;
 use App\Models\TipoContrato;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\PDF;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 
 class EmpleadoController extends Controller
@@ -75,52 +78,89 @@ class EmpleadoController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function storeEmpleado(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
-            'direccion' => 'required|string|max:255',
-            'telefono' => 'required|string|max:20',
-            'fecha_nacimiento' => 'required|date',
-            'fecha_ingreso' => 'required|date',
             'oficina_id' => 'required|exists:oficinas,id',
             'grupo_id' => 'required|exists:grupos,id',
             'supervisor_id' => 'nullable|exists:empleados,id',
             'tipo_contrato_id' => 'required|exists:tipo_contratos,id',
-            'foto_perfil' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',  // Validación de la foto
-            'documento_contrato' => 'nullable|file|mimes:pdf,docx,txt|max:5000',  // Validación del contrato
+            'fecha_ingreso' => 'required|date',
+            'estado' => 'required|in:activo,inactivo',
+            'foto_perfil' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'documento_contrato' => 'nullable|mimes:pdf,doc,docx',
         ]);
 
         $empleado = new Empleado();
-        $empleado->nombre = $validated['nombre'];
-        $empleado->apellido = $validated['apellido'];
-        $empleado->direccion = $validated['direccion'];
-        $empleado->telefono = $validated['telefono'];
-        $empleado->fecha_nacimiento = $validated['fecha_nacimiento'];
-        $empleado->fecha_ingreso = $validated['fecha_ingreso'];
-        $empleado->oficina_id = $validated['oficina_id'];
-        $empleado->grupo_id = $validated['grupo_id'];
-        $empleado->supervisor_id = $validated['supervisor_id'];
-        $empleado->tipo_contrato_id = $validated['tipo_contrato_id'];
+        $empleado->nombre = $request->nombre;
+        $empleado->apellido = $request->apellido;
+        $empleado->direccion = $request->direccion;
+        $empleado->telefono = $request->telefono;
+        $empleado->fecha_nacimiento = $request->fecha_nacimiento;
+        $empleado->oficina_id = $request->oficina_id;
+        $empleado->grupo_id = $request->grupo_id;
+        $empleado->supervisor_id = $request->supervisor_id;
+        $empleado->tipo_contrato_id = $request->tipo_contrato_id;
+        $empleado->fecha_ingreso = $request->fecha_ingreso;
+        $empleado->estado = $request->estado;
 
         // Subir foto de perfil
         if ($request->hasFile('foto_perfil')) {
             $imageName = time() . '-' . $request->file('foto_perfil')->getClientOriginalName();
-            $request->file('foto_perfil')->move(public_path('empleados/img'), $imageName);
-            $empleado->foto_perfil = 'empleados/img/' . $imageName;  // Guardar la ruta relativa
+            $path = public_path('empleados/img');
+            $request->file('foto_perfil')->move($path, $imageName);
+            $empleado->foto_perfil = 'empleados/img/' . $imageName;
         }
 
         // Subir contrato
         if ($request->hasFile('documento_contrato')) {
             $documentName = time() . '-' . $request->file('documento_contrato')->getClientOriginalName();
-            $request->file('documento_contrato')->move(public_path('empleados/img_contratos'), $documentName);
-            $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;  // Guardar la ruta relativa
+            $path = public_path('empleados/img_contratos');
+            $request->file('documento_contrato')->move($path, $documentName);
+            $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;
         }
 
         $empleado->save();
 
-        return redirect()->route('admin.empleados.index')->with('success', 'Empleado creado exitosamente');
+        return redirect()->route('admin.createUsuario', ['empleado_id' => $empleado->id]);
+    }
+
+
+    // Función para mostrar el formulario de creación de usuario para el empleado específico
+    public function createUsuario($empleado_id)
+    {
+        // Buscar al empleado con el ID pasado
+        $empleado = Empleado::findOrFail($empleado_id);
+
+        // Pasar el empleado a la vista para crear el usuario
+        return view('admin.createUsuario', compact('empleado_id'));
+    }
+
+    // Función para almacenar el usuario
+    public function storeUsuario(Request $request, $empleado_id)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'empleado_id' => 'required|exists:empleados,id',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'name' => 'required|string', // Asegurarse de que el campo "name" sea obligatorio
+        ]);
+
+        // Crear el usuario con el ID del empleado
+        $user = User::create([
+            'empleado_id' => $request->empleado_id, // Asociar al empleado
+            'email' => $request->email,
+            'password' => bcrypt($request->password), // Encriptar la contraseña
+            'name' => $request->name, // Usar el nombre ingresado manualmente
+            'email_verified_at' => now(), // Establecer la fecha de verificación del email al momento de crear el usuario
+            'rememberToken' => Str::random(60), // Generar un token de recordatorio de sesión
+        ]);
+
+        // Redirigir a la vista de empleados con un mensaje de éxito
+        return redirect()->route('admin.empleados.index')->with('success', 'Usuario creado exitosamente.');
     }
 
     public function edit($id)
@@ -164,22 +204,27 @@ class EmpleadoController extends Controller
         $empleado->tipo_contrato_id = $request->tipo_contrato_id;
         $empleado->fecha_ingreso = $request->fecha_ingreso;
 
-        // Manejo de la imagen de perfil
-        if ($request->hasFile('foto_perfil')) { // ← Corrección aquí
+        // Subir foto de perfil
+        if ($request->hasFile('foto_perfil')) {
             $imageName = time() . '-' . $request->file('foto_perfil')->getClientOriginalName();
-            $request->file('foto_perfil')->move(public_path('empleados/img'), $imageName);
-            $empleado->foto_perfil = 'empleados/img/' . $imageName; // ← Corrección aquí
+            $path = public_path('empleados/img');  // Ruta donde se guardará el archivo
+            $request->file('foto_perfil')->move($path, $imageName);  // Mover el archivo a la carpeta deseada
+            $empleado->foto_perfil = 'empleados/img/' . $imageName;  // Guardar la ruta en la base de datos sin 'public/'
         }
 
-        // Manejo de la imagen del contrato
+        // Subir contrato
         if ($request->hasFile('documento_contrato')) {
             $documentName = time() . '-' . $request->file('documento_contrato')->getClientOriginalName();
-            $request->file('documento_contrato')->move(public_path('empleados/img_contratos'), $documentName);
-            $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;
+            $path = public_path('empleados/img_contratos');  // Ruta donde se guardará el archivo
+            $request->file('documento_contrato')->move($path, $documentName);  // Mover el archivo a la carpeta deseada
+            $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;  // Guardar la ruta en la base de datos sin 'public/'
         }
+
+
 
         // Guardar los cambios
         $empleado->save();
+
 
         return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente');
     }
