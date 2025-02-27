@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
 
 class Empleado extends Model
 {
     use HasFactory;
+    use HasRoles;
+
     protected $fillable = [
         'nombre',
         'apellido',
@@ -53,9 +56,10 @@ class Empleado extends Model
     }
 
     // Relación con User
+    // En el modelo Empleado
     public function user()
     {
-        return $this->hasOne(User::class);  // Relación con el modelo User
+        return $this->hasOne(User::class);  // Relación inversa, si es necesario.
     }
     public function supervisor()
     {

@@ -69,49 +69,61 @@
 
         {{-- TABLA DE EMPLEADOS --}}
         <div class="table-responsive">
-            <table class="table table-sm table-bordered table-hover shadow-sm">
-                <thead class="bg-indigo-600 text-white text-center">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Teléfono</th>
-                        <th>Grupo</th>
-                        <th>Oficina</th>
-                        <th>Supervisor</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($empleados as $empleado)
-                        <tr class="text-center">
-                            <td>{{ $empleado->nombre }}</td>
-                            <td>{{ $empleado->apellido }}</td>
-                            <td>{{ $empleado->telefono }}</td>
-                            <td>{{ $empleado->grupo->nombre }}</td>
-                            <td>{{ $empleado->oficina->nombre }}</td>
-                            <td>{{ $empleado->supervisor ? $empleado->supervisor->nombre : 'N/A' }}</td>
-                            <td>
-                                <span class="badge {{ $empleado->estado == 'activo' ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($empleado->estado) }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('admin.empleados.show', $empleado->id) }}" class="btn btn-info"
-                                        title="Ver perfil">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('admin.empleados.edit', $empleado->id) }}" class="btn btn-warning"
-                                        title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+    <table class="table table-sm table-bordered table-hover shadow-sm">
+        <thead class="bg-indigo-600 text-white text-center">
+            <tr>
+                <th>Nombre Completo</th>  <!-- Concatenar Nombre y Apellido -->
+                <th>Teléfono</th>
+                <th>Grupo</th>
+                <th>Oficina</th>
+                <th>Supervisor</th>
+                <th>Email</th>
+                <th>Rol</th>     <!-- Columna para el rol -->
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($empleados as $empleado)
+                <tr class="text-center">
+                    <!-- Concatenar nombre y apellido -->
+                    <td>{{ $empleado->nombre }} {{ $empleado->apellido }}</td>
+                    <td>{{ $empleado->telefono }}</td>
+                    <td>{{ $empleado->grupo->nombre }}</td>
+                    <td>{{ $empleado->oficina->nombre }}</td>
+                    <td>{{ $empleado->supervisor ? $empleado->supervisor->nombre : 'N/A' }}</td>
+                    <td>{{ $empleado->user ? $empleado->user->email : 'No asignado' }}</td>
+
+                    <td>
+                    @foreach(optional($empleado->user)->roles ?? collect() as $rol) <!-- Si no existe usuario, se pasa una colección vacía -->
+    {{ $rol->name }} @if (!$loop->last), @endif
+@endforeach
+
+
+                    </td>
+                    <td>
+                        <span class="badge {{ $empleado->estado == 'activo' ? 'bg-success' : 'bg-danger' }}">
+                            {{ ucfirst($empleado->estado) }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ route('admin.empleados.show', $empleado->id) }}" class="btn btn-info"
+                               title="Ver perfil">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ route('admin.empleados.edit', $empleado->id) }}" class="btn btn-warning"
+                               title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+
+
     </div>
 @endsection

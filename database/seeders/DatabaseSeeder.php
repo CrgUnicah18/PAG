@@ -10,6 +10,7 @@ use App\Models\Grupo;
 use App\Models\Permiso;
 use App\Models\Vacacion;
 use App\Models\TipoPermiso;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -55,5 +56,9 @@ class DatabaseSeeder extends Seeder
 
         // Crear usuarios con empleados relacionados
         User::factory(20)->create(); // 20 usuarios de ejemplo
+
+        Role::create(['name' => 'admin']);
+        Role::create(['name' => 'supervisor']);
+        Role::create(['name' => 'empleado']);
     }
 }

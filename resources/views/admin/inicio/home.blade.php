@@ -2,8 +2,32 @@
 @extends('layouts.app')
 
 @section('content')
-    <h2 class="text-3xl font-bold">Bienvenido a tu Dashboard</h2>
-    <p class="mt-2 text-gray-600">Aquí podrás gestionar empleados, permisos y vacaciones.</p>
+    @if(auth()->user()->roles->isEmpty())
+        <p>Este usuario no tiene rol asignado.</p>
+    @endif
+
+    @if(auth()->user()->hasRole('admin'))
+        <div>
+            <h3>Bienvenido, Administrador</h3>
+            <!-- contenido exclusivo para admin -->
+        </div>
+    @endif
+
+    @if(auth()->user()->hasRole('supervisor'))
+        <div>
+            <h3>Bienvenido, Supervisor</h3>
+            <!-- contenido exclusivo para supervisor -->
+        </div>
+    @endif
+
+    @if(auth()->user()->hasRole('empleado'))
+        <div>
+            <h3>Bienvenido, Empleado</h3>
+            <!-- contenido exclusivo para empleado -->
+        </div>
+    @endif
+
+
 
     <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         <div class="bg-blue-500 text-white p-6 rounded-lg">

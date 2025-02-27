@@ -9,8 +9,10 @@ use App\Models\TipoContrato;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\PDF;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 
 class EmpleadoController extends Controller
@@ -34,6 +36,8 @@ class EmpleadoController extends Controller
         if ($request->has('estado') && !empty($request->estado)) {
             $query->where('estado', $request->estado);
         }
+        $empleados = $query->with(['user.roles'])->get(); // Cargar la relación 'user' con sus roles
+
 
         $empleados = $query->with('supervisor')->get();
         $grupos = Grupo::all();
@@ -93,38 +97,56 @@ class EmpleadoController extends Controller
             'documento_contrato' => 'nullable|mimes:pdf,doc,docx',
         ]);
 
-        $empleado = new Empleado();
-        $empleado->nombre = $request->nombre;
-        $empleado->apellido = $request->apellido;
-        $empleado->direccion = $request->direccion;
-        $empleado->telefono = $request->telefono;
-        $empleado->fecha_nacimiento = $request->fecha_nacimiento;
-        $empleado->oficina_id = $request->oficina_id;
-        $empleado->grupo_id = $request->grupo_id;
-        $empleado->supervisor_id = $request->supervisor_id;
-        $empleado->tipo_contrato_id = $request->tipo_contrato_id;
-        $empleado->fecha_ingreso = $request->fecha_ingreso;
-        $empleado->estado = $request->estado;
+        // Inicia la transacción
+        DB::beginTransaction();
 
-        // Subir foto de perfil
-        if ($request->hasFile('foto_perfil')) {
-            $imageName = time() . '-' . $request->file('foto_perfil')->getClientOriginalName();
-            $path = public_path('empleados/img');
-            $request->file('foto_perfil')->move($path, $imageName);
-            $empleado->foto_perfil = 'empleados/img/' . $imageName;
+        try {
+            // Crear el empleado
+            $empleado = new Empleado();
+            $empleado->nombre = $request->nombre;
+            $empleado->apellido = $request->apellido;
+            $empleado->direccion = $request->direccion;
+            $empleado->telefono = $request->telefono;
+            $empleado->fecha_nacimiento = $request->fecha_nacimiento;
+            $empleado->oficina_id = $request->oficina_id;
+            $empleado->grupo_id = $request->grupo_id;
+            $empleado->supervisor_id = $request->supervisor_id;
+            $empleado->tipo_contrato_id = $request->tipo_contrato_id;
+            $empleado->fecha_ingreso = $request->fecha_ingreso;
+            $empleado->estado = $request->estado;
+
+            // Subir foto de perfil
+            if ($request->hasFile('foto_perfil')) {
+                $imageName = time() . '-' . $request->file('foto_perfil')->getClientOriginalName();
+                $path = public_path('empleados/img');
+                $request->file('foto_perfil')->move($path, $imageName);
+                $empleado->foto_perfil = 'empleados/img/' . $imageName;
+            }
+
+            // Subir contrato
+            if ($request->hasFile('documento_contrato')) {
+                $documentName = time() . '-' . $request->file('documento_contrato')->getClientOriginalName();
+                $path = public_path('empleados/img_contratos');
+                $request->file('documento_contrato')->move($path, $documentName);
+                $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;
+            }
+
+            // Guardar empleado
+            $empleado->save();
+
+            // Si todo va bien, hacer commit de la transacción
+            DB::commit();
+
+            // Redirigir al formulario para crear el usuario, pasando el ID del empleado recién creado
+            return redirect()->route('admin.createUsuario', ['empleado_id' => $empleado->id]);
+
+        } catch (\Exception $e) {
+            // Si hay algún error, hacer rollback de la transacción
+            DB::rollBack();
+
+            // Volver atrás y mostrar el mensaje de error
+            return back()->withErrors(['error' => 'Ocurrió un error al guardar el empleado: ' . $e->getMessage()]);
         }
-
-        // Subir contrato
-        if ($request->hasFile('documento_contrato')) {
-            $documentName = time() . '-' . $request->file('documento_contrato')->getClientOriginalName();
-            $path = public_path('empleados/img_contratos');
-            $request->file('documento_contrato')->move($path, $documentName);
-            $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;
-        }
-
-        $empleado->save();
-
-        return redirect()->route('admin.createUsuario', ['empleado_id' => $empleado->id]);
     }
 
 
@@ -147,6 +169,7 @@ class EmpleadoController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'name' => 'required|string', // Asegurarse de que el campo "name" sea obligatorio
+            'rol' => 'required|in:admin,supervisor,empleado' // Validamos que el rol sea válido
         ]);
 
         // Crear el usuario con el ID del empleado
@@ -158,9 +181,11 @@ class EmpleadoController extends Controller
             'email_verified_at' => now(), // Establecer la fecha de verificación del email al momento de crear el usuario
             'rememberToken' => Str::random(60), // Generar un token de recordatorio de sesión
         ]);
+        // Asignar rol seleccionado
+        $user->assignRole($request->rol);
 
         // Redirigir a la vista de empleados con un mensaje de éxito
-        return redirect()->route('admin.empleados.index')->with('success', 'Usuario creado exitosamente.');
+        return redirect()->route('admin.empleados.index')->with('success', 'Empleado creado correctamente con rol: ' . $request->rol);
     }
 
     public function edit($id)
@@ -242,6 +267,8 @@ class EmpleadoController extends Controller
             'oficina' => 'Oficina',
             'grupo' => 'Grupo',
             'tipo_contrato' => 'Tipo de Contrato',
+            'rol' => 'Rol',
+            'email' => 'Email',
         ];
 
         return view('admin.empleados.reporte_form', compact('campos'));
@@ -251,11 +278,12 @@ class EmpleadoController extends Controller
     {
         $camposSeleccionados = $request->input('campos', []);
 
+        // Validar que al menos un campo esté seleccionado
         if (empty($camposSeleccionados)) {
             return redirect()->route('admin.empleados.reporte')->with('error', 'Debe seleccionar al menos un campo');
         }
 
-        // Definir los campos disponibles y sus relaciones
+        // Definir los campos disponibles
         $campos = [
             'nombre' => 'Nombre',
             'apellido' => 'Apellido',
@@ -266,11 +294,13 @@ class EmpleadoController extends Controller
             'oficina' => 'Oficina',
             'grupo' => 'Grupo',
             'tipo_contrato' => 'Tipo de Contrato',
+            'rol' => 'Rol',
+            'email' => 'Email',  // Agregar email
         ];
 
-        // Definir qué relaciones cargar si se seleccionan
         $relaciones = [];
 
+        // Cargar relaciones adicionales según los campos seleccionados
         if (in_array('oficina', $camposSeleccionados)) {
             $relaciones[] = 'oficina';
         }
@@ -278,20 +308,42 @@ class EmpleadoController extends Controller
             $relaciones[] = 'grupo';
         }
         if (in_array('tipo_contrato', $camposSeleccionados)) {
-            $relaciones[] = 'tipoContrato'; // Asegúrate de que este sea el nombre correcto de la relación en el modelo
+            $relaciones[] = 'tipoContrato';
+        }
+        if (in_array('rol', $camposSeleccionados)) {
+            $relaciones[] = 'user'; // Cargar la relación de User para obtener los roles
         }
 
-        // Cargar empleados con relaciones necesarias
+        if (in_array('email', $camposSeleccionados)) {
+            $relaciones[] = 'user'; // Aseguramos cargar la relación de User para obtener el email
+        }
+
+        // Cargar empleados con las relaciones necesarias
         $empleados = Empleado::with($relaciones)->get();
 
-        // Determinar la orientación del PDF (vertical si ≤ 6 columnas, horizontal si > 6)
+        // Asignar los roles y emails a los empleados
+        foreach ($empleados as $empleado) {
+            if (in_array('rol', $camposSeleccionados) && $empleado->user) {
+                // Obtener los roles del usuario asociado al empleado
+                $empleado->roles = $empleado->user->getRoleNames()->toArray(); // Obtener los roles como array
+            }
+
+            if (in_array('email', $camposSeleccionados) && $empleado->user) {
+                // Obtener el email del usuario asociado al empleado
+                $empleado->email = $empleado->user->email; // Agregar el email al empleado
+            }
+        }
+
+        // Determinar la orientación del PDF
         $orientacion = count($camposSeleccionados) > 6 ? 'landscape' : 'portrait';
 
-        // Generar el PDF con la orientación dinámica
+        // Generar el PDF con los datos
         $pdf = PDF::loadView('admin.empleados.reporte_pdf', compact('empleados', 'camposSeleccionados', 'campos'))
             ->setPaper('a4', $orientacion);
 
-        return $pdf->download('reporte_empleados.pdf');
+        // Descargar el PDF
+        return $pdf->download('Reporte de empleados.pdf');
     }
+
 
 }

@@ -47,6 +47,15 @@
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div>
+            <div>
+                <label for="rol">Rol:</label>
+                <select name="rol" id="rol" required>
+                    <option value="empleado">Empleado</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+
 
             <!-- Botón de enviar -->
             <button type="submit" class="btn btn-primary">Crear Usuario</button>
