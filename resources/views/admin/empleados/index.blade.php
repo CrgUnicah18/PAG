@@ -13,6 +13,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="text-xl font-semibold text-gray-800">📋 Listado de Empleados</h2>
+            <h1>Vista de Administrador</h1>
             <a href="{{ route('admin.empleados.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus-circle"></i> Crear Empleado
             </a>

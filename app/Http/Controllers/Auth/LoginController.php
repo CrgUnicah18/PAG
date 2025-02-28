@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Spatie\Permission\Traits\HasRoles;
+
 
 class LoginController extends Controller
 {
@@ -25,10 +28,23 @@ class LoginController extends Controller
 
         // Intentar hacer login con las credenciales proporcionadas
         if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->intended('/admin/inicio');  // Redirigir a la página principal
+            // Obtener usuario autenticado
+            $user = Auth::user();
+
+            // Redirigir al usuario según su rol después de autenticarse
+            if ($user->hasRole('admin')) {
+                return redirect()->route('admin.inicio.home');
+            } elseif ($user->hasRole('supervisor')) {
+                return redirect()->route('supervisor.inicio.home');
+            } elseif ($user->hasRole('empleado')) {
+                return redirect()->route('empleado.inicio.home');
+            }
+            // Si el usuario no tiene un rol específico, redirigir a una ruta por defecto
+            return redirect()->intended('/');
         }
 
         // Si la autenticación falla
         return back()->withErrors(['email' => 'Las credenciales no coinciden.']);
     }
+
 }

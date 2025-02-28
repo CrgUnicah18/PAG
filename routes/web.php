@@ -29,7 +29,7 @@ Route::post('/admin/usuarios/store/{empleado_id}', [EmpleadoController::class, '
     ->middleware(['auth', 'admin']); // Lo mismo aquí
 
 // Rutas de administración protegidas por el middleware 'auth' y 'admin'
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(function () {
 
     // Página principal de admin
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.home');
@@ -78,3 +78,51 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('eliminar-empleado/{id}', [EmpleadoEliminarController::class, 'destroy'])->name('eliminar-empleado.destroy');
     });
 });
+
+// Rutas para supervisor
+Route::middleware(['auth', 'isAdmin'])->prefix('supervisor')->name('supervisor.')->group(function () {
+
+    // Página principal de supervisor
+    Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.home');
+
+    // Rutas para empleados (solo vista de empleados, no creación ni edición)
+    Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
+    Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
+
+    // Rutas para permisos (puede incluir aprobación/rechazo, si es necesario)
+    Route::resource('permisos', PermisoController::class);
+    Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
+    Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
+    Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
+
+    // Rutas para vacaciones (gestión similar a permisos)
+    Route::resource('vacaciones', VacacionController::class);
+    Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
+    Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
+    Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'declinar'])->name('vacaciones.declinar');
+});
+
+
+// Rutas para empleado
+Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->group(function () {
+
+    // Página principal de supervisor
+    Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.home');
+
+    // Rutas para empleados (solo vista de empleados, no creación ni edición)
+    Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
+    Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
+
+    // Rutas para permisos (puede incluir aprobación/rechazo, si es necesario)
+    Route::resource('permisos', PermisoController::class);
+    Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
+    Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
+    Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
+
+    // Rutas para vacaciones (gestión similar a permisos)
+    Route::resource('vacaciones', VacacionController::class);
+    Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
+    Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
+    Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'declinar'])->name('vacaciones.declinar');
+});
+

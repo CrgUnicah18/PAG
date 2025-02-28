@@ -13,11 +13,21 @@
                     onchange="this.form.submit()">
                     <option value="">Todos</option>
                     <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="pendiente_aprobacion" {{ request('estado') == 'pendiente_aprobacion' ? 'selected' : '' }}>
+                        Pendiente de Aprobación</option>
                     <option value="aprobado" {{ request('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
                     <option value="rechazado" {{ request('estado') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
                 </select>
             </div>
         </form>
+        <!-- Botón para Crear Permiso -->
+        <div class="flex justify-end mb-4">
+            <a href="{{ route('admin.permisos.create') }}"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                <i class="fas fa-plus-circle"></i> Crear Permiso
+            </a>
+        </div>
+
 
         <!-- Tabla de permisos -->
         <div class="overflow-x-auto shadow-md sm:rounded-lg">
@@ -42,6 +52,8 @@
                             <td class="px-6 py-4 text-sm text-gray-700">
                                 @if($permiso->estado == 'pendiente')
                                     <span class="text-orange-600">Pendiente</span>
+                                @elseif($permiso->estado == 'pendiente_aprobacion')
+                                    <span class="text-blue-600">Pendiente de Aprobación</span> <!-- Nueva opción -->
                                 @elseif($permiso->estado == 'aprobado')
                                     <span class="text-green-600">Aprobado</span>
                                 @else
@@ -62,7 +74,7 @@
                                     <i class="fas fa-comment-dots text-xl"></i>
                                 </button>
 
-                                @if($permiso->estado === 'pendiente')
+                                @if($permiso->estado === 'pendiente' || $permiso->estado === 'pendiente_aprobacion')
                                     <button class="bg-blue-500 text-white hover:bg-blue-400 rounded-lg px-3 py-1 text-xs"
                                         data-toggle="modal" data-target="#approveRejectModal{{ $permiso->id }}">
                                         <i class="fas fa-check-circle text-xl"></i>
@@ -105,6 +117,12 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Paginación -->
+            <div class="mt-6">
+                {{ $permisos->appends(['estado' => request('estado')])->links('vendor.pagination.tailwind') }}
+            </div>
+
         </div>
     </div>
 

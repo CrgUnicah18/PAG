@@ -23,5 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Registrar el middleware 'admin' directamente desde el AppServiceProvider
         Route::aliasMiddleware('admin', \App\Http\Middleware\IsAdmin::class);
+        // Registrar el middleware 'admin' directamente desde el AppServiceProvider
+        Route::aliasMiddleware('supervisor', \App\Http\Middleware\IsAdmin::class);
     }
 }

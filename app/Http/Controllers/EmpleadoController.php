@@ -19,38 +19,47 @@ class EmpleadoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Empleado::query();
+        $user = auth()->user(); // Usuario autenticado
+        $query = Empleado::query()->with(['user.roles', 'supervisor']); // Cargar relaciones necesarias
 
-        if ($request->has('nombre') && !empty($request->nombre)) {
+        // Aplicar filtros solo si existen en la solicitud
+        if ($request->filled('nombre')) {
             $query->where('nombre', 'like', '%' . $request->nombre . '%');
         }
 
-        if ($request->has('grupo_id') && !empty($request->grupo_id)) {
+        if ($request->filled('grupo_id')) {
             $query->where('grupo_id', $request->grupo_id);
         }
 
-        if ($request->has('oficina_id') && !empty($request->oficina_id)) {
+        if ($request->filled('oficina_id')) {
             $query->where('oficina_id', $request->oficina_id);
         }
-        // Filtro por estado
-        if ($request->has('estado') && !empty($request->estado)) {
+
+        if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
-        $empleados = $query->with(['user.roles'])->get(); // Cargar la relación 'user' con sus roles
 
+        // Si el usuario es supervisor, solo ve sus empleados asignados
+        if ($user->hasRole('supervisor')) {
+            $query->where('supervisor_id', $user->empleado_id);
+        }
 
-        $empleados = $query->with('supervisor')->get();
+        $empleados = $query->get(); // Obtener resultados después de aplicar los filtros
+
+        // Obtener datos adicionales
         $grupos = Grupo::all();
         $oficinas = Oficina::all();
-        $tiposContratos = TipoContrato::all(); // Obtener todos los tipos de contrato
+        $tiposContratos = TipoContrato::all();
 
-        return view('admin.empleados.index', [
-            'empleados' => $empleados,
-            'grupos' => $grupos,
-            'oficinas' => $oficinas,
-            'tiposContratos' => $tiposContratos, // Pasar los tipos de contrato a la vista
-        ]);
+        // Verifica el rol y retorna la vista correcta
+        if ($user->hasRole('supervisor')) {
+            return view('supervisor.empleados.index', compact('empleados', 'grupos', 'oficinas', 'tiposContratos'));
+        } else {
+            return view('admin.empleados.index', compact('empleados', 'grupos', 'oficinas', 'tiposContratos'));
+        }
     }
+
+
 
     public function create()
     {
