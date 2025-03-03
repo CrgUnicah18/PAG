@@ -24,6 +24,7 @@
                     <th>Fecha de Inicio</th>
                     <th>Fecha de Fin</th>
                     <th>Estado</th>
+                    <th>Comentario</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -46,6 +47,13 @@
                             @endif
                         </td>
                         <td>
+                            @if($permiso->comentario)
+                                {{ $permiso->comentario }}
+                            @else
+                                <span class="text-gray-400">No hay comentario</span>
+                            @endif
+                        </td>
+                        <td>
                             <!-- Aquí no mostramos botones de acción, ya que estos permisos solo los puede gestionar el admin -->
                             <span class="badge badge-info">Solo admin puede aprobar</span>
                         </td>
@@ -54,7 +62,10 @@
             </tbody>
         </table>
 
-        <hr>
+        {{-- Paginación de los permisos --}}
+        <div class="mt-4">
+            {{ $permisosSupervisor->links() }}
+        </div>
 
         <!-- Estilo para los permisos de los empleados a cargo (con acciones de aprobar o rechazar) -->
         <h4 class="mb-4">Solicitudes de Permiso de Empleados a Cargo</h4>
@@ -65,6 +76,7 @@
                     <th>Tipo de Permiso</th>
                     <th>Fecha de Inicio</th>
                     <th>Fecha de Fin</th>
+                    <th>Comentario</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -85,6 +97,13 @@
                                 <span class="badge badge-success">Aprobado</span>
                             @elseif($permiso->estado == 'rechazado')
                                 <span class="badge badge-danger">Rechazado</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($permiso->comentario)
+                                {{ $permiso->comentario }}
+                            @else
+                                <span class="text-gray-400">No hay comentario</span>
                             @endif
                         </td>
                         <td>
@@ -109,11 +128,6 @@
             </tbody>
         </table>
 
-
-        {{-- Paginación de los permisos --}}
-        <div class="mt-4">
-            {{ $permisosSupervisor->links() }}
-        </div>
         <div class="mt-4">
             {{ $permisosEmpleados->links() }}
         </div>

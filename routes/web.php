@@ -43,7 +43,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
 
     // Rutas para permisos
     Route::resource('permisos', PermisoController::class);
-    Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
+    Route::post('/permisos/{permiso}/comentar', [PermisoController::class, 'comentar'])->name('permisos.comentar');
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
 

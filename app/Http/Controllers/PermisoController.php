@@ -27,16 +27,24 @@ class PermisoController extends Controller
         // Inicializar las variables
         $permisosSupervisor = [];
         $permisosEmpleados = [];
-        $empleadosBajoSupervision = [];
+        $empleadosBajoSupervision = [];  // Inicializamos la variable
         $permisosEmpleado = [];
+        $permisosAdmin = [];
+
+        // Obtener el usuario actual
+        $user = auth()->user();
+        $empleado = $user->empleado;  // Suponiendo que cada usuario tiene un "empleado"
 
         // Validamos si el usuario es supervisor
         if ($user->hasRole('supervisor')) {
             // Obtener los empleados bajo la supervisión del supervisor
             $empleadosBajoSupervision = Empleado::where('supervisor_id', $empleado->id)->get();
 
-            // Obtener los permisos de los empleados bajo su supervisión
-            $permisosEmpleados = Permiso::whereIn('empleado_id', $empleadosBajoSupervision->pluck('id'))->paginate(10);
+            // Verificar si hay empleados bajo supervisión
+            if ($empleadosBajoSupervision->isNotEmpty()) {
+                // Obtener los permisos de los empleados bajo su supervisión
+                $permisosEmpleados = Permiso::whereIn('empleado_id', $empleadosBajoSupervision->pluck('id'))->paginate(10);
+            }
 
             // Obtener los permisos del propio supervisor
             $permisosSupervisor = Permiso::where('empleado_id', $empleado->id)->paginate(10);
@@ -47,18 +55,21 @@ class PermisoController extends Controller
 
         // Si no es supervisor, mostrar solo los permisos de este empleado
         if ($user->hasRole('empleado')) {
-            // Obtener los permisos del propio supervisor
+            // Obtener los permisos del propio empleado
             $permisosEmpleado = Permiso::where('empleado_id', $empleado->id)->paginate(10);
             return view('empleado.permisos.index', compact('permisosEmpleado'));
         }
 
         // Si el usuario es admin, filtrar por estado si es necesario
         if ($user->hasRole('admin')) {
+            // Obtener los permisos del propio empleado
+            $permisosAdmin = Permiso::where('empleado_id', $empleado->id)->paginate(10);
+
             $permisos = Permiso::when($estado, function ($query, $estado) {
                 return $query->where('estado', $estado);
             })->paginate(10); // Paginación para todos los permisos
 
-            return view('admin.permisos.index', compact('permisos'));
+            return view('admin.permisos.index', compact('permisos', 'permisosAdmin'));
         }
 
         // Si no es ni supervisor, ni empleado, ni admin
@@ -174,12 +185,18 @@ class PermisoController extends Controller
 
         // El supervisor puede rechazar, solo si el estado es 'pendiente' o 'pendiente_aprobacion'
         if ($user->hasRole('supervisor') && in_array($permiso->estado, ['pendiente', 'pendiente_aprobacion'])) {
+
             $permiso->update(['estado' => 'rechazado']);
             return redirect()->route('supervisor.permisos.index')->with('success', 'Rechazado por supervisor.');
         }
 
         // El admin puede rechazar, solo si el estado es 'pendiente' o 'pendiente_aprobacion'
         if ($user->hasRole('admin') && in_array($permiso->estado, ['pendiente', 'pendiente_aprobacion'])) {
+            // Evitar que el admin apruebe su propio permiso
+            if ($permiso->empleado_id == $user->empleado->id) {
+                return redirect()->back()->with('error', 'No puedes aprobar tu propio permiso.');
+            }
+
             $permiso->update(['estado' => 'rechazado']);
             return redirect()->route('admin.permisos.index')->with('success', 'Rechazado por Admin.');
         }
@@ -187,5 +204,22 @@ class PermisoController extends Controller
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Este permiso no puede ser rechazado en este momento.');
     }
+
+    public function comentar(Request $request, $permisoId)
+    {
+        // Validar que el comentario no esté vacío
+        $request->validate([
+            'comentario' => 'required|string|max:500',
+        ]);
+
+        // Buscar el permiso y agregar el comentario
+        $permiso = Permiso::findOrFail($permisoId);
+        $permiso->comentario = $request->comentario;
+        $permiso->save();
+
+        // Redirigir de vuelta con un mensaje de éxito
+        return redirect()->back()->with('success', 'Comentario guardado exitosamente.');
+    }
+
 
 }

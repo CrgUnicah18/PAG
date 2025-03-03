@@ -34,6 +34,10 @@
             <h3 class="text-lg font-semibold">Permisos Pendientes</h3>
             <p class="mt-2 text-2xl">{{ $permisosPendientes }}</p>
         </div>
+        <div class="bg-blue-500 text-white p-6 rounded-lg">
+            <h3 class="text-lg font-semibold">Permisos Pendientes de aprobacion</h3>
+            <p class="mt-2 text-2xl">{{ $permisosPendienteAprobacion }}</p>
+        </div>
         <div class="bg-green-500 text-white p-6 rounded-lg">
             <h3 class="text-lg font-semibold">Permisos Aprobados</h3>
             <p class="mt-2 text-2xl">{{ $permisosAprobados }}</p>

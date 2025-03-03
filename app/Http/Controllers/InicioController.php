@@ -82,6 +82,11 @@ class InicioController extends Controller
             $empleadosActivos = $empleadosAsignados->where('estado', 'activo')->count();
             $totalEmpleados = $empleadosAsignados->count();
 
+            $supervisor = auth()->user()->empleado;
+
+            // Obtener permisos del propio supervisor
+            $permisosSupervisor = Permiso::where('empleado_id', $supervisor->id)->get();
+
             // Contadores de permisos filtrados por los empleados asignados
             $empleadosIds = $empleadosAsignados->pluck('id')->toArray(); // Convertimos la colección de IDs a un array
             $permisosPendientes = Permiso::whereIn('empleado_id', $empleadosIds)
@@ -113,7 +118,8 @@ class InicioController extends Controller
                 'empleadosActivos',
                 'empleadosAsignados',
                 'cumpleañosHoy',
-                'cumpleañosMañana'
+                'cumpleañosMañana',
+                'permisosSupervisor'
             ));
         } else {
             // Si es admin, mostrar todos los empleados y contar permisos/vacaciones sin filtro

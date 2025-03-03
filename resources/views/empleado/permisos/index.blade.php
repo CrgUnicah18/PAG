@@ -24,6 +24,7 @@
                     <th>Fecha de Inicio</th>
                     <th>Fecha de Fin</th>
                     <th>Estado</th>
+                    <th>Comentario</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -43,6 +44,13 @@
                                 <span class="badge badge-success">Aprobado</span>
                             @elseif($permiso->estado == 'rechazado')
                                 <span class="badge badge-danger">Rechazado</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($permiso->comentario)
+                                {{ $permiso->comentario }}
+                            @else
+                                <span class="text-gray-400">No hay comentario</span>
                             @endif
                         </td>
                         <td>
