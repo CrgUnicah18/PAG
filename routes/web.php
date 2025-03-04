@@ -17,6 +17,9 @@ use App\Http\Controllers\Auth\RegisterController;
 // Rutas de login y registro
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login'])->name('login.submit');
+// Ruta de logout (POST)
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [RegisterController::class, 'register'])->name('register.submit');
 
@@ -52,7 +55,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::get('vacaciones/create', [VacacionController::class, 'create'])->name('vacaciones.create');
     Route::post('vacaciones', [VacacionController::class, 'store'])->name('vacaciones.store');
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
-    Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'declinar'])->name('vacaciones.declinar');
+    Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
     Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
 
     // Rutas para configuración

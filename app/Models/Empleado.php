@@ -46,9 +46,10 @@ class Empleado extends Model
     }
 
     // Relación con Vacaciones
+    // En el modelo Empleado
     public function vacaciones()
     {
-        return $this->hasMany(Vacacion::class);
+        return $this->hasMany(Vacacion::class, 'empleado_id');
     }
     public function tipoContrato()
     {

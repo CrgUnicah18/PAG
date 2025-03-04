@@ -225,6 +225,7 @@ class EmpleadoController extends Controller
             'fecha_ingreso' => 'required|date',
             'foto_peril' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'documento_contrato' => 'nullable|mimes:pdf,doc,docx,zip|max:2048', // Solo PDF, DOC, DOCX, ZIP
+            'rol' => 'required|in:supervisor,empleado' // Validamos que el rol sea válido
         ]);
 
         // Actualización de los datos del empleado
@@ -254,10 +255,12 @@ class EmpleadoController extends Controller
             $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;  // Guardar la ruta en la base de datos sin 'public/'
         }
 
-
-
         // Guardar los cambios
         $empleado->save();
+
+        // Actualizar el rol del usuario asociado
+        $user = $empleado->user; // Obtener el usuario asociado al empleado
+        $user->syncRoles($request->rol); // Sincronizar el rol con el nuevo valor (empleado o supervisor)
 
 
         return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente');

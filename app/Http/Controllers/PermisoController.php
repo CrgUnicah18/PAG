@@ -6,6 +6,7 @@ use App\Models\Permiso;
 use App\Models\Empleado;
 use App\Models\TipoPermiso;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class PermisoController extends Controller
 {
@@ -109,8 +110,8 @@ class PermisoController extends Controller
         // Validar los campos de la solicitud
         $request->validate([
             'tipo_permiso_id' => 'required',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
+            'fecha_inicio' => 'required|date|after_or_equal:' . Carbon::today()->toDateString(), // fecha_inicio no puede ser anterior a hoy
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio', // fecha_fin puede ser el mismo día que fecha_inicio
             'comentario' => 'nullable|string',
         ]);
 

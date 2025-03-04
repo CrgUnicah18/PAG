@@ -1,42 +1,57 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto px-4">
-        <h2 class="text-2xl font-semibold mb-4">Asignar Vacaciones</h2>
+    <div class="container">
+        <h1>Crear Solicitud de Vacaciones (Propia)</h1>
 
-        <form method="POST" action="{{ route('admin.vacaciones.store') }}">
+        <form action="{{ route('admin.vacaciones.store') }}" method="POST">
             @csrf
-            <div class="mb-4">
-                <label for="empleado_id" class="block text-lg">Empleado:</label>
-                <select name="empleado_id" id="empleado_id" class="form-select mt-1 block w-full">
-                    @foreach ($empleados as $empleado)
-                        <option value="{{ $empleado->id }}">{{ $empleado->nombre }} {{ $empleado->apellido }}</option>
+
+            <input type="hidden" name="empleado_id" value="{{ auth()->user()->empleado_id }}">
+            <!-- ID del empleado logueado -->
+
+            <div class="form-group">
+                <label for="fecha_inicio">Fecha de Inicio</label>
+                <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha_fin">Fecha de Fin</label>
+                <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" required>
+            </div>
+
+            <!-- Campo para seleccionar el tipo de vacación -->
+            <div class="form-group">
+                <label for="tipo_permiso_id">Tipo de Vacación</label>
+                <select name="tipo_permiso_id" id="tipo_permiso_id" class="form-control" required>
+                    @foreach(\App\Models\TipoPermiso::where('es_vacacion', 1)->get() as $tipo)
+                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option> <!-- Mostramos el nombre -->
                     @endforeach
                 </select>
             </div>
 
-            <div class="mb-4">
-                <label for="fecha_inicio" class="block text-lg">Fecha de Inicio:</label>
-                <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-input mt-1 block w-full" required>
+            <!-- Campo para agregar comentario -->
+            <div class="form-group">
+                <label for="comentario">Comentario (Opcional)</label>
+                <textarea name="comentario" id="comentario" class="form-control" rows="4"></textarea>
             </div>
 
-            <div class="mb-4">
-                <label for="fecha_fin" class="block text-lg">Fecha de Fin:</label>
-                <input type="date" name="fecha_fin" id="fecha_fin" class="form-input mt-1 block w-full" required>
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                <a href="{{ route('admin.vacaciones.index') }}" class="btn btn-secondary">Cancelar</a>
             </div>
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
 
-            <div class="mb-4">
-                <label for="tipo_permiso_id" class="block text-lg">Tipo de Permiso:</label>
-                <select name="tipo_permiso_id" id="tipo_permiso_id" class="form-select mt-1 block w-full">
-                    @foreach ($tiposPermiso as $tipoPermiso)
-                        <option value="{{ $tipoPermiso->id }}" {{ $tipoPermiso->is_vacaciones ? 'selected' : '' }}>
-                            {{ $tipoPermiso->nombre }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-            <button type="submit" class="btn btn-success">Asignar Vacaciones</button>
         </form>
     </div>
 @endsection

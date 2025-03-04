@@ -2,7 +2,19 @@
 
 @section('content')
     <div class="container">
-        <h2>Solicitudes de Permisos de Empleados</h2>
+
+        <!-- Estilo para tus permisos (sin acciones) -->
+        <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
+            <div class="flex justify-between items-center"> <!-- Flex para alinear los elementos en una línea -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="text-xl font-semibold text-gray-800">📝 Solicitud de Permisos</h2>
+                </div>
+
+                {{-- Botón para crear un nuevo permiso --}}
+                <a href="{{ route('supervisor.permisos.create') }}" class="btn btn-primary">Solicitar Permiso</a>
+            </div>
+        </h4>
+
 
         @if(session('success'))
             <div class="alert alert-success">
@@ -13,9 +25,6 @@
                 {{ session('error') }}
             </div>
         @endif
-
-        <!-- Estilo para tus permisos (sin acciones) -->
-        <h4 class="mb-4">Mis Solicitudes de Permiso</h4>
         <table class="table table-striped table-hover table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -68,7 +77,9 @@
         </div>
 
         <!-- Estilo para los permisos de los empleados a cargo (con acciones de aprobar o rechazar) -->
-        <h4 class="mb-4">Solicitudes de Permiso de Empleados a Cargo</h4>
+        <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
+            Permisos de mis empleados
+        </h4>
         <table class="table table-striped table-hover table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -131,8 +142,5 @@
         <div class="mt-4">
             {{ $permisosEmpleados->links() }}
         </div>
-
-        {{-- Botón para crear un nuevo permiso --}}
-        <a href="{{ route('supervisor.permisos.create') }}" class="btn btn-primary">Solicitar Permiso</a>
     </div>
 @endsection

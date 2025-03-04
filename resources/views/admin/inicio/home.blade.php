@@ -2,33 +2,7 @@
 @extends('layouts.app')
 
 @section('content')
-    @if(auth()->user()->roles->isEmpty())
-        <p>Este usuario no tiene rol asignado.</p>
-    @endif
-
-    @if(auth()->user()->hasRole('admin'))
-        <div>
-            <h3>Bienvenido, Administrador</h3>
-            <!-- contenido exclusivo para admin -->
-        </div>
-    @endif
-
-    @if(auth()->user()->hasRole('supervisor'))
-        <div>
-            <h3>Bienvenido, Supervisor</h3>
-            <!-- contenido exclusivo para supervisor -->
-        </div>
-    @endif
-
-    @if(auth()->user()->hasRole('empleado'))
-        <div>
-            <h3>Bienvenido, Empleado</h3>
-            <!-- contenido exclusivo para empleado -->
-        </div>
-    @endif
-
-
-
+    
     <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         <div class="bg-blue-500 text-white p-6 rounded-lg">
             <h3 class="text-lg font-semibold">Permisos Pendientes</h3>

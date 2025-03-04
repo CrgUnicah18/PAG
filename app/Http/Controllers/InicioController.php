@@ -7,6 +7,7 @@ use App\Models\Permiso;
 use App\Models\Vacacion;
 use App\Models\Empleado;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class InicioController extends Controller
 {

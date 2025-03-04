@@ -2,8 +2,6 @@
 
 @section('content')
     <div class="container">
-        <h2>Solicitudes de Permisos de Empleados</h2>
-
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -15,7 +13,10 @@
         @endif
 
         <!-- Estilo para tus permisos (sin acciones) -->
-        <h4 class="mb-4">Mis Solicitudes de Permiso</h4>
+        <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
+            Mis solicitudes de permiso
+        </h4>
+
         <table class="table table-striped table-hover table-bordered">
             <thead class="thead-dark">
                 <tr>

@@ -1,31 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    @if(auth()->user()->roles->isEmpty())
-        <p>Este usuario no tiene rol asignado.</p>
-    @endif
-
-    @if(auth()->user()->hasRole('admin'))
-        <div>
-            <h3>Bienvenido, Administrador</h3>
-            <!-- contenido exclusivo para admin -->
-        </div>
-    @endif
-
-    @if(auth()->user()->hasRole('supervisor'))
-        <div>
-            <h3>Bienvenido, Supervisor</h3>
-            <!-- contenido exclusivo para supervisor -->
-        </div>
-    @endif
-
-    @if(auth()->user()->hasRole('empleado'))
-        <div>
-            <h3>Bienvenido, Empleado</h3>
-            <!-- contenido exclusivo para empleado -->
-        </div>
-    @endif
-
     <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
         <!-- Contadores de permisos -->
@@ -53,7 +28,7 @@
         <div class="p-4 bg-blue-100 rounded-lg shadow-sm mb-6">
             <h3 class="text-2xl font-semibold text-gray-800 mb-2 flex items-center">
                 <span class="mr-2 text-3xl">🎉</span>
-                ¡Cumpleaños de Hoy!
+                ¡Cumpleaños de hoy!
             </h3>
             <ul class="list-disc pl-5">
                 @foreach ($cumpleañosHoy as $empleado)
@@ -64,7 +39,7 @@
 
             <h3 class="text-2xl font-semibold text-gray-800 mt-6 mb-2 flex items-center">
                 <span class="mr-2 text-3xl">🎂</span>
-                ¡Cumpleaños de Mañana!
+                ¡Cumpleaños de mañana!
             </h3>
             <ul class="list-disc pl-5">
                 @foreach ($cumpleañosMañana as $empleado)

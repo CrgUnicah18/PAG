@@ -17,7 +17,6 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="text-xl font-semibold text-gray-800">📋 Listado de Empleados</h2>
-            <h1>Vista de Supervisor</h1>
         </div>
        
 

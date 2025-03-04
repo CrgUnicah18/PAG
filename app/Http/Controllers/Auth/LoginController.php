@@ -47,4 +47,14 @@ class LoginController extends Controller
         return back()->withErrors(['email' => 'Las credenciales no coinciden.']);
     }
 
+    public function logout(Request $request)
+    {
+        Auth::logout(); // Cierra sesión
+
+        $request->session()->invalidate(); // Invalida la sesión
+        $request->session()->regenerateToken(); // Regenera el token CSRF
+
+        return redirect('/'); // Redirige al formulario de login (GET)
+    }
+
 }

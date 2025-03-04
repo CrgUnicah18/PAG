@@ -1,9 +1,11 @@
 <aside class="bg-purple-900 text-white w-64 h-screen fixed top-0 left-0 flex flex-col z-20">
-    <div class="p-4 text-center border-b border-gray-700">
+    <!-- Sección de la imagen (bloque superior) -->
+    <div class="p-4 text-center border-b-4 border-yellow-600">
         <img src="{{ asset('images/logopag2.png') }}" alt="Logo de Aldea Global" class="mx-auto w-32 h-auto">
     </div>
 
-    <nav class="flex-1 p-4">
+    <!-- Sección de navegación (bloque inferior) -->
+    <nav class="flex-1 p-4 bg-purple-800">
         <ul class="space-y-2">
             <li>
                 <a href="{{ route(auth()->user()->hasRole('admin') ? 'admin.inicio.home' : (auth()->user()->hasRole('supervisor') ? 'supervisor.inicio.home' : 'empleado.inicio.home')) }}"
@@ -45,4 +47,17 @@
             @endif
         </ul>
     </nav>
+
+    <!-- Sección de Cerrar sesión (al final del sidebar) -->
+    <div class="p-4 mt-auto border-t border-gray-700">
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit"
+                class="block w-full py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-800 transition-all duration-300">
+                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
+            </button>
+
+
+        </form>
+    </div>
 </aside>
