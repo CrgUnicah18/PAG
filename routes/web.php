@@ -56,7 +56,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::post('vacaciones', [VacacionController::class, 'store'])->name('vacaciones.store');
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
-    Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
+    Route::post('vacaciones/addComentario/{vacacion}', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
 
     // Rutas para configuración
     Route::get('configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
@@ -102,7 +102,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('supervisor')->name('supervisor.'
     Route::resource('vacaciones', VacacionController::class);
     Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
-    Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'declinar'])->name('vacaciones.declinar');
+    Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
 });
 
 

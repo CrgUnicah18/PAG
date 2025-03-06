@@ -10,15 +10,15 @@ use Carbon\Carbon;
 
 class PermisoController extends Controller
 {
-    // Mostrar los permisos según el rol
     public function index(Request $request)
     {
         $user = auth()->user();
         // Obtener el empleado asociado al usuario logueado
         $empleado = Empleado::find($user->empleado_id);
 
-        // Obtener el estado del filtro si está presente
+        // Obtener el estado y nombre del filtro si están presentes
         $estado = $request->input('estado');
+        $nombreEmpleado = $request->input('empleado'); // Este es el nuevo filtro
 
         // Verificar si el empleado existe
         if (!$empleado) {
@@ -32,8 +32,10 @@ class PermisoController extends Controller
         $permisosEmpleado = [];
         $permisosAdmin = [];
 
+        // Obtener todos los empleados para el filtro
+        $empleados = Empleado::all();
+
         // Obtener el usuario actual
-        $user = auth()->user();
         $empleado = $user->empleado;  // Suponiendo que cada usuario tiene un "empleado"
 
         // Validamos si el usuario es supervisor
@@ -43,39 +45,62 @@ class PermisoController extends Controller
 
             // Verificar si hay empleados bajo supervisión
             if ($empleadosBajoSupervision->isNotEmpty()) {
-                // Obtener los permisos de los empleados bajo su supervisión
-                $permisosEmpleados = Permiso::whereIn('empleado_id', $empleadosBajoSupervision->pluck('id'))->paginate(10);
+                // Obtener los permisos de los empleados bajo su supervisión con el filtro de nombreEmpleado
+                $permisosEmpleados = Permiso::whereIn('empleado_id', $empleadosBajoSupervision->pluck('id'))
+                    ->when($nombreEmpleado, function ($query, $nombreEmpleado) {
+                        return $query->whereHas('empleado', function ($query) use ($nombreEmpleado) {
+                            $query->where('nombre', 'like', '%' . $nombreEmpleado . '%');
+                        });
+                    })
+                    ->when($estado, function ($query, $estado) {
+                        return $query->where('estado', $estado);
+                    })
+                    ->paginate(10);
+            } else {
+                // Si no hay empleados bajo supervisión, inicializamos permisosEmpleados como vacío
+                $permisosEmpleados = collect(); // o Permiso::whereIn('empleado_id', [])->paginate(10);
             }
 
             // Obtener los permisos del propio supervisor
             $permisosSupervisor = Permiso::where('empleado_id', $empleado->id)->paginate(10);
 
             // Retornamos la vista con los permisos del supervisor y de los empleados bajo su supervisión
-            return view('supervisor.permisos.index', compact('empleadosBajoSupervision', 'permisosSupervisor', 'permisosEmpleados'));
+            return view('supervisor.permisos.index', compact('empleadosBajoSupervision', 'permisosSupervisor', 'permisosEmpleados', 'empleados'));
         }
 
         // Si no es supervisor, mostrar solo los permisos de este empleado
         if ($user->hasRole('empleado')) {
             // Obtener los permisos del propio empleado
             $permisosEmpleado = Permiso::where('empleado_id', $empleado->id)->paginate(10);
-            return view('empleado.permisos.index', compact('permisosEmpleado'));
+            return view('empleado.permisos.index', compact('permisosEmpleado', 'empleados'));
         }
 
         // Si el usuario es admin, filtrar por estado si es necesario
         if ($user->hasRole('admin')) {
-            // Obtener los permisos del propio empleado
+            // Obtener los permisos del propio empleado (no se aplica filtro aquí)
             $permisosAdmin = Permiso::where('empleado_id', $empleado->id)->paginate(10);
 
+            // Obtener los permisos filtrados por estado y nombre de empleado
             $permisos = Permiso::when($estado, function ($query, $estado) {
                 return $query->where('estado', $estado);
-            })->paginate(10); // Paginación para todos los permisos
+            })
+                ->when($nombreEmpleado, function ($query, $nombreEmpleado) {
+                    return $query->whereHas('empleado', function ($query) use ($nombreEmpleado) {
+                        $query->where('nombre', 'like', '%' . $nombreEmpleado . '%');
+                    });
+                })
+                ->paginate(10); // Paginación para todos los permisos
 
-            return view('admin.permisos.index', compact('permisos', 'permisosAdmin'));
+
+
+            // Retornamos la vista con los permisos filtrados
+            return view('admin.permisos.index', compact('permisos', 'permisosAdmin', 'empleados', 'nombreEmpleado', 'estado'));
         }
 
         // Si no es ni supervisor, ni empleado, ni admin
         return redirect()->back()->with('error', 'No tienes acceso a esta sección.');
     }
+
 
 
 

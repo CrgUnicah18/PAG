@@ -171,16 +171,25 @@ class VacacionController extends Controller
     }
 
     // VacacionController.php
-
     public function aprobar($id)
     {
         $vacacion = Vacacion::findOrFail($id);
         $user = auth()->user();
+        $empleado = $user->empleado; // Accedemos al empleado a través de la relación
 
         // El supervisor puede pre-aprobar, solo si el estado es 'pendiente'
         if ($user->hasRole('supervisor') && $vacacion->estado == 'pendiente') {
-            $vacacion->update(['estado' => 'pendientes_aprobacion']);
-            return redirect()->route('supervisor.vacaciones.index')->with('success', 'Pre-aprobadas por supervisor.');
+            // Filtrar las vacaciones solo de los empleados asignados al supervisor
+            if ($vacacion->empleado->supervisor_id == $user->empleado->id) {
+                $vacacion->update(['estado' => 'pendientes_aprobacion']);
+                $vacacionesPropias = Vacacion::where('empleado_id', $empleado->id)->get();
+                $vacacionesGenerales = Vacacion::whereHas('empleado', function ($query) use ($empleado) {
+                    $query->where('supervisor_id', $empleado->id); // Filtra los empleados bajo la supervisión del supervisor
+                })->get();
+                return view('supervisor.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales'))->with('success', 'pre-aprobadas por supervisor.');
+            } else {
+                return redirect()->back()->with('error', 'No puedes aprobar las vacaciones de un empleado que no te está asignado.');
+            }
         }
 
         // El admin puede aprobar, solo si el estado es 'pendientes_aprobacion' o 'pendiente'
@@ -191,12 +200,13 @@ class VacacionController extends Controller
             }
 
             $vacacion->update(['estado' => 'aprobadas']);
-            return redirect()->route('admin.vacaciones.index')->with('success', 'Aprobadas por Admin.');
+            $vacacionesGenerales = Vacacion::all();  // Obtener todas las vacaciones
+            return view('admin.vacaciones.index', compact('vacacionesGenerales'))->with('success', 'Aprobadas por Admin.');
         }
-
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Esta solicitud no puede ser aprobada en este momento.');
     }
+
 
 
     public function rechazar($id)
@@ -206,8 +216,13 @@ class VacacionController extends Controller
 
         // El supervisor puede rechazar, solo si el estado es 'pendiente' o 'pendientes_aprobacion'
         if ($user->hasRole('supervisor') && in_array($vacacion->estado, ['pendiente', 'pendientes_aprobacion'])) {
-            $vacacion->update(['estado' => 'rechazadas']);
-            return redirect()->route('supervisor.vacaciones.index')->with('success', 'Rechazadas por supervisor.');
+            // Filtrar las vacaciones solo de los empleados asignados al supervisor
+            if ($vacacion->empleado->supervisor_id == $user->empleado->id) {
+                $vacacion->update(['estado' => 'rechazadas']);
+                return redirect()->route('supervisor.vacaciones.index')->with('success', 'Rechazadas por supervisor.');
+            } else {
+                return redirect()->back()->with('error', 'No puedes rechazar las vacaciones de un empleado que no te está asignado.');
+            }
         }
 
         // El admin puede rechazar, solo si el estado es 'pendiente' o 'pendientes_aprobacion'
@@ -218,12 +233,15 @@ class VacacionController extends Controller
             }
 
             $vacacion->update(['estado' => 'rechazadas']);
-            return redirect()->route('admin.vacaciones.index')->with('success', 'Rechazadas por Admin.');
+            $vacacionesGenerales = Vacacion::all();  // Obtener todas las vacaciones
+            return redirect()->route('admin.vacaciones.index')->with(compact('vacacionesGenerales'))->with('success', 'Rechazadas por Admin.');
         }
+
 
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Esta solicitud no puede ser rechazada en este momento.');
     }
+
 
 
 
