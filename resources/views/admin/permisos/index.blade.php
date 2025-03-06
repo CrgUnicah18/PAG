@@ -2,7 +2,14 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-6">
-        <h2 class="text-3xl font-semibold text-gray-800 mb-6">Solicitudes de Permisos</h2>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-semibold text-gray-800">Solicitudes de Permisos</h2>
+            <a href="{{ route('admin.permisos.create') }}"
+                class="px-6 py-2 rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                Solicitar Permiso
+            </a>
+        </div>
+
 
         {{-- Filtro por estado y nombre de empleado --}}
         <div class="mb-4 flex justify-start items-center">
@@ -15,16 +22,6 @@
                         Pendiente de Aprobación</option>
                     <option value="aprobado" {{ request('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
                     <option value="rechazado" {{ request('estado') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
-                </select>
-
-                <label for="empleado" class="ml-4 mr-2 text-sm text-gray-600">Filtrar por Empleado:</label>
-                <select name="empleado" id="empleado" class="px-4 py-2 border rounded-md">
-                    <option value="">Todos</option>
-                    @foreach($empleados as $empleado)
-                        <option value="{{ $empleado->id }}" {{ request('empleado') == $empleado->id ? 'selected' : '' }}>
-                            {{ $empleado->nombre }}
-                        </option>
-                    @endforeach
                 </select>
 
                 <button type="submit" class="ml-2 bg-indigo-600 text-white px-4 py-2 rounded-md">Filtrar</button>
@@ -151,6 +148,10 @@
                     @endforeach
                 </tbody>
             </table>
+            <!-- Paginación -->
+            <div class="mt-6">
+                {{ $permisos->appends(['estado' => request('estado'), 'empleado' => request('empleado')])->links('vendor.pagination.tailwind') }}
+            </div>
 
             <!-- Tabla extra con permisos de empleados -->
             <h3 class="text-2xl font-semibold text-gray-800 mt-8">Permisos de Empleado</h3>
@@ -162,6 +163,7 @@
                             <th class="px-6 py-3 text-left text-sm font-medium">Tipo de Permiso</th>
                             <th class="px-6 py-3 text-left text-sm font-medium">Fechas</th>
                             <th class="px-6 py-3 text-left text-sm font-medium">Comentario</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Estado</th> <!-- Nueva columna -->
                         </tr>
                     </thead>
                     <tbody>
@@ -173,17 +175,28 @@
                                     {{ $permiso->fecha_fin }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $permiso->comentario }}</td>
+                                <td class="px-6 py-4 text-sm font-semibold">
+                                    @if ($permiso->estado === 'pendiente')
+                                        <span class="px-2 py-1 rounded-full bg-yellow-500 text-white">
+                                            Pendiente
+                                        </span>
+                                    @elseif ($permiso->estado === 'aprobado')
+                                        <span class="px-2 py-1 rounded-full bg-green-500 text-white">
+                                            Aprobado
+                                        </span>
+                                    @elseif ($permiso->estado === 'rechazado')
+                                        <span class="px-2 py-1 rounded-full bg-red-500 text-white">
+                                            Rechazado
+                                        </span>
+                                    @endif
+                                </td>
+
+
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-            </div>
 
-
-
-            <!-- Paginación -->
-            <div class="mt-6">
-                {{ $permisos->appends(['estado' => request('estado'), 'empleado' => request('empleado')])->links('vendor.pagination.tailwind') }}
             </div>
         </div>
     </div>

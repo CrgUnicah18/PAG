@@ -1,69 +1,71 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-4">
+    <div class="container mt-8">
 
         <!-- Estilo para las vacaciones propias -->
-        <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="mb-3">
-                    <h2 class="text-xl font-semibold text-gray-800">🌴 Solicitud de Vacaciones</h2>
-                </div>
-
+        <div class="mb-6">
+            <h2
+                class="text-2xl font-semibold text-gray-800 flex justify-between items-center border-b-2 border-gray-300 pb-2">
+                <span>🌴 Solicitud de Vacaciones</span>
                 {{-- Botón para crear una nueva solicitud de vacaciones --}}
-                <a href="{{ route('empleado.vacaciones.create') }}" class="btn btn-primary btn-sm">Solicitar Vacaciones</a>
-            </div>
-        </h4>
+                <a href="{{ route('supervisor.vacaciones.create') }}"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs">
+                    Solicitar Vacaciones
+                </a>
+            </h2>
+        </div>
 
         @if(session('success'))
-            <div class="alert alert-success mb-4">
+            <div class="bg-green-100 text-green-800 p-4 rounded-lg mb-4">
                 {{ session('success') }}
             </div>
         @elseif(session('error'))
-            <div class="alert alert-danger mb-4">
+            <div class="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
                 {{ session('error') }}
             </div>
         @endif
 
         <!-- Tabla de vacaciones propias -->
-        <div class="table-responsive">
-            <table class="table table-striped table-hover table-bordered">
-                <thead class="thead-dark">
+        <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+            <table class="min-w-full table-auto border-collapse">
+                <thead class="bg-gray-200">
                     <tr>
-                        <th>Empleado</th>
-                        <th>Fecha de Inicio</th>
-                        <th>Fecha de Fin</th>
-                        <th>Estado</th>
-                        <th>Comentario</th>
-                        <th>Acciones</th>
+                        <th class="px-4 py-2 text-left text-gray-600">Empleado</th>
+                        <th class="px-4 py-2 text-left text-gray-600">Fecha de Inicio</th>
+                        <th class="px-4 py-2 text-left text-gray-600">Fecha de Fin</th>
+                        <th class="px-4 py-2 text-left text-gray-600">Estado</th>
+                        <th class="px-4 py-2 text-left text-gray-600">Comentario</th>
+                        <th class="px-4 py-2 text-left text-gray-600">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($vacacionesPropias as $vacacion)
-                        <tr>
-                            <td>{{ $vacacion->empleado->nombre }} {{ $vacacion->empleado->apellido }}</td>
-                            <td>{{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('d/m/Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('d/m/Y') }}</td>
-                            <td>
+                        <tr class="border-b">
+                            <td class="px-4 py-2">{{ $vacacion->empleado->nombre }} {{ $vacacion->empleado->apellido }}</td>
+                            <td class="px-4 py-2">{{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('d/m/Y') }}</td>
+                            <td class="px-4 py-2">{{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('d/m/Y') }}</td>
+                            <td class="px-4 py-2">
                                 @if($vacacion->estado == 'pendientes_aprobacion')
-                                    <span class="badge bg-warning">Pendientes de Aprobación</span>
+                                    <span class="px-2 py-1 text-yellow-800 bg-yellow-200 rounded-full">Pendientes de
+                                        Aprobación</span>
                                 @elseif($vacacion->estado == 'aprobadas')
-                                    <span class="badge bg-success">Aprobadas</span>
+                                    <span class="px-2 py-1 text-green-800 bg-green-200 rounded-full">Aprobadas</span>
                                 @elseif($vacacion->estado == 'rechazadas')
-                                    <span class="badge bg-danger">Rechazadas</span>
+                                    <span class="px-2 py-1 text-red-800 bg-red-200 rounded-full">Rechazadas</span>
                                 @elseif($vacacion->estado == 'pendiente')
-                                    <span class="badge bg-primary">Pendiente</span>
+                                    <span class="px-2 py-1 text-blue-800 bg-blue-200 rounded-full">Pendiente</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-4 py-2">
                                 @if($vacacion->comentario)
                                     {{ $vacacion->comentario }}
                                 @else
                                     <span class="text-gray-400">No hay comentario</span>
                                 @endif
                             </td>
-                            <td>
-                                <span class="badge bg-info">Solo admin puede aprobar</span>
+                            <td class="px-4 py-2">
+                                <span class="px-2 py-1 text-blue-800 bg-blue-100 rounded-full">Solo admin puede aprobar</span>
                             </td>
                         </tr>
                     @endforeach
@@ -72,68 +74,83 @@
         </div>
 
         <!-- Tabla de vacaciones generales (empleados a cargo) -->
-        <h4 class="text-xl font-semibold text-gray-800 mt-8 mb-4 border-b-2 border-gray-300 pb-2">
-            Vacaciones de mis empleados
-        </h4>
+        <div class="mt-8">
+            <h4
+                class="text-xl font-semibold text-gray-800 flex justify-between items-center border-b-2 border-gray-300 pb-2">
+                Vacaciones de mis empleados
+            </h4>
 
-        <div class="table-responsive">
-            <table class="table table-striped table-hover table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Empleado</th>
-                        <th>Fecha de Inicio</th>
-                        <th>Fecha de Fin</th>
-                        <th>Estado</th>
-                        <th>Comentario</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($vacacionesGenerales as $vacacion)
+            <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+                <table class="min-w-full table-auto border-collapse">
+                    <thead class="bg-gray-200">
                         <tr>
-                            <td>{{ $vacacion->empleado->nombre }} {{ $vacacion->empleado->apellido }}</td>
-                            <td>{{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('d/m/Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('d/m/Y') }}</td>
-                            <td>
-                                @if($vacacion->estado == 'pendientes_aprobacion')
-                                    <span class="badge bg-primary">Pendientes de Aprobación</span>
-                                @elseif($vacacion->estado == 'aprobadas')
-                                    <span class="badge bg-success">Aprobadas</span>
-                                @elseif($vacacion->estado == 'rechazadas')
-                                    <span class="badge bg-danger">Rechazadas</span>
-                                @elseif($vacacion->estado == 'pendiente')
-                                    <span class="badge bg-warning">Pendiente</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($vacacion->comentario)
-                                    {{ $vacacion->comentario }}
-                                @else
-                                    <span class="text-gray-400">No hay comentario</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($vacacion->estado == 'pendiente')
-                                    <!-- Botones de acción para aprobar o rechazar vacaciones -->
-                                    <form action="{{ route('supervisor.vacaciones.aprobar', $vacacion->id) }}" method="POST"
-                                        style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-success">Pre-Aprobar</button>
-                                    </form>
-                                    <form action="{{ route('supervisor.vacaciones.declinar', $vacacion->id) }}" method="POST"
-                                        style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger">Rechazar</button>
-                                    </form>
-                                @elseif($vacacion->estado == 'pendientes_aprobacion')
-                                    <span class="badge bg-info">Esperando aprobación del Admin</span>
-                                @endif
-                            </td>
+                            <th class="px-4 py-2 text-left text-gray-600">Empleado</th>
+                            <th class="px-4 py-2 text-left text-gray-600">Fecha de Inicio</th>
+                            <th class="px-4 py-2 text-left text-gray-600">Fecha de Fin</th>
+                            <th class="px-4 py-2 text-left text-gray-600">Estado</th>
+                            <th class="px-4 py-2 text-left text-gray-600">Comentario</th>
+                            <th class="px-4 py-2 text-left text-gray-600 w-32">Acciones</th>
+                            <!-- Ajusta el ancho de la columna -->
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($vacacionesGenerales as $vacacion)
+                            <tr class="border-b">
+                                <td class="px-4 py-2">{{ $vacacion->empleado->nombre }} {{ $vacacion->empleado->apellido }}</td>
+                                <td class="px-4 py-2">{{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('d/m/Y') }}</td>
+                                <td class="px-4 py-2">{{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('d/m/Y') }}</td>
+                                <td class="px-4 py-2">
+                                    @if($vacacion->estado == 'pendientes_aprobacion')
+                                        <span class="px-2 py-1 text-xs text-blue-800 bg-blue-200 rounded-full">Pendientes</span>
+                                    @elseif($vacacion->estado == 'aprobadas')
+                                        <span class="px-2 py-1 text-xs text-green-800 bg-green-200 rounded-full">Aprobadas</span>
+                                    @elseif($vacacion->estado == 'rechazadas')
+                                        <span class="px-2 py-1 text-xs text-red-800 bg-red-200 rounded-full">Rechazadas</span>
+                                    @elseif($vacacion->estado == 'pendiente')
+                                        <span class="px-2 py-1 text-xs text-yellow-800 bg-yellow-200 rounded-full">Pendiente</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2">
+                                    @if($vacacion->comentario)
+                                        {{ $vacacion->comentario }}
+                                    @else
+                                        <span class="text-gray-400">No hay comentario</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2">
+                                    @if($vacacion->estado == 'pendiente')
+                                        <!-- Botones de acción con iconos para aprobar o rechazar vacaciones -->
+                                        <div class="flex space-x-2">
+                                            <form action="{{ route('supervisor.vacaciones.aprobar', $vacacion->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="p-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200">
+                                                    <i class="fas fa-check text-base"></i> <!-- Icono de aprobado -->
+                                                </button>
+                                            </form>
+
+                                            <form action="{{ route('supervisor.vacaciones.declinar', $vacacion->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="p-2.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200">
+                                                    <i class="fas fa-times text-base"></i> <!-- Icono de rechazo -->
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    @elseif($vacacion->estado == 'pendientes_aprobacion')
+                                        <span class="px-2 py-1 text-xs text-blue-800 bg-blue-100 rounded-full">Esperando</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
+
 
     </div>
 @endsection

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Vacacion;
 use App\Models\Empleado;
 use Illuminate\Support\Facades\Auth;
+use App\Models\TipoPermiso;
 
 class VacacionController extends Controller
 {
@@ -13,16 +14,19 @@ class VacacionController extends Controller
     {
         $user = auth()->user(); // Usuario autenticado
         $empleado = $user->empleado; // Accedemos al empleado a través de la relación
-
+        $empleados = Empleado::all(); // Esto obtiene todos los empleados
+        $tiposVacaciones = TipoPermiso::where('es_vacacion', 1)->get();  // Filtra solo vacaciones
         // Si el usuario es un administrador
         if ($user->hasRole('admin')) {
             // Tabla 1: Solicitudes propias de vacaciones del admin (como empleado)
-            $vacacionesPropias = Vacacion::where('empleado_id', $empleado->id)->get();
+            $vacacionesPropias = Vacacion::where('empleado_id', $empleado->id)->paginate(8);
+
 
             // Tabla 2: Todas las solicitudes de vacaciones (independientemente del empleado)
-            $vacacionesGenerales = Vacacion::all();
+            $vacacionesGenerales = Vacacion::paginate(8);
 
-            return view('admin.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales'));
+
+            return view('admin.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones'));
         }
 
         // Si el usuario es un supervisor
@@ -35,7 +39,7 @@ class VacacionController extends Controller
                 $query->where('supervisor_id', $empleado->id); // Filtra los empleados bajo la supervisión del supervisor
             })->get();
 
-            return view('supervisor.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales'));
+            return view('supervisor.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones', 'tiposVacaciones'));
         }
 
         // Si el usuario es un empleado
@@ -88,7 +92,7 @@ class VacacionController extends Controller
                     'fecha_inicio' => $request->fecha_inicio,
                     'fecha_fin' => $request->fecha_fin,
                     'duracion_dias' => (new \DateTime($request->fecha_inicio))->diff(new \DateTime($request->fecha_fin))->days + 1,
-                    'estado' => 'aprobado', // Poner estado como 'aprobado' automáticamente
+                    'estado' => 'aprobadas', // Poner estado como 'aprobado' automáticamente
                     'tipo_permiso_id' => $request->tipo_permiso_id, // Asegúrate de usar tipo_permiso_id
                     'comentario' => $request->comentario, // Agregamos comentario
                 ]);
@@ -156,7 +160,7 @@ class VacacionController extends Controller
 
         // Validación del estado
         $request->validate([
-            'estado' => 'required|in:pendiente,pendientes_aprobacion,aprobadass,rechazadass',
+            'estado' => 'required|in:pendiente,pendientes_aprobacion,aprobadas,rechazadas',
         ]);
 
         // Actualizar el estado de la solicitud
@@ -176,6 +180,8 @@ class VacacionController extends Controller
         $vacacion = Vacacion::findOrFail($id);
         $user = auth()->user();
         $empleado = $user->empleado; // Accedemos al empleado a través de la relación
+        // Obtener empleados (si es necesario)
+        $empleados = Empleado::all();
 
         // El supervisor puede pre-aprobar, solo si el estado es 'pendiente'
         if ($user->hasRole('supervisor') && $vacacion->estado == 'pendiente') {
@@ -192,6 +198,8 @@ class VacacionController extends Controller
             }
         }
 
+        $tiposVacaciones = TipoPermiso::where('es_vacacion', 1)->get();  // Obtener solo tipos de vacaciones
+
         // El admin puede aprobar, solo si el estado es 'pendientes_aprobacion' o 'pendiente'
         if ($user->hasRole('admin') && in_array($vacacion->estado, ['pendiente', 'pendientes_aprobacion'])) {
             // Evitar que el admin apruebe su propia solicitud de vacaciones
@@ -201,7 +209,7 @@ class VacacionController extends Controller
 
             $vacacion->update(['estado' => 'aprobadas']);
             $vacacionesGenerales = Vacacion::all();  // Obtener todas las vacaciones
-            return view('admin.vacaciones.index', compact('vacacionesGenerales'))->with('success', 'Aprobadas por Admin.');
+            return view('admin.vacaciones.index', compact('vacacionesGenerales', 'empleados', 'tiposVacaciones'))->with('success', 'Aprobadas por Admin.');
         }
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Esta solicitud no puede ser aprobada en este momento.');

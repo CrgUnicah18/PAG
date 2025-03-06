@@ -16,11 +16,11 @@
         </h4>
 
         @if(session('success'))
-            <div class="alert alert-success mb-4">
+            <div class="alert alert-success mb-4 rounded-lg">
                 {{ session('success') }}
             </div>
         @elseif(session('error'))
-            <div class="alert alert-danger mb-4">
+            <div class="alert alert-danger mb-4 rounded-lg">
                 {{ session('error') }}
             </div>
         @endif
@@ -30,45 +30,45 @@
             <h4 class="text-xl font-semibold text-gray-800 mt-8 mb-4 border-b-2 border-gray-300 pb-2">
                 Permisos del Supervisor
             </h4>
-            <table class="table table-striped table-hover table-bordered">
-                <thead class="thead-dark">
+            <table class="min-w-full table-auto border-collapse bg-white shadow-lg rounded-lg">
+                <thead class="bg-gray-700 text-white rounded-t-lg">
                     <tr>
-                        <th>Empleado</th>
-                        <th>Tipo de Permiso</th>
-                        <th>Fecha de Inicio</th>
-                        <th>Fecha de Fin</th>
-                        <th>Estado</th>
-                        <th>Comentario</th>
-                        <th>Acciones</th>
+                        <th class="py-2 px-4 border-b text-left">Empleado</th>
+                        <th class="py-2 px-4 border-b text-left">Tipo de Permiso</th>
+                        <th class="py-2 px-4 border-b text-left">Fecha de Inicio</th>
+                        <th class="py-2 px-4 border-b text-left">Fecha de Fin</th>
+                        <th class="py-2 px-4 border-b text-left">Estado</th>
+                        <th class="py-2 px-4 border-b text-left">Comentario</th>
+                        <th class="py-2 px-4 border-b text-left">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($permisosSupervisor as $permiso)
-                        <tr>
-                            <td>{{ $permiso->empleado->nombre }} {{ $permiso->empleado->apellido }}</td>
-                            <td>{{ $permiso->tipoPermiso->nombre }}</td>
-                            <td>{{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
-                            <td>
+                        <tr class="hover:bg-gray-100">
+                            <td class="py-2 px-4 border-b">{{ $permiso->empleado->nombre }} {{ $permiso->empleado->apellido }}</td>
+                            <td class="py-2 px-4 border-b">{{ $permiso->tipoPermiso->nombre }}</td>
+                            <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
+                            <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
+                            <td class="py-2 px-4 border-b">
                                 @if($permiso->estado == 'pendiente')
-                                    <span class="badge bg-warning">Pendiente</span>
+                                    <span class="badge bg-warning text-white">Pendiente</span>
                                 @elseif($permiso->estado == 'pendiente_aprobacion')
-                                    <span class="badge bg-primary">Pendiente de Aprobación</span>
+                                    <span class="badge bg-primary text-white">Pendiente de Aprobación</span>
                                 @elseif($permiso->estado == 'aprobado')
-                                    <span class="badge bg-success">Aprobado</span>
+                                    <span class="badge bg-success text-white">Aprobado</span>
                                 @elseif($permiso->estado == 'rechazado')
-                                    <span class="badge bg-danger">Rechazado</span>
+                                    <span class="badge bg-danger text-white">Rechazado</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="py-2 px-4 border-b">
                                 @if($permiso->comentario)
                                     {{ $permiso->comentario }}
                                 @else
                                     <span class="text-gray-400">No hay comentario</span>
                                 @endif
                             </td>
-                            <td>
-                                <span class="badge bg-info">Solo admin puede aprobar</span>
+                            <td class="py-2 px-4 border-b">
+                                <span class="badge bg-info text-white">Solo admin puede aprobar</span>
                             </td>
                         </tr>
                     @endforeach
@@ -90,58 +90,58 @@
             <p class="text-center text-gray-500">No tienes empleados bajo tu supervisión o no hay permisos solicitados.</p>
         @else
             <div class="table-responsive">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="thead-dark">
+                <table class="min-w-full table-auto border-collapse bg-white shadow-lg rounded-lg">
+                    <thead class="bg-gray-700 text-white rounded-t-lg">
                         <tr>
-                            <th>Empleado</th>
-                            <th>Tipo de Permiso</th>
-                            <th>Fecha de Inicio</th>
-                            <th>Fecha de Fin</th>
-                            <th>Comentario</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="py-2 px-4 border-b text-left">Empleado</th>
+                            <th class="py-2 px-4 border-b text-left">Tipo de Permiso</th>
+                            <th class="py-2 px-4 border-b text-left">Fecha de Inicio</th>
+                            <th class="py-2 px-4 border-b text-left">Fecha de Fin</th>
+                            <th class="py-2 px-4 border-b text-left">Comentario</th>
+                            <th class="py-2 px-4 border-b text-left">Estado</th>
+                            <th class="py-2 px-4 border-b text-left">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($permisosEmpleados as $permiso)
-                            <tr>
-                                <td>{{ $permiso->empleado->nombre }} {{ $permiso->empleado->apellido }}</td>
-                                <td>{{ $permiso->tipoPermiso->nombre }}</td>
-                                <td>{{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
-                                <td>
+                            <tr class="hover:bg-gray-100">
+                                <td class="py-2 px-4 border-b">{{ $permiso->empleado->nombre }} {{ $permiso->empleado->apellido }}</td>
+                                <td class="py-2 px-4 border-b">{{ $permiso->tipoPermiso->nombre }}</td>
+                                <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
+                                <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
+                                <td class="py-2 px-4 border-b">
                                     @if($permiso->estado == 'pendiente')
-                                        <span class="badge bg-warning">Pendiente</span>
+                                        <span class="badge bg-warning text-white">Pendiente</span>
                                     @elseif($permiso->estado == 'pendiente_aprobacion')
-                                        <span class="badge bg-primary">Pendiente de Aprobación</span>
+                                        <span class="badge bg-primary text-white">Pendiente de Aprobación</span>
                                     @elseif($permiso->estado == 'aprobado')
-                                        <span class="badge bg-success">Aprobado</span>
+                                        <span class="badge bg-success text-white">Aprobado</span>
                                     @elseif($permiso->estado == 'rechazado')
-                                        <span class="badge bg-danger">Rechazado</span>
+                                        <span class="badge bg-danger text-white">Rechazado</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="py-2 px-4 border-b">
                                     @if($permiso->comentario)
                                         {{ $permiso->comentario }}
                                     @else
                                         <span class="text-gray-400">No hay comentario</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="py-2 px-4 border-b">
                                     @if($permiso->estado == 'pendiente')
                                         <!-- Botones de acción para aprobar o rechazar permisos -->
                                         <form action="{{ route('supervisor.permisos.aprobar', $permiso->id) }}" method="POST"
                                             style="display:inline;">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-success">Pre-Aprobar</button>
+                                            <button type="submit" class="btn btn-sm btn-success rounded-lg">Pre-Aprobar</button>
                                         </form>
                                         <form action="{{ route('supervisor.permisos.declinar', $permiso->id) }}" method="POST"
                                             style="display:inline;">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-danger">Rechazar</button>
+                                            <button type="submit" class="btn btn-sm btn-danger rounded-lg">Rechazar</button>
                                         </form>
                                     @elseif($permiso->estado == 'pendiente_aprobacion')
-                                        <span class="badge bg-info">Esperando aprobación del Admin</span>
+                                        <span class="badge bg-info text-white">Esperando aprobación del Admin</span>
                                     @endif
                                 </td>
                             </tr>
