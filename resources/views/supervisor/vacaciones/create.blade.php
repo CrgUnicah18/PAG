@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-md">
         <h1 class="text-2xl font-semibold text-gray-800 mb-6">Crear Solicitud de Vacaciones (Propia)</h1>
 

@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="container max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
         <h2 class="text-3xl font-semibold text-center mb-6 text-gray-800">Solicitar permiso</h2>
 
