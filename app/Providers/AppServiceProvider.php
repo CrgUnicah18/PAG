@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\IsAdmin;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Registrar el middleware 'admin' directamente desde el AppServiceProvider
+        Route::aliasMiddleware('admin', \App\Http\Middleware\IsAdmin::class);
+        // Registrar el middleware 'admin' directamente desde el AppServiceProvider
+        Route::aliasMiddleware('supervisor', \App\Http\Middleware\IsAdmin::class);
     }
 }

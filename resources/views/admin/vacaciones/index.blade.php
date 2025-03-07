@@ -1,0 +1,258 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <h1 class="mb-4 text-center">Solicitudes de Vacaciones</h1>
+        <div class="flex space-x-4 mt-6 mb-4">
+            <!-- Botón para Asignar Vacaciones -->
+            <!-- Botón para Asignar Vacaciones -->
+            <button type="button"
+                class="btn btn-primary text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105"
+                onclick="openVacacionesModal()">Asignar Vacaciones</button>
+
+            <!-- Botón para Solicitar Vacaciones -->
+            <a href="{{ route('admin.vacaciones.create') }}"
+                class="btn btn-primary text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105">
+                Solicitar Vacaciones
+            </a>
+        </div>
+
+
+        <table class="table table-hover table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Empleado</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Duración</th>
+                    <th>Estado</th>
+                    <th>Comentario</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($vacacionesGenerales as $vacacion)
+                        <tr>
+                            <td>{{ $vacacion->empleado->nombre }} {{ $vacacion->empleado->apellido }}</td>
+                            <td>{{ $vacacion->fecha_inicio }}</td>
+                            <td>{{ $vacacion->fecha_fin }}</td>
+                            <td>{{ $vacacion->duracion_dias }} días</td>
+                            <td>
+                                <span class="badge bg-{{ $vacacion->estado == 'pendiente' ? 'warning' :
+                    ($vacacion->estado == 'aprobadas' ? 'success' :
+                        ($vacacion->estado == 'pendientes_aprobacion' ? 'primary' : 'danger')) }}">
+                                    {{ ucfirst(str_replace('_', ' ', $vacacion->estado)) }}
+                                </span>
+                            </td>
+                            <td>{{ $vacacion->comentario ?? 'Sin comentario' }}</td>
+                            <td>
+                                @if($vacacion->estado == 'pendiente' || $vacacion->estado == 'pendientes_aprobacion')
+                                    <button class="btn btn-outline-success btn-sm me-1" data-bs-toggle="tooltip"
+                                        title="Aprobar Solicitud" onclick="confirmAction('aprobar', {{ $vacacion->id }})">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+
+                                    <button class="btn btn-outline-danger btn-sm me-1" data-bs-toggle="tooltip"
+                                        title="Rechazar Solicitud" onclick="confirmAction('rechazar', {{ $vacacion->id }})">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                @endif
+                                <button class="btn btn-outline-info btn-sm" onclick="openCommentModal({{ $vacacion->id }})"
+                                    title="Agregar Comentario">
+                                    <i class="fas fa-comment"></i>
+                                </button>
+
+                            </td>
+                        </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <!-- Paginación -->
+        <div class="d-flex justify-content-center">
+            {{ $vacacionesGenerales->links() }}
+        </div>
+    </div>
+
+    <!-- Nueva tabla de vacaciones propias del usuario (sin acciones) -->
+    <h2 class="mt-5 text-center">Mis Solicitudes de Vacaciones</h2>
+
+    <table class="table table-hover table-bordered text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Duración</th>
+                <th>Estado</th>
+                <th>Comentario</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($vacacionesPropias as $vacacion)
+                <tr>
+                    <td>{{ $vacacion->fecha_inicio }}</td>
+                    <td>{{ $vacacion->fecha_fin }}</td>
+                    <td>{{ $vacacion->duracion_dias }} días</td>
+                    <td>
+                        <span class="badge bg-{{ $vacacion->estado == 'pendiente' ? 'warning' :
+                ($vacacion->estado == 'aprobadas' ? 'success' :
+                    ($vacacion->estado == 'pendientes_aprobacion' ? 'primary' : 'danger')) }}">
+                            {{ ucfirst(str_replace('_', ' ', $vacacion->estado)) }}
+                        </span>
+                    </td>
+                    <td>{{ $vacacion->comentario ?? 'Sin comentario' }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    <!-- Paginación para la tabla de vacaciones propias -->
+    {{ $vacacionesPropias->links() }}
+
+
+    <!-- Modal de Comentarios -->
+    <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalLabel">Comentario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        onclick="closeCommentModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="commentForm" method="POST" action="">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="comentario" class="form-label">Comentario</label>
+                            <textarea class="form-control" id="comentario" name="comentario" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Comentario</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            onclick="closeCommentModal()">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de Asignación de Vacaciones -->
+    <div class="modal fade" id="vacacionesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Asignar Vacaciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        onclick="closeVacacionesModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="vacacionesForm" method="POST" action="{{ route('admin.vacaciones.store') }}">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="empleado_id" class="form-label">Empleado</label>
+                            <select class="form-control" id="empleado_id" name="empleado_id">
+                                @foreach($empleados as $empleado)
+                                    <option value="{{ $empleado->id }}">{{ $empleado->nombre }} {{ $empleado->apellido }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo_permiso_id" class="form-label">Tipo de Vacación</label>
+                            <select class="form-control" id="tipo_permiso_id" name="tipo_permiso_id">
+                                @foreach($tiposVacaciones as $tipo)
+                                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                @endforeach
+                            </select>
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha_fin" class="form-label">Fecha de Fin</label>
+                            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Asignar Vacaciones</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            onclick="closeVacacionesModal()">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        onclick="closeConfirmModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmMessage">¿Estás seguro de que quieres realizar esta acción?</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="confirmForm" method="POST" action="">
+                        @csrf
+                        <button type="submit" class="btn btn-success">Sí</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            onclick="closeConfirmModal()">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Función para abrir el modal de asignación de vacaciones
+        function openVacacionesModal() {
+            let vacacionesModal = new bootstrap.Modal(document.getElementById('vacacionesModal'));
+            vacacionesModal.show();
+        }
+
+        // Función para cerrar el modal de asignación de vacaciones
+        function closeVacacionesModal() {
+            let vacacionesModalInstance = bootstrap.Modal.getInstance(document.getElementById('vacacionesModal'));
+            if (vacacionesModalInstance) vacacionesModalInstance.hide();
+        }
+
+        function confirmAction(action, id) {
+            let message = action === 'aprobar' ? '¿Estás seguro de que quieres aprobar esta solicitud?' : '¿Estás seguro de que quieres rechazar esta solicitud?';
+            let route = action === 'aprobar' ? "{{ url('admin/vacaciones/aprobar') }}/" + id : "{{ url('admin/vacaciones/declinar') }}/" + id;
+
+            // Asegurarse de que el mensaje se actualice correctamente
+            document.getElementById('confirmMessage').textContent = message;
+
+            // Establecer la acción del formulario
+            document.getElementById('confirmForm').action = route;
+
+            // Mostrar el modal de confirmación
+            let confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            confirmModal.show();
+        }
+
+
+        function closeConfirmModal() {
+            let confirmModalInstance = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+            if (confirmModalInstance) confirmModalInstance.hide();
+        }
+
+        function closeCommentModal() {
+            let commentModalInstance = bootstrap.Modal.getInstance(document.getElementById('commentModal'));
+            if (commentModalInstance) commentModalInstance.hide();
+        }
+
+        function openCommentModal(id) {
+            let route = "{{ url('admin/vacaciones/addComentario') }}/" + id;
+            document.getElementById('commentForm').action = route;
+
+            // Abrir el modal de comentarios
+            let commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
+            commentModal.show();
+        }
+
+    </script>
+
+@endsection
