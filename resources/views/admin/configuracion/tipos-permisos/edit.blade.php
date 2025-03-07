@@ -2,57 +2,55 @@
 
 @section('content')
     <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-6">Editar Duración del Permiso</h1>
+        <div class="bg-blue-600 text-white p-4 rounded-md shadow-md text-center text-lg font-bold">
+            Editar Tipo de Permiso
+        </div>
 
         <!-- Mostrar mensajes de éxito -->
         @if(session('success'))
-            <div class="bg-green-500 text-white p-4 rounded mb-4">
-                {{ session('success') }}
+            <div class="alert alert-success flex items-center justify-between p-4 rounded mt-4">
+                <span>{{ session('success') }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
             </div>
         @endif
 
-
-        <!-- Formulario para editar la duración -->
-        <div class="bg-white shadow-md rounded-lg p-6">
-            <!-- Aquí usamos la ruta update de los recursos con el método PUT -->
-            <form action="{{ route('admin.configuracion.tipos-permisos.update', $tipoPermiso->id) }}" method="POST">
+        <!-- Formulario para editar tipo de permiso -->
+        <div class="bg-white shadow-lg rounded-lg p-6 mt-6">
+            <form method="POST" action="{{ route('admin.configuracion.tipos-permisos.update', $tipoPermiso->id) }}">
                 @csrf
-                @method('PATCH') <!-- Aquí usas PATCH para la actualización -->
-
-                <!-- Nombre del permiso -->
-                <div class="mb-4">
-                    <label for="nombre" class="block text-lg font-medium text-gray-700">Nombre del Tipo de Permiso:</label>
-                    <input type="text" name="nombre" id="nombre" class="mt-2 block w-full p-3 border rounded"
-                        value="{{ old('nombre', $tipoPermiso->nombre) }}" required>
+                @method('PATCH')
+                <div class="form-group mb-4">
+                    <label for="nombre" class="font-semibold">Nombre del tipo de permiso</label>
+                    <input type="text" name="nombre" id="nombre" class="form-control" required
+                        value="{{ old('nombre', $tipoPermiso->nombre) }}">
+                </div>
+                <div class="form-group mb-4">
+                    <label for="descripcion" class="font-semibold">Descripción del tipo de permiso</label>
+                    <textarea name="descripcion" id="descripcion" class="form-control"
+                        required>{{ old('descripcion', $tipoPermiso->descripcion) }}</textarea>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="dias" class="font-semibold">Duración (días)</label>
+                    <input type="number" name="dias" id="dias" class="form-control" required
+                        value="{{ old('dias', $tipoPermiso->dias) }}" min="1">
                 </div>
 
-                <!-- Descripción del permiso -->
-                <div class="mb-4">
-                    <label for="descripcion" class="block text-lg font-medium text-gray-700">Descripción:</label>
-                    <textarea name="descripcion" id="descripcion"
-                        class="mt-2 block w-full p-3 border rounded">{{ old('descripcion', $tipoPermiso->descripcion) }}</textarea>
+                <div class="mb-4 flex items-center">
+                    <input type="hidden" name="es_vacacion" value="0">
+                    <input type="checkbox" id="es_vacacion" name="es_vacacion" value="1" class="mr-2" {{ old('es_vacacion', $tipoPermiso->es_vacacion ?? false) ? 'checked' : '' }}>
+                    <label for="es_vacacion" class="font-semibold">Este permiso es de tipo "Vacaciones"</label>
                 </div>
 
-                <!-- Duración del permiso -->
-                <div class="mb-4">
-                    <label for="dias">Días</label>
-                    <input type="number" name="dias" value="{{ old('dias', $tipoPermiso->dias) }}">
-
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">¿Es vacación?</label>
-                    <input type="checkbox" name="es_vacacion" value="1" {{ old('es_vacacion', $tipoPermiso->es_vacacion ?? false) ? 'checked' : '' }}>
-                </div>
-
-
+                <!-- Botones de guardar y cancelar -->
                 <div class="form-group mt-6 flex justify-between">
-                    <button type="submit" class="btn btn-primary w-1/2 mr-2">Guardar
-                        Cambios</button>
+                    <button type="submit" class="btn btn-primary w-1/2 flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i> Guardar Cambios
+                    </button>
                     <a href="{{ route('admin.configuracion.tipos-permisos.index') }}"
-                        class="btn btn-secondary w-1/2">Cancelar</a>
+                        class="btn btn-secondary w-1/2 flex items-center justify-center">
+                        <i class="fas fa-times mr-2"></i> Cancelar
+                    </a>
                 </div>
-
             </form>
         </div>
     </div>

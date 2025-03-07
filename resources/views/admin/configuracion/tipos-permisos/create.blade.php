@@ -2,48 +2,51 @@
 
 @section('content')
     <div class="container mx-auto p-4">
-        <h1 class="text-xl font-semibold text-gray-800 shadow-sm bg-gray-100 p-3 rounded-md">Crear nuevo tipo de permiso
-        </h1>
+        <div class="bg-blue-600 text-white p-4 rounded-md shadow-md text-center text-lg font-bold">
+            Crear Nuevo Tipo de Permiso
+        </div>
 
         <!-- Mostrar mensajes de éxito -->
         @if(session('success'))
-            <div class="bg-green-500 text-white p-4 rounded mb-4">
-                {{ session('success') }}
+            <div class="alert alert-success flex items-center justify-between p-4 rounded mt-4">
+                <span>{{ session('success') }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
             </div>
         @endif
 
         <!-- Formulario para crear nuevo tipo de permiso -->
-        <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+        <div class="bg-white shadow-lg rounded-lg p-6 mt-6">
             <form method="POST" action="{{ route('admin.configuracion.tipos-permisos.store') }}">
                 @csrf
                 <div class="form-group mb-4">
-                    <label for="nombre">Nombre del tipo de permiso</label>
+                    <label for="nombre" class="font-semibold">Nombre del tipo de permiso</label>
                     <input type="text" name="nombre" id="nombre" class="form-control" required
                         placeholder="Ej. Permiso por enfermedad">
                 </div>
                 <div class="form-group mb-4">
-                    <label for="descripcion">Descripción del tipo de permiso</label>
+                    <label for="descripcion" class="font-semibold">Descripción del tipo de permiso</label>
                     <textarea name="descripcion" id="descripcion" class="form-control" required
                         placeholder="Ej. Permiso para ausencias por enfermedad o accidente"></textarea>
                 </div>
                 <div class="form-group mb-4">
-                    <label for="dias">Duración (días)</label>
+                    <label for="dias" class="font-semibold">Duración (días)</label>
                     <input type="number" name="dias" id="dias" class="form-control" required placeholder="Ej. 5" min="1">
                 </div>
 
-                <div class="mb-4">
-                    <label for="es_vacacion" class="flex items-center">
-                        <input type="checkbox" id="es_vacacion" name="es_vacacion" value="1" class="mr-2">
-                        Este permiso es de tipo "Vacaciones"
-                    </label>
+                <div class="mb-4 flex items-center">
+                    <input type="checkbox" id="es_vacacion" name="es_vacacion" value="1" class="mr-2">
+                    <label for="es_vacacion" class="font-semibold">Este permiso es de tipo "Vacaciones"</label>
                 </div>
-
 
                 <!-- Botones de guardar y cancelar -->
                 <div class="form-group mt-6 flex justify-between">
-                    <button type="submit" class="btn btn-primary w-1/2 mr-2">Guardar</button>
+                    <button type="submit" class="btn btn-primary w-1/2 flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i> Guardar
+                    </button>
                     <a href="{{ route('admin.configuracion.tipos-permisos.index') }}"
-                        class="btn btn-secondary w-1/2">Cancelar</a>
+                        class="btn btn-secondary w-1/2 flex items-center justify-center">
+                        <i class="fas fa-times mr-2"></i> Cancelar
+                    </a>
                 </div>
             </form>
         </div>

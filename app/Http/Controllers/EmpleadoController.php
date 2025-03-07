@@ -78,18 +78,20 @@ class EmpleadoController extends Controller
 
     public function show($id)
     {
+        $user = auth()->user(); // Obtiene el usuario autenticado
         $empleado = Empleado::findOrFail($id);
         $oficinas = Oficina::all();
         $grupos = Grupo::all();
         $tiposContratos = TipoContrato::all();
 
-        return view('admin.empleados.show', [
-            'empleado' => $empleado,
-            'oficinas' => $oficinas,
-            'grupos' => $grupos,
-            'tiposContratos' => $tiposContratos,
-        ]);
+        // Si es supervisor, no pasa el contrato a la vista
+        if ($user->hasRole('supervisor')) {
+            return view('supervisor.empleados.show', compact('empleado', 'oficinas', 'grupos', 'tiposContratos'));
+        } else {
+            return view('admin.empleados.show', compact('empleado', 'oficinas', 'grupos', 'tiposContratos'));
+        }
     }
+
 
     public function storeEmpleado(Request $request)
     {

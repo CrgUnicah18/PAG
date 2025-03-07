@@ -1,57 +1,67 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>Crear Solicitud de Vacaciones (Propia)</h1>
+    <div class="container mx-auto max-w-lg bg-white p-8 rounded-lg shadow-lg mt-10">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Crear Solicitud de Vacaciones</h1>
 
-        <form action="{{ route('admin.vacaciones.store') }}" method="POST">
+        <form action="{{ route('admin.vacaciones.store') }}" method="POST" class="space-y-4">
             @csrf
 
             <input type="hidden" name="empleado_id" value="{{ auth()->user()->empleado_id }}">
-            <!-- ID del empleado logueado -->
 
-            <div class="form-group">
-                <label for="fecha_inicio">Fecha de Inicio</label>
-                <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" required>
+            <!-- Fecha de Inicio -->
+            <div>
+                <label for="fecha_inicio" class="block text-gray-700 font-medium mb-1">Fecha de Inicio</label>
+                <input type="date" name="fecha_inicio" id="fecha_inicio"
+                    class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300" required>
             </div>
 
-            <div class="form-group">
-                <label for="fecha_fin">Fecha de Fin</label>
-                <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" required>
+            <!-- Fecha de Fin -->
+            <div>
+                <label for="fecha_fin" class="block text-gray-700 font-medium mb-1">Fecha de Fin</label>
+                <input type="date" name="fecha_fin" id="fecha_fin"
+                    class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300" required>
             </div>
 
-            <!-- Campo para seleccionar el tipo de vacación -->
-            <div class="form-group">
-                <label for="tipo_permiso_id">Tipo de Vacación</label>
-                <select name="tipo_permiso_id" id="tipo_permiso_id" class="form-control" required>
+            <!-- Tipo de Vacación -->
+            <div>
+                <label for="tipo_permiso_id" class="block text-gray-700 font-medium mb-1">Tipo de Vacación</label>
+                <select name="tipo_permiso_id" id="tipo_permiso_id"
+                    class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300" required>
                     @foreach(\App\Models\TipoPermiso::where('es_vacacion', 1)->get() as $tipo)
-                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option> <!-- Mostramos el nombre -->
+                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Campo para agregar comentario -->
-            <div class="form-group">
-                <label for="comentario">Comentario (Opcional)</label>
-                <textarea name="comentario" id="comentario" class="form-control" rows="4"></textarea>
+            <!-- Comentario -->
+            <div>
+                <label for="comentario" class="block text-gray-700 font-medium mb-1">Comentario (Opcional)</label>
+                <textarea name="comentario" id="comentario"
+                    class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300" rows="4"></textarea>
             </div>
 
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
-                <a href="{{ route('admin.vacaciones.index') }}" class="btn btn-secondary">Cancelar</a>
+            <!-- Botones -->
+            <div class="flex justify-between mt-4">
+                <button type="submit"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Enviar
+                    Solicitud</button>
+                <a href="{{ route('admin.vacaciones.index') }}"
+                    class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Cancelar</a>
             </div>
+
+            <!-- Alertas -->
             @if(session('success'))
-                <div class="alert alert-success">
+                <div class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger">
+                <div class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                     {{ session('error') }}
                 </div>
             @endif
-
         </form>
     </div>
 @endsection

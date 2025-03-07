@@ -54,15 +54,6 @@
                     </tbody>
                 </table>
             </div>
-            <div class="text-center mt-6">
-                @if ($empleado->documento_contrato)
-                    <a href="{{ asset($empleado->documento_contrato) }}"
-                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">Abrir
-                        Contrato</a>
-                @else
-                    <p class="text-gray-600">No se ha cargado un contrato aún.</p>
-                @endif
-            </div>
         </div>
     </div>
 @endsection

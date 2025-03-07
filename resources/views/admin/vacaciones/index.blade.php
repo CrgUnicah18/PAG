@@ -3,9 +3,19 @@
 @section('content')
     <div class="container">
         <h1 class="mb-4 text-center">Solicitudes de Vacaciones</h1>
+        <div class="flex space-x-4 mt-6 mb-4">
+            <!-- Botón para Asignar Vacaciones -->
+            <!-- Botón para Asignar Vacaciones -->
+            <button type="button"
+                class="btn btn-primary text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105"
+                onclick="openVacacionesModal()">Asignar Vacaciones</button>
 
-        <!-- Botón para Asignar Vacaciones -->
-        <button type="button" class="btn btn-primary" onclick="openVacacionesModal()">Asignar Vacaciones</button>
+            <!-- Botón para Solicitar Vacaciones -->
+            <a href="{{ route('admin.vacaciones.create') }}"
+                class="btn btn-primary text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105">
+                Solicitar Vacaciones
+            </a>
+        </div>
 
 
         <table class="table table-hover table-bordered text-center">
@@ -97,7 +107,7 @@
     <!-- Paginación para la tabla de vacaciones propias -->
     {{ $vacacionesPropias->links() }}
 
-    
+
     <!-- Modal de Comentarios -->
     <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
         <div class="modal-dialog">

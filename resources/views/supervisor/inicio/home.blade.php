@@ -32,6 +32,30 @@
                     <h3 class="text-lg font-semibold">Permisos del Supervisor</h3>
                     <p class="mt-2 text-2xl">{{ $permisosSupervisor->count() ?? 0 }} permisos</p>
                 </div>
+                <!-- Cumpleaños de hoy y mañana -->
+                <div class="p-4 bg-blue-100 rounded-lg shadow-sm mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2 flex items-center">
+                        <span class="mr-2 text-3xl">🎉</span>
+                        ¡Cumpleaños de hoy!
+                    </h3>
+                    <ul class="list-disc pl-5">
+                        @foreach ($cumpleañosHoy as $empleado)
+                            <li class="text-lg text-gray-700">{{ $empleado->nombre }}
+                                ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
+                        @endforeach
+                    </ul>
+
+                    <h3 class="text-2xl font-semibold text-gray-800 mt-6 mb-2 flex items-center">
+                        <span class="mr-2 text-3xl">🎂</span>
+                        ¡Cumpleaños de mañana!
+                    </h3>
+                    <ul class="list-disc pl-5">
+                        @foreach ($cumpleañosMañana as $empleado)
+                            <li class="text-lg text-gray-700">{{ $empleado->nombre }}
+                                ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         </div>
     @elseif(auth()->user()->hasRole('empleado'))
