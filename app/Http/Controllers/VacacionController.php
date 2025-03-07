@@ -7,6 +7,7 @@ use App\Models\Vacacion;
 use App\Models\Empleado;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TipoPermiso;
+use Carbon\Carbon;
 
 class VacacionController extends Controller
 {
@@ -61,7 +62,7 @@ class VacacionController extends Controller
     {
         // Validación común para todos los tipos de solicitud de vacaciones
         $request->validate([
-            'fecha_inicio' => 'required|date',
+            'fecha_inicio' => 'required|date|after_or_equal:' . Carbon::today()->toDateString(),
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
             'tipo_permiso_id' => 'required|exists:tipo_permisos,id', // Validación para tipo_permiso_id
             'comentario' => 'nullable|string|max:255', // Validación para comentario
@@ -69,6 +70,24 @@ class VacacionController extends Controller
 
         $user = auth()->user();
         $empleadoId = $user->empleado_id;
+
+        // Verificar que no haya solicitudes con fechas sobrepuestas para el mismo empleado
+        $solicitudesExistentes = Vacacion::where('empleado_id', $empleadoId)
+            ->whereIn('estado', ['pendiente', 'aprobadas', 'pendientes_aprobacion'])
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('fecha_inicio', [$request->fecha_inicio, $request->fecha_fin])
+                    ->orWhereBetween('fecha_fin', [$request->fecha_inicio, $request->fecha_fin])
+                    ->orWhere(function ($query) use ($request) {
+                        $query->where('fecha_inicio', '<=', $request->fecha_inicio)
+                            ->where('fecha_fin', '>=', $request->fecha_fin);
+                    });
+            })
+            ->exists();
+
+        // Si existen solicitudes con fechas sobrepuestas, retornar un error
+        if ($solicitudesExistentes) {
+            return redirect()->back()->withErrors('Ya existe una solicitud de vacaciones con fechas sobrepuestas.');
+        }
 
         // Si el usuario es admin, puede crear solicitudes para él mismo o para cualquier empleado
         if ($user->hasRole('admin')) {

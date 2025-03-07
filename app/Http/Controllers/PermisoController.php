@@ -129,7 +129,6 @@ class PermisoController extends Controller
     }
 
 
-    // Almacenar la solicitud de un permiso
     public function store(Request $request)
     {
         // Validar los campos de la solicitud
@@ -151,6 +150,24 @@ class PermisoController extends Controller
             return redirect()->back()->with('error', 'El empleado no existe en el sistema.');
         }
 
+        // Verificar si hay permisos pendientes o pendientes_aprobacion con fechas sobrepuestas para el empleado
+        $fechasSobrepuestas = Permiso::where('empleado_id', $empleado->id)
+            ->whereIn('estado', ['pendiente', 'pendiente_aprobacion', 'aprobado']) // Verificar ambos estados
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('fecha_inicio', [$request->fecha_inicio, $request->fecha_fin])
+                    ->orWhereBetween('fecha_fin', [$request->fecha_inicio, $request->fecha_fin])
+                    ->orWhere(function ($query2) use ($request) {
+                        $query2->where('fecha_inicio', '<=', $request->fecha_inicio)
+                            ->where('fecha_fin', '>=', $request->fecha_fin);
+                    });
+            })
+            ->exists();
+
+
+        if ($fechasSobrepuestas) {
+            return redirect()->back()->with('error', 'Ya tienes una solicitud de permiso pendiente en las fechas seleccionadas.');
+        }
+
         // Crear el nuevo permiso
         $permiso = new Permiso();
         $permiso->empleado_id = $empleado->id;  // Usar el ID del empleado relacionado con el usuario
@@ -161,7 +178,7 @@ class PermisoController extends Controller
         $permiso->comentario = $request->comentario;
         $permiso->save();
 
-
+        // Redirigir según el rol del usuario
         if ($user->hasRole('supervisor')) {
             return redirect()->route('supervisor.permisos.index')->with('success', 'Solicitud de permiso enviada.');
         }
@@ -174,6 +191,7 @@ class PermisoController extends Controller
 
         return redirect()->back()->with('error', 'No tienes acceso para crear un permiso.');
     }
+
 
     // Aprobar un permiso (Supervisor o Admin)
     // Aprobar un permiso (Supervisor o Admin)
