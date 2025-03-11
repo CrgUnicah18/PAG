@@ -44,7 +44,8 @@ class EmpleadoController extends Controller
             $query->where('supervisor_id', $user->empleado_id);
         }
 
-        $empleados = $query->get(); // Obtener resultados después de aplicar los filtros
+        // Paginación: 10 empleados por página
+        $empleados = $query->paginate(10); // Cambié get() por paginate(10)
 
         // Obtener datos adicionales
         $grupos = Grupo::all();
@@ -164,12 +165,19 @@ class EmpleadoController extends Controller
     // Función para mostrar el formulario de creación de usuario para el empleado específico
     public function createUsuario($empleado_id)
     {
-        // Buscar al empleado con el ID pasado
+        // Obtener el empleado por su ID
         $empleado = Empleado::findOrFail($empleado_id);
 
-        // Pasar el empleado a la vista para crear el usuario
-        return view('admin.createUsuario', compact('empleado_id'));
+        // Verificar si el empleado ya tiene un usuario
+        if ($empleado->user) {
+            return redirect()->route('admin.empleados.index')->with('error', 'Este empleado ya tiene un usuario asociado.');
+        }
+
+        // Mostrar el formulario de creación de usuario, pasando el empleado
+        return view('admin.createUsuario', compact('empleado', 'empleado_id'));
     }
+
+
 
     // Función para almacenar el usuario
     public function storeUsuario(Request $request, $empleado_id)

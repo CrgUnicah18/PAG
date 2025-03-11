@@ -18,7 +18,7 @@ class PermisoController extends Controller
 
         // Obtener el estado y nombre del filtro si están presentes
         $estado = $request->input('estado');
-        $nombreEmpleado = $request->input('empleado'); // Este es el nuevo filtro
+        $nombreEmpleado = $request->nombreEmpleado;
 
         // Verificar si el empleado existe
         if (!$empleado) {
@@ -75,25 +75,21 @@ class PermisoController extends Controller
             return view('empleado.permisos.index', compact('permisosEmpleado', 'empleados'));
         }
 
-        // Si el usuario es admin, filtrar por estado si es necesario
         if ($user->hasRole('admin')) {
-            // Obtener los permisos del propio empleado (no se aplica filtro aquí)
-            $permisosAdmin = Permiso::where('empleado_id', $empleado->id)->paginate(10);
+            // Permisos del propio empleado (admin también es empleado)
+            $permisosAdmin = Permiso::where('empleado_id', $user->empleado->id)->paginate(10);
 
-            // Obtener los permisos filtrados por estado y nombre de empleado
+            // Permisos filtrados por estado y nombre del empleado
             $permisos = Permiso::when($estado, function ($query, $estado) {
                 return $query->where('estado', $estado);
             })
                 ->when($nombreEmpleado, function ($query, $nombreEmpleado) {
-                    return $query->whereHas('empleado', function ($query) use ($nombreEmpleado) {
-                        $query->where('nombre', 'like', '%' . $nombreEmpleado . '%');
+                    return $query->whereHas('empleado', function ($q) use ($nombreEmpleado) {
+                        $q->where('nombre', 'like', '%' . $nombreEmpleado . '%');
                     });
                 })
-                ->paginate(10); // Paginación para todos los permisos
+                ->paginate(10);
 
-
-
-            // Retornamos la vista con los permisos filtrados
             return view('admin.permisos.index', compact('permisos', 'permisosAdmin', 'empleados', 'nombreEmpleado', 'estado'));
         }
 
@@ -214,6 +210,10 @@ class PermisoController extends Controller
             }
 
             $permiso->update(['estado' => 'aprobado']);
+
+            // Ahora que el permiso fue aprobado, cambiar el estado del empleado a 'inactivo'
+            $empleado = $permiso->empleado;
+            $empleado->update(['estado' => 'inactivo']); // Cambio el estado del empleado a 'inactivo'
             return redirect()->route('admin.permisos.index')->with('success', 'Aprobado por Admin.');
         }
 
@@ -264,6 +264,25 @@ class PermisoController extends Controller
         // Redirigir de vuelta con un mensaje de éxito
         return redirect()->back()->with('success', 'Comentario guardado exitosamente.');
     }
+
+    public function actualizarEstadoEmpleados()
+    {
+        // Obtener todos los permisos aprobados
+        $permisos = Permiso::where('estado', 'aprobado')->get();
+
+        foreach ($permisos as $permiso) {
+            // Verificar si la fecha de fin del permiso ha pasado
+            if ($permiso->fecha_fin < now()) {
+                // Cambiar el estado del empleado a activo
+                $empleado = $permiso->empleado;
+                $empleado->estado = 'activo'; // Cambiar a 'activo'
+                $empleado->save();
+            }
+        }
+
+        return response()->json(['message' => 'Estado de los empleados actualizado.']);
+    }
+
 
 
 }

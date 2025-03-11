@@ -12,21 +12,44 @@
 
 
         {{-- Filtro por estado y nombre de empleado --}}
-        <div class="mb-4 flex justify-start items-center">
-            <form action="{{ route('admin.permisos.index') }}" method="GET" class="flex items-center">
-                <label for="estado" class="mr-2 text-sm text-gray-600">Filtrar por Estado:</label>
-                <select name="estado" id="estado" class="px-4 py-2 border rounded-md">
-                    <option value="">Todos</option>
-                    <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="pendiente_aprobacion" {{ request('estado') == 'pendiente_aprobacion' ? 'selected' : '' }}>
-                        Pendiente de Aprobación</option>
-                    <option value="aprobado" {{ request('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
-                    <option value="rechazado" {{ request('estado') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
-                </select>
+        <div class="mb-6">
+            <form action="{{ route('admin.permisos.index') }}" method="GET"
+                class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
 
-                <button type="submit" class="ml-2 bg-indigo-600 text-white px-4 py-2 rounded-md">Filtrar</button>
+                {{-- Input de búsqueda por nombre --}}
+                <input type="text" name="nombreEmpleado" value="{{ request('nombreEmpleado') }}"
+                    class="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Buscar por nombre de empleado">
+
+                {{-- Select de estado --}}
+                <div class="flex items-center space-x-2">
+                    <label for="estado" class="text-sm text-gray-700 font-medium">Estado:</label>
+                    <select name="estado" id="estado"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Todos</option>
+                        <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                        <option value="pendiente_aprobacion" {{ request('estado') == 'pendiente_aprobacion' ? 'selected' : '' }}>
+                            Pendiente de Aprobación</option>
+                        <option value="aprobado" {{ request('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
+                        <option value="rechazado" {{ request('estado') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                    </select>
+                </div>
+
+                {{-- Botones de Filtrar y Limpiar --}}
+                <div class="flex space-x-2">
+                    <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-lg transition-all duration-200">
+                        Filtrar
+                    </button>
+
+                    <a href="{{ route('admin.permisos.index') }}"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-5 py-2 rounded-lg transition-all duration-200">
+                        Limpiar
+                    </a>
+                </div>
             </form>
         </div>
+
 
         {{-- Tabla de todos los permisos --}}
         <h3 class="text-2xl font-semibold text-gray-800 mb-4">Permisos de Todos los Empleados</h3>

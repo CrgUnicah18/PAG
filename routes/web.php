@@ -13,6 +13,13 @@ use App\Http\Controllers\OficinaController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Console\Commands\ActualizarEstadoEmpleado;
+
+Artisan::command('empleados:actualizar-estado', function () {
+    // Aquí va la lógica de tu comando (o bien ya está en el archivo de comando que creaste)
+    $this->call(ActualizarEstadoEmpleado::class);
+})->describe('Actualizar el estado de los empleados a activo si han finalizado su permiso');
+
 
 // Rutas de login y registro
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -23,11 +30,11 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [RegisterController::class, 'register'])->name('register.submit');
 
-Route::get('/admin/usuarios/create/{empleado_id}', [EmpleadoController::class, 'createUsuario'])
+Route::get('/admin/create/{empleado_id}', [EmpleadoController::class, 'createUsuario'])
     ->name('admin.createUsuario')
     ->middleware(['auth', 'admin']); // Agregamos el middleware directamente a la ruta
 
-Route::post('/admin/usuarios/store/{empleado_id}', [EmpleadoController::class, 'storeUsuario'])
+Route::post('/admin/store/{empleado_id}', [EmpleadoController::class, 'storeUsuario'])
     ->name('admin.storeUsuario')
     ->middleware(['auth', 'admin']); // Lo mismo aquí
 

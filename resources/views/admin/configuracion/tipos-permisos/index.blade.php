@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
+
 @section('content')
+
+
+    <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary mb-3">
+        ← Volver al menú de configuración
+    </a>
+
     <div class="container py-4">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -39,9 +46,11 @@
                                         <td>{{ $tipoPermiso->nombre }}</td>
                                         <td>{{ $tipoPermiso->descripcion }}</td>
                                         <td>{{ $tipoPermiso->dias }}</td>
-                                        <td>{!! $tipoPermiso->es_vacacion ? '<span class="text-success">✅ Sí</span>' : '<span class="text-danger">❌ No</span>' !!}</td>
+                                        <td>{!! $tipoPermiso->es_vacacion ? '<span class="text-success">✅ Sí</span>' : '<span class="text-danger">❌ No</span>' !!}
+                                        </td>
                                         <td>
-                                            <a href="{{ route('admin.configuracion.tipos-permisos.edit', $tipoPermiso->id) }}" class="btn btn-warning btn-sm">
+                                            <a href="{{ route('admin.configuracion.tipos-permisos.edit', $tipoPermiso->id) }}"
+                                                class="btn btn-warning btn-sm">
                                                 <i class="fas fa-edit"></i> Editar
                                             </a>
                                         </td>
