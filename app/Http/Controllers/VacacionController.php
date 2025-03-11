@@ -125,7 +125,7 @@ class VacacionController extends Controller
             }
             // Si la solicitud es para otro empleado (administrador crea solicitud)
             else {
-                Vacacion::create([
+                $vacaciones = Vacacion::create([
                     'empleado_id' => $request->empleado_id,
                     'fecha_inicio' => $request->fecha_inicio,
                     'fecha_fin' => $request->fecha_fin,
@@ -134,6 +134,11 @@ class VacacionController extends Controller
                     'tipo_permiso_id' => $request->tipo_permiso_id, // Asegúrate de usar tipo_permiso_id
                     'comentario' => $request->comentario, // Agregamos comentario
                 ]);
+
+                // Ahora que tenemos la instancia de $vacaciones, podemos actualizar el estado del empleado
+                $empleado = Empleado::find($vacaciones->empleado_id); // Usamos $vacaciones para obtener el empleado
+                $empleado->estado = 'inactivo'; // Cambiar a inactivo
+                $empleado->save();
                 return redirect()->route('admin.vacaciones.index')->with('success', 'Solicitud de vacaciones para el empleado creada correctamente.');
             }
         }
@@ -247,10 +252,17 @@ class VacacionController extends Controller
             }
 
             $vacacion->update(['estado' => 'aprobadas']);
+            // Cambiar el estado del empleado a inactivo si la vacación es aprobada
+
             $vacacionesGenerales = Vacacion::paginate(8); // o el número que querás
             // Obtener todas las vacaciones
 
             $vacacionesPropias = Vacacion::where('empleado_id', $user->empleado->id)->paginate(8);
+            // En tu controlador donde apruebas las vacaciones
+            $empleado = Empleado::find($vacacion->empleado_id); // Asumiendo que $solicitud tiene el empleado_id
+            $empleado->estado = 'inactivo'; // Cambiar a inactivo
+            $empleado->save();
+
 
             return view('admin.vacaciones.index', compact('vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesPropias'))
                 ->with('success', 'Aprobadas por Admin.');
@@ -307,4 +319,36 @@ class VacacionController extends Controller
 
         return back()->with('success', 'Comentario agregado correctamente.');
     }
+
+    public function actualizarEstadoEmpleadosPorVacaciones()
+    {
+        $hoy = now()->toDateString();
+
+        // Activar empleados cuya vacaciones ya terminaron
+        $vacacionesFinalizadas = \App\Models\Vacacion::where('fecha_fin', '<', $hoy)->get();
+
+        foreach ($vacacionesFinalizadas as $vacacion) {
+            $empleado = $vacacion->empleado;
+
+            if ($empleado && $empleado->estado === 'inactivo') {
+                $empleado->estado = 'activo';
+                $empleado->save();
+            }
+        }
+
+        // Inactivar empleados con vacaciones activas hoy
+        $vacacionesActivas = \App\Models\Vacacion::where('fecha_inicio', '<=', $hoy)
+            ->where('fecha_fin', '>=', $hoy)
+            ->get();
+
+        foreach ($vacacionesActivas as $vacacion) {
+            $empleado = $vacacion->empleado;
+
+            if ($empleado && $empleado->estado !== 'inactivo') {
+                $empleado->estado = 'inactivo';
+                $empleado->save();
+            }
+        }
+    }
+
 }
