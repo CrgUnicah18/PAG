@@ -5,7 +5,6 @@
         <h1 class="mb-4 text-center">Solicitudes de Vacaciones</h1>
         <div class="flex space-x-4 mt-6 mb-4">
             <!-- Botón para Asignar Vacaciones -->
-            <!-- Botón para Asignar Vacaciones -->
             <button type="button"
                 class="btn btn-primary text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105"
                 onclick="openVacacionesModal()">Asignar Vacaciones</button>
@@ -15,6 +14,46 @@
                 class="btn btn-primary text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105">
                 Solicitar Vacaciones
             </a>
+        </div>
+        {{-- Filtro por estado y nombre de empleado --}}
+        <div class="mb-6">
+            <form action="{{ route('admin.vacaciones.index') }}" method="GET"
+                class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+
+                {{-- Input de búsqueda por nombre --}}
+                <input type="text" name="nombreEmpleado" value="{{ request('nombreEmpleado') }}"
+                    class="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Buscar por nombre de empleado">
+
+                {{-- Select de estado --}}
+                <div class="flex items-center space-x-2">
+                    <label for="estado" class="text-sm text-gray-700 font-medium">Estado:</label>
+                    <select name="estado" id="estado"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Todos</option>
+                        <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente
+                        </option>
+                        <option value="pendientes_aprobacion" {{ request('estado') == 'pendientes_aprobacion' ? 'selected' : '' }}>
+                            Pendiente de Aprobación</option>
+                        <option value="aprobadas" {{ request('estado') == 'aprobadas' ? 'selected' : '' }}>Aprobadas</option>
+                        <option value="rechazadas" {{ request('estado') == 'rechazadas' ? 'selected' : '' }}>Rechazadas
+                        </option>
+                    </select>
+                </div>
+
+                {{-- Botones de Filtrar y Limpiar --}}
+                <div class="flex space-x-2">
+                    <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-lg transition-all duration-200">
+                        Filtrar
+                    </button>
+
+                    <a href="{{ route('admin.vacaciones.index') }}"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-5 py-2 rounded-lg transition-all duration-200">
+                        Limpiar
+                    </a>
+                </div>
+            </form>
         </div>
 
 

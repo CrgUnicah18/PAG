@@ -22,6 +22,7 @@
                 <a href="{{ route('admin.empleados.create') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus-circle"></i> Crear Empleado
                 </a>
+
                 <a href="{{ route('admin.empleados.mostrarFormularioReporte') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-file-alt"></i> Generar Reporte
                 </a>
@@ -88,7 +89,7 @@
                         <th>Email</th>
                         <th>Rol</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th style="width: 150px;">Acciones</th> <!-- Aumento del ancho de la columna -->
                     </tr>
                 </thead>
                 <tbody>
@@ -106,9 +107,15 @@
                                 @endforeach
                             </td>
                             <td>
-                                <span class="badge {{ $empleado->estado == 'activo' ? 'bg-success' : 'bg-danger' }} text-white">
+                            <span class="badge 
+                                {{ 
+                                    $empleado->estado == 'activo' ? 'bg-success' : 
+                                    ($empleado->estado == 'inactivo' ? 'bg-warning' : 
+                                    ($empleado->estado == 'terminado' ? 'bg-danger' : ''))
+                                }} text-white">
                                     {{ ucfirst($empleado->estado) }}
-                                </span>
+                            </span>
+
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
@@ -118,12 +125,22 @@
                                     <a href="{{ route('admin.empleados.edit', $empleado->id) }}" class="btn btn-warning" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @if (!$empleado->user)
+                                        <a href="{{ route('admin.createUsuario', ['empleado_id' => $empleado->id]) }}" class="btn btn-info" title="Crear Usuario">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        {{-- Paginación --}}
+        <div class="d-flex justify-content-center mt-4">
+            {{ $empleados->links() }}
         </div>
     </div>
 @endsection

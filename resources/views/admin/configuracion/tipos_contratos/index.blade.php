@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+
+    <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary mb-3">
+        ← Volver al menú de configuración
+    </a>
+
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-primary">📜 Tipos de Contrato</h1>

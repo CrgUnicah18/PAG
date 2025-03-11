@@ -35,7 +35,9 @@
     31 => 'Termwind\\Laravel\\TermwindServiceProvider',
     32 => 'Pest\\Laravel\\PestServiceProvider',
     33 => 'Spatie\\Permission\\PermissionServiceProvider',
-    34 => 'App\\Providers\\AppServiceProvider',
+    34 => 'App\\Providers\\TaskSchedulerServiceProvider',
+    35 => 'App\\Providers\\AppServiceProvider',
+    36 => 'App\\Providers\\TaskSchedulerServiceProvider',
   ),
   'eager' => 
   array (
@@ -57,7 +59,9 @@
     15 => 'Termwind\\Laravel\\TermwindServiceProvider',
     16 => 'Pest\\Laravel\\PestServiceProvider',
     17 => 'Spatie\\Permission\\PermissionServiceProvider',
-    18 => 'App\\Providers\\AppServiceProvider',
+    18 => 'App\\Providers\\TaskSchedulerServiceProvider',
+    19 => 'App\\Providers\\AppServiceProvider',
+    20 => 'App\\Providers\\TaskSchedulerServiceProvider',
   ),
   'deferred' => 
   array (

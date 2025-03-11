@@ -15,21 +15,40 @@ class VacacionController extends Controller
     {
         $user = auth()->user(); // Usuario autenticado
         $empleado = $user->empleado; // Accedemos al empleado a través de la relación
-        $empleados = Empleado::all(); // Esto obtiene todos los empleados
+        $empleados = Empleado::all(); // Obtener todos los empleados
         $tiposVacaciones = TipoPermiso::where('es_vacacion', 1)->get();  // Filtra solo vacaciones
+
+        // Variables para los filtros de nombre de empleado y estado
+        $nombreEmpleado = $request->input('nombreEmpleado');
+        $estado = $request->input('estado');
+
         // Si el usuario es un administrador
         if ($user->hasRole('admin')) {
-            // Tabla 1: Solicitudes propias de vacaciones del admin (como empleado)
-            $vacacionesPropias = Vacacion::where('empleado_id', $empleado->id)->paginate(8);
+            // Filtro para vacaciones propias del admin (solo este empleado)
+            $vacacionesPropias = Vacacion::where('empleado_id', $empleado->id)
+                ->when($estado, function ($query, $estado) {
+                    return $query->where('estado', $estado); // Filtrar por estado si es proporcionado
+                })
+                ->when($nombreEmpleado, function ($query, $nombreEmpleado) {
+                    return $query->whereHas('empleado', function ($query) use ($nombreEmpleado) {
+                        $query->where('nombre', 'like', '%' . $nombreEmpleado . '%'); // Filtrar por nombre de empleado
+                    });
+                })
+                ->paginate(8);
 
+            // Filtro para todas las solicitudes de vacaciones, con filtros de nombre y estado
+            $vacacionesGenerales = Vacacion::when($estado, function ($query, $estado) {
+                return $query->where('estado', $estado); // Filtrar por estado
+            })
+                ->when($nombreEmpleado, function ($query, $nombreEmpleado) {
+                    return $query->whereHas('empleado', function ($query) use ($nombreEmpleado) {
+                        $query->where('nombre', 'like', '%' . $nombreEmpleado . '%'); // Filtrar por nombre
+                    });
+                })
+                ->paginate(8); // Paginación para todas las vacaciones
 
-            // Tabla 2: Todas las solicitudes de vacaciones (independientemente del empleado)
-            $vacacionesGenerales = Vacacion::paginate(8);
-
-
-            return view('admin.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones'));
+            return view('admin.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones', 'nombreEmpleado', 'estado'));
         }
-
         // Si el usuario es un supervisor
         if ($user->hasRole('supervisor')) {
             // Tabla 1: Solicitudes propias de vacaciones del supervisor (como empleado)
@@ -211,6 +230,7 @@ class VacacionController extends Controller
                 $vacacionesGenerales = Vacacion::whereHas('empleado', function ($query) use ($empleado) {
                     $query->where('supervisor_id', $empleado->id); // Filtra los empleados bajo la supervisión del supervisor
                 })->get();
+
                 return view('supervisor.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales'))->with('success', 'pre-aprobadas por supervisor.');
             } else {
                 return redirect()->back()->with('error', 'No puedes aprobar las vacaciones de un empleado que no te está asignado.');
@@ -227,8 +247,14 @@ class VacacionController extends Controller
             }
 
             $vacacion->update(['estado' => 'aprobadas']);
-            $vacacionesGenerales = Vacacion::all();  // Obtener todas las vacaciones
-            return view('admin.vacaciones.index', compact('vacacionesGenerales', 'empleados', 'tiposVacaciones'))->with('success', 'Aprobadas por Admin.');
+            $vacacionesGenerales = Vacacion::paginate(8); // o el número que querás
+            // Obtener todas las vacaciones
+
+            $vacacionesPropias = Vacacion::where('empleado_id', $user->empleado->id)->paginate(8);
+
+            return view('admin.vacaciones.index', compact('vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesPropias'))
+                ->with('success', 'Aprobadas por Admin.');
+
         }
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Esta solicitud no puede ser aprobada en este momento.');
