@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Console\Commands\ActualizarEstadoEmpleado;
+use App\Console\Commands\VacacionesActualizarEstado; // ← Asegúrate de tener este comando creado
 
 class TaskSchedulerServiceProvider extends ServiceProvider
 {
@@ -25,7 +26,8 @@ class TaskSchedulerServiceProvider extends ServiceProvider
      */
     public function boot(Schedule $schedule)
     {
-        // Registrar el comando programado
-        $schedule->command(ActualizarEstadoEmpleado::class)->dailyAt('19:00'); // Ajusta la hora según lo necesites
+        // Registrar los comandos programados
+        $schedule->command(ActualizarEstadoEmpleado::class)->dailyAt('19:00');
+        $schedule->command(VacacionesActualizarEstado::class)->dailyAt('19:00'); // ← Nuevo comando
     }
 }
