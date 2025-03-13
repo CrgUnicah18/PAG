@@ -5,7 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Console\Commands\ActualizarEstadoEmpleado;
-use App\Console\Commands\VacacionesActualizarEstado; // ← Asegúrate de tener este comando creado
+use App\Console\Commands\VacacionesActualizarEstado;
+use App\Console\Commands\ActualizarVacacionesAnuales; // ← Asegúrate de tener este comando creado
 
 class TaskSchedulerServiceProvider extends ServiceProvider
 {
@@ -16,7 +17,11 @@ class TaskSchedulerServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->commands([
+            ActualizarEstadoEmpleado::class,
+            VacacionesActualizarEstado::class,
+            ActualizarVacacionesAnuales::class, // ← Nuevo comando
+        ]);
     }
 
     /**
@@ -28,6 +33,7 @@ class TaskSchedulerServiceProvider extends ServiceProvider
     {
         // Registrar los comandos programados
         $schedule->command(ActualizarEstadoEmpleado::class)->dailyAt('19:00');
-        $schedule->command(VacacionesActualizarEstado::class)->dailyAt('19:00'); // ← Nuevo comando
+        $schedule->command(VacacionesActualizarEstado::class)->dailyAt('19:00');
+        $schedule->command('empleados:actualizar-vacaciones-anuales')->yearlyOn(1, 1, '00:00'); // ← Nuevo comando programado
     }
 }

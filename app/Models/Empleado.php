@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\DB; // Para la clase DB
+use DateTime; // Para la clase DateTime
+use Illuminate\Support\Facades\Log;
+
+
 
 class Empleado extends Model
 {
@@ -14,6 +19,7 @@ class Empleado extends Model
     protected $fillable = [
         'nombre',
         'apellido',
+        'genero',
         'estado',
         'fecha_ingreso',
         'tipo_contrato',
@@ -25,7 +31,8 @@ class Empleado extends Model
         'grupo_id',
         'tipo_contrato_id',
         'foto_perfil',
-        'documento_contrato'
+        'documento_contrato',
+        'vacaciones_restantes'
     ];
     // Relación con Oficina
     public function oficina()
@@ -67,39 +74,63 @@ class Empleado extends Model
         return $this->belongsTo(Empleado::class, 'supervisor_id');
     }
 
-    public function calcularVacacionesDisponibles()
+    public function calcularBalanceVacaciones()
     {
-        $fechaIngreso = $this->fecha_ingreso;
-        $fechaActual = now();
+        $fechaIngreso = new DateTime($this->fecha_ingreso);
+        $fechaActual = new DateTime();
 
-        // Calcular los años de servicio
-        $añosDeServicio = $fechaIngreso->diffInYears($fechaActual);
+        $intervalo = $fechaIngreso->diff($fechaActual);
+        $anosTrabajados = $intervalo->y;
 
-        // Inicializamos los días de vacaciones disponibles
-        $vacacionesDisponibles = 0;
+        \Log::info("Años trabajados: " . $anosTrabajados);
 
-        // Si tiene más de 2 meses de trabajo, empieza a tener vacaciones
-        if ($añosDeServicio < 1) {
-            $vacacionesDisponibles = 5; // 5 días de vacaciones antes de cumplir el primer año
-        } elseif ($añosDeServicio == 1) {
-            $vacacionesDisponibles = 10; // 10 días al cumplir el primer año
-        } elseif ($añosDeServicio == 2) {
-            $vacacionesDisponibles = 12; // 12 días al cumplir el segundo año
-        } elseif ($añosDeServicio == 3) {
-            $vacacionesDisponibles = 15; // 15 días al cumplir el tercer año
-        } elseif ($añosDeServicio == 4) {
-            $vacacionesDisponibles = 20; // 20 días al cumplir el cuarto año
-        } elseif ($añosDeServicio > 4) {
-            // Para cada año adicional después del cuarto, sumamos 5 días más
-            $vacacionesDisponibles = 20 + 5 * ($añosDeServicio - 4); // 20 días por los primeros 4 años y 5 días por cada año adicional
+        if ($anosTrabajados < 1) {
+            $vacacionesRestantes = 5;
+        } elseif ($anosTrabajados >= 1 && $anosTrabajados < 2) {
+            $vacacionesRestantes = 10;
+        } elseif ($anosTrabajados >= 2 && $anosTrabajados < 3) {
+            $vacacionesRestantes = 12;
+        } elseif ($anosTrabajados >= 3 && $anosTrabajados < 4) {
+            $vacacionesRestantes = 15;
+        } else {
+            $vacacionesRestantes = 20;
         }
 
-        // Restamos las vacaciones que ya ha tomado
-        return $vacacionesDisponibles - $this->vacaciones_tomadas;
+        \Log::info("Vacaciones Restantes Iniciales: " . $vacacionesRestantes);
+
+        // Aquí calculamos solo las vacaciones que NO están rechazadas
+        $vacacionesNoRechazadas = $this->vacaciones()
+            ->whereIn('estado', ['aprobadas', 'pendiente', 'pendientes_aprobacion'])
+            ->sum(DB::raw('DATEDIFF(fecha_fin, fecha_inicio) + 1'));
+
+        \Log::info("Vacaciones No Rechazadas (sumadas): " . $vacacionesNoRechazadas);
+
+        // Restar solo las vacaciones que NO estén rechazadas
+        $vacacionesRestantes -= min($vacacionesNoRechazadas, $vacacionesRestantes);
+
+        \Log::info("Vacaciones Restantes después de la resta: " . $vacacionesRestantes);
+
+        // Asegúrate de que no se sumen más días de los disponibles
+        $vacacionesRestantes = max($vacacionesRestantes, 0);
+
+        // Guardar el saldo calculado en el campo 'vacaciones_restantes'
+        $this->vacaciones_restantes = $vacacionesRestantes;
+        $this->save();
+
+        return $vacacionesRestantes;
     }
 
 
+    public function restaurarVacaciones($dias)
+    {
+        // Suponiendo que $dias es la cantidad de días a restaurar
+        $this->vacaciones_restantes += $dias;
 
+        // Guardar el nuevo saldo de vacaciones
+        $this->save();
+
+        \Log::info("Vacaciones restauradas para el empleado {$this->id}. Vacaciones restantes: {$this->vacaciones_restantes}");
+    }
 
 
 

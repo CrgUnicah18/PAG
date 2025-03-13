@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+    @if ($errors->any())
+        <script>
+            // Mostrar una alerta si hay errores
+            alert("{{ $errors->first() }}");
+        </script>
+    @endif
     <div class="container mt-4">
         <h2 class="text-xl font-semibold text-gray-800 shadow-sm bg-gray-100 p-4 rounded-md mb-4 text-center">
             Crear Empleado
@@ -10,6 +16,11 @@
             <div class="card-body">
                 <form action="{{ route('admin.empleados.storeEmpleado') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+
+                    @php
+                        $empleado = $empleado ?? new \App\Models\Empleado();
+                    @endphp
+
                     <div class="row mb-3">
                         <!-- Nombre -->
                         <div class="col-md-6">
@@ -102,8 +113,11 @@
                     <div class="row mb-3">
                         <!-- Fecha de Ingreso -->
                         <div class="col-md-6">
-                            <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
-                            <input type="date" name="fecha_ingreso" class="form-control" id="fecha_ingreso" required>
+                            <label for="fecha_ingreso">Fecha de Ingreso</label>
+                            <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required>
+                            @error('fecha_ingreso')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Estado -->
@@ -130,6 +144,16 @@
                                 accept=".pdf, .doc, .docx">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="genero">Género</label>
+                        <select name="genero" id="genero" class="form-control">
+                            <option value="M" {{ old('genero', $empleado->genero) == 'M' ? 'selected' : '' }}>Masculino
+                            </option>
+                            <option value="F" {{ old('genero', $empleado->genero) == 'F' ? 'selected' : '' }}>Femenino
+                            </option>
+                        </select>
+                    </div>
+
 
                     <div class="row">
                         <!-- Botón de Enviar -->

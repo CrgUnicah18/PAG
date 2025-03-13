@@ -34,8 +34,13 @@
                 </div>
 
                 <div class="mb-4 flex items-center">
-                    <input type="checkbox" id="es_vacacion" name="es_vacacion" value="1" class="mr-2">
+                    <input type="checkbox" id="es_vacacion" name="es_vacacion" value="1" class="mr-2" {{ old('es_vacacion', isset($tipoPermiso) ? $tipoPermiso->es_vacacion : 0) ? 'checked' : '' }}>
                     <label for="es_vacacion" class="font-semibold">Este permiso es de tipo "Vacaciones"</label>
+                </div>
+
+                <div class="form-group mb-4 flex items-center">
+                    <input type="checkbox" id="es_licencia" name="es_licencia" value="1" class="mr-2" {{ old('es_licencia', isset($tipoPermiso) ? $tipoPermiso->es_licencia : 0) ? 'checked' : '' }}>
+                    <label for="es_licencia" class="font-semibold">¿Es Licencia?</label>
                 </div>
 
                 <!-- Botones de guardar y cancelar -->

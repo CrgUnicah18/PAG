@@ -36,6 +36,7 @@ class TipoPermisoController extends Controller
             'descripcion' => 'required|string|max:255',
             'dias' => 'required|integer|min:1', //  que 'dias' sea un número válido
             'es_vacacion' => 'boolean', // Validar el checkbox
+            'es_licencia' => 'boolean', // Validar el checkbox
         ]);
 
         TipoPermiso::create([
@@ -43,6 +44,7 @@ class TipoPermisoController extends Controller
             'descripcion' => $request->descripcion,
             'dias' => $request->dias, //  guardar el valor de 'dias'
             'es_vacacion' => $request->has('es_vacacion'), // Guardar si se marcó
+            'es_licencia' => $request->has('es_licencia'), // Guardar si se marcó
         ]);
 
         return redirect()->route('admin.configuracion.tipos-permisos.index')->with('success', 'Tipo de permiso creado correctamente.');

@@ -104,35 +104,43 @@ class PermisoController extends Controller
     // Mostrar el formulario para solicitar un permiso
     public function create()
     {
-        $tiposPermiso = TipoPermiso::where('es_vacacion', 0)->get();
-        $user = auth()->user();
+        $user = auth()->user(); // Obtener el usuario logueado
+        $tiposPermiso = TipoPermiso::where('es_vacacion', 0); // Filtrar permisos que no sean vacaciones
 
-        // Si el usuario es supervisor (también es empleado en este caso)
+        // Si el empleado es femenino (género "F"), incluir permisos de tipo "licencia"
+        if ($user->genero === 'F') {
+            $tiposPermiso = $tiposPermiso->orWhere('es_licencia', 1); // Agregar permisos de licencia solo si es femenino
+        }
+
+        // Obtener los tipos de permiso
+        $tiposPermiso = $tiposPermiso->get();
+
+        // Comprobar los roles del usuario y devolver la vista correspondiente
         if ($user->hasRole('supervisor')) {
-            // No se necesita pasar la lista de empleados, ya que el supervisor ya es el empleado
             return view('supervisor.permisos.create', compact('tiposPermiso'));
         }
+
         if ($user->hasRole('empleado')) {
             return view('empleado.permisos.create', compact('tiposPermiso'));
         }
-        /// Si el usuario es admin, también le mostramos la vista de creación de permisos para administradores
+
         if ($user->hasRole('admin')) {
             return view('admin.permisos.create', compact('tiposPermiso'));
         }
 
-        // Si no tiene un rol válido, redirigir al usuario con un mensaje de error
         return redirect()->back()->with('error', 'No tienes acceso a esta sección.');
     }
+
 
 
     public function store(Request $request)
     {
         // Validar los campos de la solicitud
         $request->validate([
-            'tipo_permiso_id' => 'required',
-            'fecha_inicio' => 'required|date|after_or_equal:' . Carbon::today()->toDateString(), // fecha_inicio no puede ser anterior a hoy
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio', // fecha_fin puede ser el mismo día que fecha_inicio
-            'comentario' => 'nullable|string',
+            'tipo_permiso_id' => 'required|exists:tipo_permisos,id',
+            'fecha_inicio' => 'required|date|after_or_equal:' . Carbon::today()->toDateString(),
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'comentario' => 'nullable|string|max:255',
         ]);
 
         // Obtener el usuario logueado
@@ -144,6 +152,41 @@ class PermisoController extends Controller
         // Verificar si el empleado existe
         if (!$empleado) {
             return redirect()->back()->with('error', 'El empleado no existe en el sistema.');
+        }
+
+        // ** Validación 1: Verificar el máximo de 2 solicitudes por mes **
+        $permisosEsteMes = Permiso::where('empleado_id', $empleado->id)
+            ->whereYear('fecha_inicio', Carbon::now()->year) // Filtrar por el año actual
+            ->whereMonth('fecha_inicio', Carbon::now()->month) // Filtrar por el mes actual
+            ->count();
+
+        if ($permisosEsteMes >= 2) {
+            return redirect()->back()->with('error', 'Ya has alcanzado el límite de 2 permisos por mes.');
+        }
+
+        // ** Validación 2: Verificar el máximo de 15 permisos por año **
+        $permisosEsteAnio = Permiso::where('empleado_id', $empleado->id)
+            ->whereYear('fecha_inicio', Carbon::now()->year) // Filtrar por el año actual
+            ->count();
+
+        if ($permisosEsteAnio >= 15) {
+            return redirect()->back()->with('error', 'Ya has alcanzado el límite de 15 permisos por año.');
+        }
+
+        // ** Validación 3: Verificar si el tipo de permiso no es vacación y la duración excede el máximo permitido **
+        $tipoPermiso = TipoPermiso::find($request->tipo_permiso_id);
+
+        // Verificar si el tipo de permiso no es vacación (es_vacacion == 0)
+        if ($tipoPermiso && $tipoPermiso->es_vacacion == 0) {
+            // Obtener el número máximo de días permitidos para este tipo de permiso (campo 'dias')
+            $diasMaximos = $tipoPermiso->dias; // Campo 'dias' de la tabla 'tipo_permisos'
+
+            // Calcular la duración del permiso solicitado
+            $diasDuracion = Carbon::parse($request->fecha_inicio)->diffInDays(Carbon::parse($request->fecha_fin)) + 1; // +1 para incluir el día de inicio
+
+            if ($diasDuracion > $diasMaximos) {
+                return redirect()->back()->with('error', 'El permiso no puede exceder los ' . $diasMaximos . ' días.');
+            }
         }
 
         // Verificar si hay permisos pendientes o pendientes_aprobacion con fechas sobrepuestas para el empleado
@@ -159,7 +202,6 @@ class PermisoController extends Controller
             })
             ->exists();
 
-
         if ($fechasSobrepuestas) {
             return redirect()->back()->with('error', 'Ya tienes una solicitud de permiso pendiente en las fechas seleccionadas.');
         }
@@ -172,6 +214,7 @@ class PermisoController extends Controller
         $permiso->fecha_fin = $request->fecha_fin;
         $permiso->estado = 'pendiente';  // Estado inicial
         $permiso->comentario = $request->comentario;
+        // Eliminar esta línea porque 'es_licencia' no debe ir en la tabla 'permisos'
         $permiso->save();
 
         // Redirigir según el rol del usuario
@@ -187,6 +230,9 @@ class PermisoController extends Controller
 
         return redirect()->back()->with('error', 'No tienes acceso para crear un permiso.');
     }
+
+
+
 
 
     // Aprobar un permiso (Supervisor o Admin)
