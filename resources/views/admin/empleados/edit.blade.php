@@ -145,6 +145,14 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="genero">Género</label>
+                    <select name="genero" id="genero" class="form-control">
+                        <option value="M" {{ old('genero', $empleado->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
+                        <option value="F" {{ old('genero', $empleado->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
+                    </select>
+                </div>
+
 
                 <button type="submit" class="btn btn-primary w-100 mt-3">Actualizar Empleado</button>
             </div>

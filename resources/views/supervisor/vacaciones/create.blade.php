@@ -11,6 +11,31 @@
         </div>
     @endif
 
+    <!-- Cartilla de días de vacaciones disponibles -->
+    <div
+        class="w-full lg:w-80 mx-auto bg-gradient-to-br from-white to-gray-100 rounded-2xl shadow-2xl border border-gray-200 p-6 transition-transform hover:scale-105 duration-300 ease-in-out mb-8">
+        <!-- Encabezado -->
+        <div class="bg-green-600 text-white py-3 px-4 rounded-xl shadow-md text-center mb-5">
+            <h2 class="text-xl font-bold tracking-wide">Vacaciones Restantes</h2>
+        </div>
+
+        <!-- Cuerpo de la cartilla -->
+        <div class="text-center space-y-2">
+            <p class="text-gray-600 text-sm">Días disponibles para el empleado:</p>
+            <div class="text-5xl font-extrabold text-orange-500 drop-shadow-sm">
+                {{ $vacacionesRestantes }}<span class="text-2xl font-medium"> días</span>
+            </div>
+        </div>
+
+        <!-- Ícono decorativo -->
+        <div class="mt-6 flex justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500 opacity-70" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4m0 0l4-4m-4 4l4 4" />
+            </svg>
+        </div>
+    </div>
+
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-md">
         <h1 class="text-2xl font-semibold text-gray-800 mb-6">Crear Solicitud de Vacaciones (Propia)</h1>
 
@@ -56,7 +81,7 @@
             </div>
 
             <!-- Botones de Enviar y Cancelar -->
-            <div class="flex justify-end space-x-4 mt-6">
+            <div class="flex justify-between space-x-4 mt-6">
                 <button type="submit"
                     class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Enviar
                     Solicitud</button>

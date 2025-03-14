@@ -13,6 +13,8 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\VacacionesAsignadas;
 
 
 class EmpleadoController extends Controller
@@ -99,20 +101,34 @@ class EmpleadoController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
+            'direccion' => 'required|string|max:255',
+            'telefono' => 'required|string|max:20',
+            'fecha_nacimiento' => 'required|date',
             'oficina_id' => 'required|exists:oficinas,id',
             'grupo_id' => 'required|exists:grupos,id',
             'supervisor_id' => 'nullable|exists:empleados,id',
             'tipo_contrato_id' => 'required|exists:tipo_contratos,id',
-            'fecha_ingreso' => 'required|date',
+            'fecha_ingreso' => 'required|date|before_or_equal:' . Carbon::now()->toDateString(),
             'estado' => 'required|in:activo,inactivo',
-            'foto_perfil' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'documento_contrato' => 'nullable|mimes:pdf,doc,docx',
+            'genero' => 'required|in:M,F',
+            'foto_perfil' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'documento_contrato' => 'nullable|mimes:pdf,doc,docx|max:2048',
+        ], [
+            'fecha_ingreso.before_or_equal' => 'La fecha de ingreso no puede ser en el futuro.',
+            'estado.required' => 'El estado es obligatorio.',
+            'estado.in' => 'El estado debe ser uno de los siguientes: activo, inactivo.',
+            'foto_perfil.image' => 'La foto de perfil debe ser una imagen válida.',
+            'foto_perfil.mimes' => 'La foto de perfil debe tener uno de los siguientes formatos: jpeg, png, jpg, gif.',
+            'documento_contrato.mimes' => 'El documento del contrato debe ser un archivo PDF, DOC o DOCX.',
         ]);
 
         // Inicia la transacción
         DB::beginTransaction();
 
         try {
+            // Obtener el nombre del tipo de contrato
+            $tipoContrato = TipoContrato::find($request->tipo_contrato_id);
+
             // Crear el empleado
             $empleado = new Empleado();
             $empleado->nombre = $request->nombre;
@@ -124,8 +140,10 @@ class EmpleadoController extends Controller
             $empleado->grupo_id = $request->grupo_id;
             $empleado->supervisor_id = $request->supervisor_id;
             $empleado->tipo_contrato_id = $request->tipo_contrato_id;
+            $empleado->tipo_contrato = $tipoContrato->nombre; // Guardar el nombre del tipo de contrato
             $empleado->fecha_ingreso = $request->fecha_ingreso;
             $empleado->estado = $request->estado;
+            $empleado->genero = $request->genero;
 
             // Subir foto de perfil
             if ($request->hasFile('foto_perfil')) {
@@ -146,14 +164,18 @@ class EmpleadoController extends Controller
             // Guardar empleado
             $empleado->save();
 
-            // Si todo va bien, hacer commit de la transacción
+            // Calcular y guardar el balance de vacaciones
+            $empleado->vacaciones_restantes = $empleado->calcularBalanceVacaciones();
+            $empleado->save();
+
+            // Confirmar la transacción
             DB::commit();
 
             // Redirigir al formulario para crear el usuario, pasando el ID del empleado recién creado
             return redirect()->route('admin.createUsuario', ['empleado_id' => $empleado->id]);
 
         } catch (\Exception $e) {
-            // Si hay algún error, hacer rollback de la transacción
+            // Revertir la transacción en caso de error
             DB::rollBack();
 
             // Volver atrás y mostrar el mensaje de error
@@ -226,6 +248,7 @@ class EmpleadoController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
+            'genero' => 'required|in:M,F',
             'telefono' => 'required|string|max:255',
             'grupo_id' => 'required|exists:grupos,id',
             'oficina_id' => 'required|exists:oficinas,id',
@@ -248,6 +271,7 @@ class EmpleadoController extends Controller
         $empleado->estado = $request->estado;
         $empleado->tipo_contrato_id = $request->tipo_contrato_id;
         $empleado->fecha_ingreso = $request->fecha_ingreso;
+        $empleado->genero = $request->genero;
 
         // Subir foto de perfil
         if ($request->hasFile('foto_perfil')) {
@@ -282,6 +306,7 @@ class EmpleadoController extends Controller
         $campos = [
             'nombre' => 'Nombre',
             'apellido' => 'Apellido',
+            'genero' => 'Genero',
             'direccion' => 'Dirección',
             'telefono' => 'Teléfono',
             'fecha_nacimiento' => 'Fecha de Nacimiento',
@@ -309,6 +334,7 @@ class EmpleadoController extends Controller
         $campos = [
             'nombre' => 'Nombre',
             'apellido' => 'Apellido',
+            'genero' => 'Genero',
             'direccion' => 'Dirección',
             'telefono' => 'Teléfono',
             'fecha_nacimiento' => 'Fecha de Nacimiento',
@@ -366,6 +392,5 @@ class EmpleadoController extends Controller
         // Descargar el PDF
         return $pdf->download('Reporte de empleados.pdf');
     }
-
 
 }

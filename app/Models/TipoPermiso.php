@@ -9,7 +9,7 @@ class TipoPermiso extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'descripcion', 'dias', 'es_vacacion'];
+    protected $fillable = ['nombre', 'descripcion', 'dias', 'es_vacacion', 'es_licencia'];
 
     // Relación con Vacacion (una tipo de permiso puede estar en muchas vacaciones)
     public function vacaciones()

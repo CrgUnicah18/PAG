@@ -2,7 +2,7 @@
 
 @section('content')
     @if ($errors->any())
-        <div class="alert alert-danger">
+        <div class="alert alert-danger mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -37,7 +37,9 @@
                     required>
                     <option value="">Selecciona el tipo de permiso</option>
                     @foreach($tiposPermiso as $tipo)
-                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                        @if(auth()->user()->genero === 'F' || $tipo->es_licencia == 0)
+                            <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                        @endif
                     @endforeach
                 </select>
             </div>
@@ -97,6 +99,9 @@
             } else {
                 document.getElementById("fecha_fin_error").classList.add("hidden");
             }
+
+            // Validación adicional (días de permiso) puede ser manejada desde el backend, 
+            // ya que se calcula a nivel servidor si se excede el máximo de días.
 
             if (!valid) {
                 event.preventDefault();

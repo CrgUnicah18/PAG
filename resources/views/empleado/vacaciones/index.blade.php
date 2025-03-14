@@ -10,6 +10,11 @@
                 class="btn btn-primary mb-3 text-white px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700">Solicitar
                 Vacaciones</a>
 
+            <!-- Mostrar los días de vacaciones disponibles para el empleado -->
+            <div class="vacaciones-restantes mb-3">
+                <p class="text-gray-700 font-medium">Días de vacaciones disponibles: {{ $vacacionesRestantes }}</p>
+            </div>
+
             <!-- Tabla de Solicitudes -->
             <div class="overflow-x-auto">
                 <table class="min-w-full table-auto border-separate border-spacing-2">
@@ -18,14 +23,15 @@
                             <th class="py-2 px-4 text-left">Fecha Inicio</th>
                             <th class="py-2 px-4 text-left">Fecha Fin</th>
                             <th class="py-2 px-4 text-left">Duración (días)</th>
-                            <th class="py-2 px-4 text-left">Estado</th> <!-- Fondo completo para el encabezado -->
+                            <th class="py-2 px-4 text-left">Estado</th>
+                            <th class="py-2 px-4 text-left">Comentario</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($vacacionesPropias as $vacacion)
                             <tr class="bg-white border-b">
-                                <td class="py-2 px-4">{{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('d-m-Y') }}</td>
-                                <td class="py-2 px-4">{{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('d-m-Y') }}</td>
+                                <td class="py-2 px-4">{{ $vacacion->fecha_inicio }}</td>
+                                <td class="py-2 px-4">{{ $vacacion->fecha_fin }}</td>
                                 <td class="py-2 px-4">{{ $vacacion->duracion_dias }}</td>
                                 <td class="py-2 px-4">
                                     @if($vacacion->estado == 'aprobadas')
@@ -40,12 +46,19 @@
                                         <span class="bg-gray-500 text-white px-4 py-2 rounded-lg">{{ $vacacion->estado }}</span>
                                     @endif
                                 </td>
+                                <td class="py-2 px-4 text-gray-700">
+                                    {{ $vacacion->comentario ?? 'Sin comentario' }}
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
+            <!-- Enlaces de paginación -->
+            <div class="pagination mt-4">
+                {{ $vacacionesPropias->links() }}
+            </div>
         </div>
     </div>
 @endsection

@@ -15,6 +15,7 @@
                 Solicitar Vacaciones
             </a>
         </div>
+
         {{-- Filtro por estado y nombre de empleado --}}
         <div class="mb-6">
             <form action="{{ route('admin.vacaciones.index') }}" method="GET"
@@ -55,7 +56,6 @@
                 </div>
             </form>
         </div>
-
 
         <table class="table table-hover table-bordered text-center">
             <thead class="table-dark">
@@ -100,7 +100,6 @@
                                     title="Agregar Comentario">
                                     <i class="fas fa-comment"></i>
                                 </button>
-
                             </td>
                         </tr>
                 @endforeach
@@ -108,7 +107,7 @@
         </table>
         <!-- Paginación -->
         <div class="d-flex justify-content-center">
-            {{ $vacacionesGenerales->links() }}
+            {{ $vacacionesGenerales->appends(request()->query())->links() }}
         </div>
     </div>
 
@@ -144,8 +143,7 @@
         </tbody>
     </table>
     <!-- Paginación para la tabla de vacaciones propias -->
-    {{ $vacacionesPropias->links() }}
-
+    {{ $vacacionesPropias->appends(request()->query())->links() }}
 
     <!-- Modal de Comentarios -->
     <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
@@ -171,7 +169,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Modal de Asignación de Vacaciones -->
     <div class="modal fade" id="vacacionesModal" tabindex="-1" aria-hidden="true">
@@ -243,7 +240,6 @@
         </div>
     </div>
 
-
     <script>
         // Función para abrir el modal de asignación de vacaciones
         function openVacacionesModal() {
@@ -272,7 +268,6 @@
             confirmModal.show();
         }
 
-
         function closeConfirmModal() {
             let confirmModalInstance = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
             if (confirmModalInstance) confirmModalInstance.hide();
@@ -291,7 +286,5 @@
             let commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
             commentModal.show();
         }
-
     </script>
-
 @endsection

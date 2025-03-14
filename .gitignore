@@ -35,3 +35,4 @@ database/database.sqlite-journal
 /public/mix-manifest.json
 /public/build/
 
+database/seeders/SuperAdminSeeder.php

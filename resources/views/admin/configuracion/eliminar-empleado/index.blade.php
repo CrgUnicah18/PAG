@@ -38,7 +38,8 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Nombre</th>
+                    <th>Nombre Completo</th>
+                    <th>Oficina</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -46,7 +47,9 @@
             <tbody>
                 @foreach($empleados as $empleado)
                     <tr>
-                        <td>{{ $empleado->nombre }}</td>
+                        <td>{{ $empleado->nombre }} {{ $empleado->apellido }}</td>
+                        <!-- Mostrar el nombre completo del empleado -->
+                        <td>{{ $empleado->oficina->nombre }}</td> <!-- Mostrar la oficina del empleado -->
                         <td>{{ ucfirst($empleado->estado) }}</td> <!-- Mostrar el estado del empleado -->
                         <td>
                             <form method="POST"

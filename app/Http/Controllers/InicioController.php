@@ -58,6 +58,7 @@ class InicioController extends Controller
 
             // Contadores de vacaciones solo para el empleado logueado
             $vacacionesProximas = Vacacion::where('empleado_id', $empleado->id)
+                ->where('estado', 'aprobadas') // Filtrar solo las vacaciones aprobadas
                 ->where('fecha_inicio', '>=', now())
                 ->count();
 
@@ -105,6 +106,7 @@ class InicioController extends Controller
 
             // Contadores de vacaciones filtrados por los empleados asignados
             $vacacionesProximas = Vacacion::whereIn('empleado_id', $empleadosIds)
+                ->where('estado', 'aprobadas') // Filtrar solo las vacaciones aprobadas
                 ->where('fecha_inicio', '>=', now())
                 ->count();
 
@@ -132,7 +134,9 @@ class InicioController extends Controller
             $permisosAprobados = Permiso::where('estado', 'aprobado')->count();
             $permisosRechazados = Permiso::where('estado', 'rechazado')->count();
             $permisosPendienteAprobacion = Permiso::where('estado', 'pendiente_aprobacion')->count();
-            $vacacionesProximas = Vacacion::where('fecha_inicio', '>=', now())->count();
+            $vacacionesProximas = Vacacion::where('estado', 'aprobadas') // Filtrar solo las vacaciones aprobadas
+                ->where('fecha_inicio', '>=', now())->count();
+
             // Retornar vista con los datos correspondientes
             return view('admin.inicio.home', compact(
                 'permisosPendientes',
@@ -146,54 +150,6 @@ class InicioController extends Controller
                 'cumpleañosMañana',
                 'empleadosAsignados'
             ));
-
         }
     }
-
-
-
-
-    /*    public function index()
-   {
-       // Fecha de hoy y mañana
-       $hoy = Carbon::today();
-       $mañana = Carbon::tomorrow();
-
-       // Obtener cumpleaños de hoy y mañana
-       $cumpleañosHoy = Empleado::whereMonth('fecha_nacimiento', $hoy->month)
-           ->whereDay('fecha_nacimiento', $hoy->day)
-           ->get();
-
-       $cumpleañosMañana = Empleado::whereMonth('fecha_nacimiento', $mañana->month)
-           ->whereDay('fecha_nacimiento', $mañana->day)
-           ->get();
-
-       // Contadores de permisos
-       $permisosPendientes = Permiso::where('estado', 'pendiente')->count();
-       $permisosAprobados = Permiso::where('estado', 'aprobado')->count();
-       $permisosRechazados = Permiso::where('estado', 'rechazado')->count();
-
-       // Contadores de vacaciones
-       $vacacionesProximas = Vacacion::where('fecha_inicio', '>=', now())->count();
-
-       // Contadores de empleados
-       $totalEmpleados = Empleado::count();
-       $empleadosActivos = Empleado::where('estado', 'activo')->count();  // Ajusta este campo a tu necesidad
-
-       return view('admin.inicio.home', compact(
-           'permisosPendientes',
-           'permisosAprobados',
-           'permisosRechazados',
-           'vacacionesProximas',
-           'totalEmpleados',
-           'empleadosActivos',
-           'cumpleañosHoy',
-           'cumpleañosMañana'
-       ));
-
-   }.
-   
-   */
-
-
 }

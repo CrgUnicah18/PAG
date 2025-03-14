@@ -11,6 +11,7 @@ use App\Models\Permiso;
 use App\Models\Vacacion;
 use App\Models\TipoPermiso;
 use Spatie\Permission\Models\Role;
+use Database\Seeders\SuperAdminSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,6 +22,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(SuperAdminSeeder::class);
+
         // Crear tipos de permisos de ejemplo usando el factory
         TipoPermiso::factory(3)->create(); // Crear 3 tipos de permisos
 

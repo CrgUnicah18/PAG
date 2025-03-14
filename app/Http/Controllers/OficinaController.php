@@ -36,7 +36,9 @@ class OficinaController extends Controller
         ]);
 
         // Redirigir a la lista de oficinas con un mensaje de éxito
-        return redirect()->route('admin.configuracion.store_oficina.store')->with('success', 'Oficina creada con éxito');
+        return redirect()->route('admin.configuracion.oficinas.index')->with('success', 'Oficina creada con éxito');
+
+
 
     }
 

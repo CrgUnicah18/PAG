@@ -28,6 +28,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Empleado::class);
     }
+    public function getGeneroAttribute()
+    {
+        return $this->empleado->genero;
+    }
 
     /**
      * The attributes that are mass assignable.

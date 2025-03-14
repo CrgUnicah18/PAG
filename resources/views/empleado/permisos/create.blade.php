@@ -37,6 +37,10 @@
                     required>
                     <option value="">Selecciona el tipo de permiso</option>
                     @foreach($tiposPermiso as $tipo)
+                        @if(auth()->user()->genero === 'M' && $tipo->es_licencia == 1)
+                            <!-- Si el género es M y el permiso es de licencia, no lo mostramos -->
+                            @continue
+                        @endif
                         <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                     @endforeach
                 </select>
