@@ -61,4 +61,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // En el modelo User.php
+
+    public function oficina()
+    {
+        return $this->belongsTo(Oficina::class);  // Un usuario tiene una oficina
+    }
+
+    public function grupos()
+    {
+        return $this->belongsToMany(Grupo::class);  // Un usuario puede pertenecer a varios grupos
+    }
+
+
 }

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TipoPermiso;
 use Carbon\Carbon;
 use DateTime;
+use Barryvdh\DomPDF\Facade\PDF;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\VacacionesExport;
 
 class VacacionController extends Controller
 {
@@ -509,6 +512,106 @@ class VacacionController extends Controller
 
 
     }
+    // Mostrar el formulario de filtros para el reporte de vacaciones
+    public function mostrarFormularioReporte()
+    {
+        $empleados = Empleado::all(); // Si necesitas una lista de empleados para mostrar en el formulario
+        return view('admin.vacaciones.formulario-reporte', compact('empleados'));
+    }
+
+    // Generar el reporte según los filtros seleccionados
+    public function generarReporte(Request $request)
+    {
+        $query = Vacacion::query();
+
+        // Si se seleccionó un empleado, filtrar por empleado
+        if ($request->filled('empleado_id')) {
+            $query->where('empleado_id', $request->empleado_id);
+        }
+
+        // Si se seleccionaron fechas, filtrar por las fechas
+        if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+            $query->whereBetween('fecha_inicio', [$request->fecha_inicio, $request->fecha_fin]);
+        }
+
+        // Si se seleccionó un estado, filtrar por estado
+        if ($request->filled('estado')) {
+            $query->whereIn('estado', $request->estado); // Cambié `where` por `whereIn` para múltiples estados
+        }
+
+        // Obtener los resultados de las vacaciones con paginación
+        $vacaciones = $query->paginate(10);
+
+        // Campos seleccionados para mostrar en el reporte
+        $camposSeleccionados = $request->input('campos', [
+            'empleado_id',
+            'fecha_inicio',
+            'fecha_fin',
+            'duracion_dias',
+            'estado',
+            'tipo_permiso_id',
+            'comentario'
+        ]);
+
+        // Pasar los resultados a la vista
+        return view('admin.vacaciones.reporte', compact('vacaciones', 'camposSeleccionados'))
+            ->with('filtros', $request->all()); // Pasamos los filtros a la vista
+    }
+
+    public function exportarPDF(Request $request)
+    {
+        // Aplicar los filtros de la misma manera que en generarReporte
+        $query = Vacacion::query();
+
+        $empleadoSeleccionado = null;
+        if ($request->filled('empleado_id')) {
+            $empleadoSeleccionado = Empleado::find($request->empleado_id);
+        }
+
+
+        if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+            $query->whereBetween('fecha_inicio', [$request->fecha_inicio, $request->fecha_fin]);
+        }
+
+        if ($request->filled('estado')) {
+            $query->whereIn('estado', $request->estado);
+        }
+
+        // Obtener las vacaciones filtradas con paginación
+        $vacaciones = $query->get(); // Usamos paginación aquí
+
+        // Obtener los campos seleccionados, o usar valores predeterminados
+        $camposSeleccionados = $request->input('campos', [
+            'empleado_id',
+            'fecha_inicio',
+            'fecha_fin',
+            'duracion_dias',
+            'estado',
+            'tipo_permiso_id',
+            'comentario'
+        ]);
+
+        // Pasar los datos a la vista para generar el PDF
+        // Generar el PDF usando la vista exclusiva con los campos seleccionados
+        $pdf = PDF::loadView('admin.vacaciones.reporte_pdf', [
+            'vacaciones' => $vacaciones,
+            'camposSeleccionados' => $camposSeleccionados,
+            'empleadoSeleccionado' => $empleadoSeleccionado ?? null, // le pasás null si no hay filtro por empleado
+        ]);
+
+
+        // Descargar el PDF
+        return $pdf->download('reporte_vacaciones.pdf');
+    }
+
+
+    public function exportarExcel(Request $request)
+    {
+        return Excel::download(new VacacionesExport($request), 'reporte_vacaciones.xlsx');
+    }
+
+
+
 
 
 }

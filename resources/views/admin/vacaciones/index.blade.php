@@ -14,6 +14,8 @@
                 class="btn btn-primary text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105">
                 Solicitar Vacaciones
             </a>
+            <a href="{{ route('admin.vacaciones.reporte') }}">Generar Reporte</a>
+
         </div>
 
         {{-- Filtro por estado y nombre de empleado --}}

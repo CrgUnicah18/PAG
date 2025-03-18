@@ -133,18 +133,6 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
-                    <!-- Rol -->
-                    <div class="col-md-4">
-                        <label for="rol" class="form-label">Rol</label>
-                        <select class="form-control" name="rol" required>
-                            <option value="empleado" {{ old('rol', $empleado->rol) == 'empleado' ? 'selected' : '' }}>Empleado
-                            </option>
-                            <option value="supervisor" {{ old('rol', $empleado->rol) == 'supervisor' ? 'selected' : '' }}>
-                                Supervisor</option>
-                        </select>
-                    </div>
-                </div>
                 <div class="form-group">
                     <label for="genero">Género</label>
                     <select name="genero" id="genero" class="form-control">

@@ -57,6 +57,10 @@
                     <input type="checkbox" class="form-checkbox text-blue-500">
                     <span class="ml-2 text-sm text-gray-600">Recordarme</span>
                 </label>
+
+                <!-- Enlace a registro de empleado a la derecha -->
+                <a href="{{ route('register') }}" class="text-sm text-blue-500 hover:text-blue-700">¿No tienes cuenta?
+                    Registrate</a>
             </div>
 
             <!-- Botón de login -->

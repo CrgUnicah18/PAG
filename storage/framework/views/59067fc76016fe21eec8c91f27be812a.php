@@ -18,6 +18,15 @@
                     🏠 Inicio
                 </a>
             </li>
+            <?php if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('supervisor') || auth()->user()->hasRole('empleado')): ?>
+                <li>
+                    <a href="<?php echo e(route(auth()->user()->hasRole('admin') ? 'admin.anuncios.index' : (auth()->user()->hasRole('supervisor') ? 'supervisor.anuncios.index' : 'empleado.anuncios.index'))); ?>"
+                        class="block p-2 rounded-lg hover:bg-yellow-600 hover:text-white hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
+                        📢 Anuncios
+                    </a>
+                </li>
+            <?php endif; ?>
+
             <?php if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('supervisor')): ?>
                 <li>
                     <a href="<?php echo e(route(auth()->user()->hasRole('admin') ? 'admin.empleados.index' : 'supervisor.empleados.index')); ?>"
