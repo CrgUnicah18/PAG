@@ -23,6 +23,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- jQuery (si lo necesitas) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Incluye Heroicons desde CDN si no estás usando Laravel Mix o Vite -->
+    <script src="https://unpkg.com/feather-icons"></script>
 
     <!-- Agregar FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -77,7 +79,10 @@
     </script>
 
 
-
+    <!-- Activar íconos de Feather al cargar -->
+    <script>
+        feather.replace()
+    </script>
 </body>
 
 </html><?php /**PATH C:\laragon\www\PAG\resources\views/layouts/app.blade.php ENDPATH**/ ?>

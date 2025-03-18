@@ -69,10 +69,17 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
 
 
     // Rutas para permisos
-    Route::resource('permisos', PermisoController::class);
+    Route::get('permisos', [PermisoController::class, 'index'])->name('permisos.index'); // Para ver los permisos
+    Route::get('permisos/create', [PermisoController::class, 'create'])->name('permisos.create'); // Para crear un permiso
+    Route::post('permisos', [PermisoController::class, 'store'])->name('permisos.store'); // Para almacenar un nuevo permiso
     Route::post('/permisos/{permiso}/comentar', [PermisoController::class, 'comentar'])->name('permisos.comentar');
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
+
+    // Ruta para formulario de reporte
+    Route::get('permisos/formulario', [PermisoController::class, 'mostrarFormulario'])->name('permisos.formulario');
+    Route::post('permisos/reporte', [PermisoController::class, 'generarReporte'])->name('permisos.reporte');
+    Route::get('permisos/reporte/pdf', [PermisoController::class, 'descargarPDF'])->name('permisos.reporte.pdf');
 
     // Rutas para vacaciones
     Route::get('vacaciones', [VacacionController::class, 'index'])->name('vacaciones.index');

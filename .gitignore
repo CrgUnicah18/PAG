@@ -17,6 +17,7 @@ bootstrap/cache/
 storage/framework/
 storage/logs/
 
+
 # Configuración de IDEs y sistemas operativos (opcional)
 *.swp
 *.swo
@@ -36,3 +37,4 @@ database/database.sqlite-journal
 /public/build/
 
 database/seeders/SuperAdminSeeder.php
+storage/logs/laravel.log
