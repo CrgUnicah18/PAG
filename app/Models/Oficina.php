@@ -15,5 +15,10 @@ class Oficina extends Model
     {
         return $this->hasMany(Empleado::class);
     }
+    // Relación con anuncios
+    public function anuncios()
+    {
+        return $this->belongsToMany(Anuncio::class, 'anuncios_oficinas');
+    }
 
 }

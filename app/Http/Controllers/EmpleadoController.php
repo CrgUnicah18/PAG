@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\VacacionesAsignadas;
+use App\Exports\EmpleadosExportExcel;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class EmpleadoController extends Controller
@@ -199,8 +201,6 @@ class EmpleadoController extends Controller
         return view('admin.createUsuario', compact('empleado', 'empleado_id'));
     }
 
-
-
     // Función para almacenar el usuario
     public function storeUsuario(Request $request, $empleado_id)
     {
@@ -258,7 +258,6 @@ class EmpleadoController extends Controller
             'fecha_ingreso' => 'required|date',
             'foto_peril' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'documento_contrato' => 'nullable|mimes:pdf,doc,docx,zip|max:2048', // Solo PDF, DOC, DOCX, ZIP
-            'rol' => 'required|in:supervisor,empleado' // Validamos que el rol sea válido
         ]);
 
         // Actualización de los datos del empleado
@@ -291,11 +290,6 @@ class EmpleadoController extends Controller
 
         // Guardar los cambios
         $empleado->save();
-
-        // Actualizar el rol del usuario asociado
-        $user = $empleado->user; // Obtener el usuario asociado al empleado
-        $user->syncRoles($request->rol); // Sincronizar el rol con el nuevo valor (empleado o supervisor)
-
 
         return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente');
     }
@@ -391,6 +385,54 @@ class EmpleadoController extends Controller
 
         // Descargar el PDF
         return $pdf->download('Reporte de empleados.pdf');
+    }
+
+    public function generarReporteExcel(Request $request)
+    {
+        $camposSeleccionados = $request->input('campos', []);
+
+        if (empty($camposSeleccionados)) {
+            return redirect()->route('admin.empleados.reporte')->with('error', 'Debe seleccionar al menos un campo');
+        }
+
+        // Relacionar según campos
+        $relaciones = [];
+
+        if (in_array('oficina', $camposSeleccionados)) {
+            $relaciones[] = 'oficina';
+        }
+
+        if (in_array('grupo', $camposSeleccionados)) {
+            $relaciones[] = 'grupo';
+        }
+
+        if (in_array('tipo_contrato', $camposSeleccionados)) {
+            $relaciones[] = 'tipoContrato';
+        }
+
+        if (in_array('rol', $camposSeleccionados) || in_array('email', $camposSeleccionados)) {
+            $relaciones[] = 'user';
+        }
+
+        $empleados = \App\Models\Empleado::with($relaciones)->get();
+
+        // Agregar roles y email si se pidió
+        foreach ($empleados as $empleado) {
+            if (in_array('rol', $camposSeleccionados) && $empleado->user) {
+                $empleado->roles = $empleado->user->getRoleNames()->toArray();
+            }
+
+            if (in_array('email', $camposSeleccionados) && $empleado->user) {
+                $empleado->email = $empleado->user->email;
+            }
+        }
+
+        // Generar Excel con la fecha actual
+        $fechaHoy = now()->format('Y-m-d'); // Formato de fecha: Año-Mes-Día
+        $nombreArchivo = 'Reporte de Empleados ' . $fechaHoy . '.xlsx';
+
+        return Excel::download(new EmpleadosExportExcel($empleados, $camposSeleccionados), $nombreArchivo);
+
     }
 
 }

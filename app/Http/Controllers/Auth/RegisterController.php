@@ -3,45 +3,77 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Empleado;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
-
+use App\Models\Oficina;
+use App\Models\Grupo;
+use App\Models\TipoContrato;
 
 class RegisterController extends Controller
 {
     // Mostrar el formulario de registro
     public function showRegistrationForm()
     {
-        return view('login.register');  // Vista en la carpeta 'login'
+        // Obtener todas las oficinas
+        $oficinas = Oficina::all();
+        $grupos = Grupo::all();
+        $tiposContrato = TipoContrato::all(); // Obtener todos los tipos de contrato
+        return view('login.register', compact('oficinas', 'grupos', 'tiposContrato'));
     }
 
-    // Manejar el envío del formulario de registro
+    // Procesar el formulario de registro
     public function register(Request $request)
     {
         // Validar los datos del formulario
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'genero' => 'required|in:F,M',
+            'estado' => 'nullable|string', // Se vuelve nullable, ya que ahora se establece por defecto en 'activo'
+            'fecha_ingreso' => 'required|date|before_or_equal:' . now()->toDateString(),
+            'tipo_contrato_id' => 'required|exists:tipo_contratos,id', // Validación para el tipo de contrato
+            'direccion' => 'required|string',
+            'telefono' => 'required|string',
+            'fecha_nacimiento' => 'required|date',
+            'oficina_id' => 'required|integer',
+            'grupo_id' => 'required|integer',
+            'foto_perfil' => 'nullable|image',
+        ], [
+            'estado.required' => 'El estado es obligatorio.',
+            'estado.in' => 'El estado debe ser uno de los siguientes: activo, inactivo.',
+            'foto_perfil.image' => 'La foto de perfil debe ser una imagen válida.',
         ]);
 
+        // Si la validación falla, redirigir de vuelta con errores
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        // Crear el usuario
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        // Obtener el nombre del tipo de contrato
+        $tipoContrato = TipoContrato::find($request->tipo_contrato_id);
+
+        // Crear el empleado
+        $empleado = Empleado::create([
+            'nombre' => $request->nombre,
+            'apellido' => $request->apellido,
+            'genero' => $request->genero,
+            'estado' => 'activo', // Estado por defecto
+            'fecha_ingreso' => $request->fecha_ingreso,
+            'tipo_contrato_id' => $request->tipo_contrato_id,
+            'tipo_contrato' => $tipoContrato->nombre, // Guardar el nombre del tipo de contrato
+            'vacaciones_tomadas' => 0, // Inicializamos las vacaciones tomadas
+            'direccion' => $request->direccion,
+            'telefono' => $request->telefono,
+            'fecha_nacimiento' => $request->fecha_nacimiento,
+            'oficina_id' => $request->oficina_id,
+            'grupo_id' => $request->grupo_id,
+            'foto_perfil' => $request->foto_perfil,
+            'documento_contrato' => null, // Se mantiene oculto
+            'vacaciones_restantes' => 0, // Inicializamos las vacaciones restantes
         ]);
 
-        // Autenticar al usuario
-        Auth::login($user);
-
-        return redirect()->route('admin.inicio.home');  // Redirigir a la página principal
+        // Redirigir a la vista para la creación del usuario
+        return redirect()->route('usuario.create', ['empleado_id' => $empleado->id]);
     }
 }

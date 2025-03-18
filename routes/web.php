@@ -13,13 +13,16 @@ use App\Http\Controllers\OficinaController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\UserController;
 use App\Console\Commands\ActualizarEstadoEmpleado;
+use App\Http\Controllers\AnuncioController;
 
 Artisan::command('empleados:actualizar-estado', function () {
     // Aquí va la lógica de tu comando (o bien ya está en el archivo de comando que creaste)
     $this->call(ActualizarEstadoEmpleado::class);
 })->describe('Actualizar el estado de los empleados a activo si han finalizado su permiso');
 
+Route::resource('anuncios', AnuncioController::class);
 
 // Rutas de login y registro
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -27,8 +30,16 @@ Route::post('login', [LoginController::class, 'login'])->name('login.submit');
 // Ruta de logout (POST)
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
+// Ruta para mostrar el formulario de registro
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+
+// Ruta para procesar el formulario de registro
 Route::post('register', [RegisterController::class, 'register'])->name('register.submit');
+
+
+// Ruta para crear el usuario (después de crear el empleado)
+Route::get('create-user/{empleado_id}', [UserController::class, 'create'])->name('usuario.create');
+Route::post('create-user/{empleado_id}', [UserController::class, 'store'])->name('usuario.store');
 
 Route::get('/admin/create/{empleado_id}', [EmpleadoController::class, 'createUsuario'])
     ->name('admin.createUsuario')
@@ -44,12 +55,18 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     // Página principal de admin
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.home');
 
+    Route::get('/anuncios', [AnuncioController::class, 'index'])->name('anuncios.index');
+    Route::get('/anuncios/crear', [AnuncioController::class, 'create'])->name('anuncios.create');
+    Route::post('/anuncios', [AnuncioController::class, 'store'])->name('anuncios.store');
+
     // Rutas para empleados
     Route::resource('empleados', EmpleadoController::class);
 
     Route::get('/reporte', [EmpleadoController::class, 'mostrarFormularioReporte'])->name('empleados.mostrarFormularioReporte');
     Route::post('/empleados', [EmpleadoController::class, 'storeEmpleado'])->name('empleados.storeEmpleado');
     Route::post('empleados/generar-reporte', [EmpleadoController::class, 'generarReporte'])->name('empleados.generarReporte');
+    Route::post('empleados/generar-reporte-excel', [EmpleadoController::class, 'generarReporteExcel'])->name('empleados.generarReporteExcel');
+
 
     // Rutas para permisos
     Route::resource('permisos', PermisoController::class);
@@ -95,6 +112,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('supervisor')->name('supervisor.'
     // Página principal de supervisor
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.home');
 
+    Route::get('/anuncios', [AnuncioController::class, 'index'])->name('anuncios.index');
+
     // Rutas para empleados (solo vista de empleados, no creación ni edición)
     Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
     Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
@@ -118,6 +137,10 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
 
     // Página principal de supervisor
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.home');
+
+    Route::get('/anuncios', [AnuncioController::class, 'index'])->name('anuncios.index');
+    // Ruta para reaccionar a un anuncio
+    Route::post('/anuncios/{anuncio}/reaccionar', [AnuncioController::class, 'reactToAnuncio'])->name('anuncios.react');
 
     // Rutas para empleados (solo vista de empleados, no creación ni edición)
     Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
