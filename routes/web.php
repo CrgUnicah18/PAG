@@ -75,12 +75,24 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
 
     // Rutas para vacaciones
-    Route::resource('vacaciones', VacacionController::class);
+    Route::get('vacaciones', [VacacionController::class, 'index'])->name('vacaciones.index');
     Route::get('vacaciones/create', [VacacionController::class, 'create'])->name('vacaciones.create');
     Route::post('vacaciones', [VacacionController::class, 'store'])->name('vacaciones.store');
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
     Route::post('vacaciones/addComentario/{vacacion}', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
+
+    // Ruta para mostrar el formulario de filtros del reporte de vacaciones
+    Route::get('vacaciones/reporte', [VacacionController::class, 'mostrarFormularioReporte'])->name('vacaciones.reporte');
+
+    // Ruta para generar el reporte con los filtros seleccionados
+    Route::get('vacaciones/generar-reporte', [VacacionController::class, 'generarReporte'])->name('vacaciones.generar-reporte');
+
+    // Ruta para exportar a PDF
+    Route::get('vacaciones/exportar-pdf', [VacacionController::class, 'exportarPDF'])->name('vacaciones.exportarPDF');
+
+    // Ruta para exportar a Excel
+    Route::get('vacaciones/exportar-excel', [VacacionController::class, 'exportarExcel'])->name('vacaciones.exportarExcel');
 
     // Rutas para configuración
     Route::get('configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
@@ -144,7 +156,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
 
     // Rutas para empleados (solo vista de empleados, no creación ni edición)
     Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
-    Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
+    //Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
 
     // Rutas para permisos (puede incluir aprobación/rechazo, si es necesario)
     Route::resource('permisos', PermisoController::class);
