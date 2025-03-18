@@ -22,4 +22,5 @@ class TipoPermiso extends Model
     {
         return $this->hasMany(Permiso::class, 'tipo_permiso_id');
     }
+    
 }

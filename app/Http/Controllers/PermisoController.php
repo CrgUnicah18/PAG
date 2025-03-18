@@ -7,6 +7,9 @@ use App\Models\Empleado;
 use App\Models\TipoPermiso;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\PDF;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\VacacionesExport;
 
 class PermisoController extends Controller
 {
@@ -327,6 +330,100 @@ class PermisoController extends Controller
         }
 
         return response()->json(['message' => 'Estado de los empleados actualizado.']);
+    }
+
+    // Mostrar formulario para generar el reporte
+    public function mostrarFormulario()
+    {
+        // Obtener todos los empleados
+        $empleados = Empleado::all();
+
+        // Obtener los tipos de permisos (solo los que no son vacaciones)
+        $tiposPermiso = TipoPermiso::where('es_vacacion', 0)->get();
+
+        // Pasar los empleados y tipos de permiso a la vista del formulario
+        return view('admin.permisos.reporte_formulario', compact('empleados', 'tiposPermiso'));
+    }
+
+    public function generarReporte(Request $request)
+    {
+        $empleadoId = $request->input('empleado_id');
+        $tipoPermisoId = $request->input('tipo_permiso_id');
+        $mes = $request->input('mes');
+        $anio = $request->input('anio');
+
+        $query = Permiso::query();
+
+        // Filtros de búsqueda
+        if ($empleadoId && $empleadoId != 'todos') {
+            $query->where('empleado_id', $empleadoId);
+        }
+
+        if ($tipoPermisoId && $tipoPermisoId != 'todos') {
+            $query->where('tipo_permiso_id', $tipoPermisoId);
+        }
+
+        $query->whereYear('fecha_inicio', $anio);
+
+        if ($mes && $mes != 'todos') {
+            $query->whereMonth('fecha_inicio', $mes);
+        }
+
+        // Obtener los permisos con paginación (5 por página)
+        $permisos = $query->with('empleado')
+            ->join('tipo_permisos', 'permisos.tipo_permiso_id', '=', 'tipo_permisos.id')
+            ->select('permisos.*', 'tipo_permisos.nombre as tipo_permiso')
+            ->orderBy('fecha_inicio')
+            ->paginate(5); // Aquí usamos paginate()
+
+        // Obtener el empleado si fue filtrado
+        $empleado = $empleadoId && $empleadoId != 'todos' ? Empleado::findOrFail($empleadoId) : null;
+
+        // Se indica que no es para PDF
+        $isPdf = false;
+
+        // Mostrar la vista del reporte
+        return view('admin.permisos.reporte_pdf', compact('permisos', 'empleado', 'empleadoId', 'tipoPermisoId', 'mes', 'anio', 'isPdf'));
+    }
+
+    public function descargarPDF(Request $request)
+    {
+        $empleadoId = $request->input('empleado_id');
+        $tipoPermisoId = $request->input('tipo_permiso_id');
+        $mes = $request->input('mes');
+        $anio = $request->input('anio');
+
+        // Repetir la lógica de filtrado para obtener los permisos
+        $query = Permiso::query();
+
+        if ($empleadoId && $empleadoId != 'todos') {
+            $query->where('empleado_id', $empleadoId);
+        }
+
+        if ($tipoPermisoId && $tipoPermisoId != 'todos') {
+            $query->where('tipo_permiso_id', $tipoPermisoId);
+        }
+
+        $query->whereYear('fecha_inicio', $anio);
+
+        if ($mes && $mes != 'todos') {
+            $query->whereMonth('fecha_inicio', $mes);
+        }
+
+        $permisos = $query->with('empleado')
+            ->join('tipo_permisos', 'permisos.tipo_permiso_id', '=', 'tipo_permisos.id')
+            ->select('permisos.*', 'tipo_permisos.nombre as tipo_permiso')
+            ->orderBy('fecha_inicio')
+            ->get();
+
+        $empleado = $empleadoId && $empleadoId != 'todos' ? Empleado::findOrFail($empleadoId) : null;
+        $tiposPermiso = TipoPermiso::all();
+
+        // Generar el PDF con la nueva vista
+        $pdf = PDF::loadView('admin.permisos.pdf_reporte', compact('permisos', 'empleado', 'mes', 'anio', 'empleadoId', 'tipoPermisoId', 'tiposPermiso'));
+
+        // Descargar el PDF
+        return $pdf->download('reporte_permisos.pdf');
     }
 
 

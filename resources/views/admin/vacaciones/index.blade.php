@@ -3,19 +3,27 @@
 @section('content')
     <div class="container">
         <h1 class="mb-4 text-center">Solicitudes de Vacaciones</h1>
-        <div class="flex space-x-4 mt-6 mb-4">
-            <!-- Botón para Asignar Vacaciones -->
-            <button type="button"
-                class="btn btn-primary text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105"
-                onclick="openVacacionesModal()">Asignar Vacaciones</button>
+        <div class="flex space-x-3 mt-6 mb-4">
+            <!-- Asignar Vacaciones (usamos icono "plus-circle" que sí carga bien) -->
+            <button type="button" onclick="openVacacionesModal()"
+                class="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-lg px-4 py-2 shadow-sm transition duration-300">
+                <i data-feather="plus-circle" class="w-4 h-4"></i>
+                <span>Asignar</span>
+            </button>
 
-            <!-- Botón para Solicitar Vacaciones -->
+            <!-- Solicitar Vacaciones (edit-3 funciona bien) -->
             <a href="{{ route('admin.vacaciones.create') }}"
-                class="btn btn-primary text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg px-6 py-3 shadow-md transition-all duration-300 transform hover:scale-105">
-                Solicitar Vacaciones
+                class="flex items-center gap-2 text-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 rounded-lg px-4 py-2 shadow-sm transition duration-300">
+                <i data-feather="edit-3" class="w-4 h-4"></i>
+                <span>Solicitar</span>
             </a>
-            <a href="{{ route('admin.vacaciones.reporte') }}">Generar Reporte</a>
 
+            <!-- Generar Reporte (file-text funciona bien) -->
+            <a href="{{ route('admin.vacaciones.reporte') }}"
+                class="flex items-center gap-2 text-sm text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-lg px-4 py-2 shadow-sm transition duration-300">
+                <i data-feather="file-text" class="w-4 h-4"></i>
+                <span>Reporte</span>
+            </a>
         </div>
 
         {{-- Filtro por estado y nombre de empleado --}}

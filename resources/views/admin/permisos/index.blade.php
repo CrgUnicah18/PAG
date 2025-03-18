@@ -8,6 +8,10 @@
                 class="px-6 py-2 rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
                 Solicitar Permiso
             </a>
+            <a href="{{ route('admin.permisos.formulario') }}"
+                class="px-6 py-2 rounded-lg shadow-md text-white bg-red-600 hover:bg-blue-700 focus:outline-none">
+                Solicitar reporte
+            </a>
         </div>
 
 

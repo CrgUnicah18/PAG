@@ -77,6 +77,7 @@ class Empleado extends Model
     {
         return $this->hasMany(Reaccion::class, 'empleado_id');
     }
+    
 
     public function calcularBalanceVacaciones()
     {
