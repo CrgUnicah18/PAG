@@ -16,6 +16,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\UserController;
 use App\Console\Commands\ActualizarEstadoEmpleado;
 use App\Http\Controllers\AnuncioController;
+use App\Http\Controllers\PasswordResetController;
 
 Artisan::command('empleados:actualizar-estado', function () {
     // Aquí va la lógica de tu comando (o bien ya está en el archivo de comando que creaste)
@@ -35,6 +36,21 @@ Route::get('register', [RegisterController::class, 'showRegistrationForm'])->nam
 
 // Ruta para procesar el formulario de registro
 Route::post('register', [RegisterController::class, 'register'])->name('register.submit');
+
+// Ruta para mostrar el formulario de olvido de contraseña (donde ingresas el correo)
+Route::get('/password/forgot', function () {
+    return view('emails.forgot-password');
+})->name('password.forgot');
+
+// Ruta para enviar el PIN al correo
+Route::post('/password/send-pin', [PasswordResetController::class, 'sendResetPin'])->name('password.sendPin');
+
+Route::get('/password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset.form');
+
+
+Route::post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.reset.submit');
+
+
 
 
 // Ruta para crear el usuario (después de crear el empleado)

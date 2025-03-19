@@ -9,9 +9,14 @@
 </head>
 
 <body class="min-h-screen flex items-center justify-center bg-gray-100">
+    <!-- Mensaje de éxito -->
+    @if (session('status'))
+        <div class="absolute top-16 w-full bg-green-500 text-white p-4 rounded-lg mb-4">
+            {{ session('status') }}
+        </div>
+    @endif
 
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-
         <!-- Logo -->
         <div class="flex justify-center mb-6">
             <img src="http://pag.test/images/logopag2.png" alt="Logo de la empresa" class="h-16">
@@ -68,8 +73,13 @@
                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition duration-200">
                 Iniciar sesión
             </button>
-        </form>
 
+            <!-- Enlace para restablecer la contraseña -->
+            <div class="text-center mt-4">
+                <a href="{{ route('password.forgot') }}" class="text-sm text-blue-500 hover:text-blue-700">¿Olvidaste
+                    tu contraseña?</a>
+            </div>
+        </form>
     </div>
 
 </body>

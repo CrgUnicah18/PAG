@@ -75,7 +75,7 @@
 
                                             // Asignar colores según el estado
                                             switch ($vacacion->estado) {
-                                                case 'pendientes':
+                                                case 'pendiente':
                                                     $estadoClase = 'bg-yellow-100 text-yellow-800'; // Amarillo para pendientes
                                                     break;
                                                 case 'pendientes_aprobacion':
