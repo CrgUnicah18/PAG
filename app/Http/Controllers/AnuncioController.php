@@ -19,8 +19,7 @@ class AnuncioController extends Controller
         // Si es admin, muestra todo sin filtros
         if ($usuario->hasRole('admin')) {
             // Filtros por prioridad
-            $query = Anuncio::with('oficinas', 'grupos', 'reactions')
-                ->latest();
+            $query = Anuncio::with(['oficinas', 'grupos', 'reactions.empleado'])->latest();
 
             if ($request->has('prioridad') && $request->prioridad != '') {
                 $query->where('prioridad', $request->prioridad);

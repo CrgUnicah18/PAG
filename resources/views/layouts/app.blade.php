@@ -28,6 +28,9 @@
     <script src="https://unpkg.com/feather-icons"></script>
 
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="//unpkg.com/alpinejs" defer></script>
+
 
 
 

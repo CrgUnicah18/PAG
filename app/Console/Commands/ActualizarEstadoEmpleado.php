@@ -17,19 +17,26 @@ class ActualizarEstadoEmpleado extends Command
 
     public function handle()
     {
-        // Obtén los empleados con permisos activos y verifica si el permiso ya ha terminado.
-        $empleadosConPermiso = Empleado::where('estado', 'inactivo')
-            ->whereHas('permisos', function ($query) {
-                $query->where('fecha_fin', '<', now());
-            })
-            ->get();
+        $empleadosConPermiso = Empleado::where('estado', 'inactivo')->get();
 
-        // Cambia el estado de los empleados a activo.
         foreach ($empleadosConPermiso as $empleado) {
-            $empleado->estado = 'activo';
-            $empleado->save();
+            // Obtener los permisos aprobados del empleado
+            $permisosAprobados = $empleado->permisos()
+                ->where('estado', 'aprobado')
+                ->get();
+
+            // Si TODOS los permisos aprobados ya terminaron, lo volvemos activo
+            $todosFinalizados = $permisosAprobados->every(function ($permiso) {
+                return $permiso->fecha_fin < now();
+            });
+
+            if ($todosFinalizados) {
+                $empleado->estado = 'activo';
+                $empleado->save();
+            }
         }
 
         $this->info('Estado de los empleados actualizado correctamente.');
     }
+
 }

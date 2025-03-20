@@ -43,10 +43,40 @@
                 </div>
 
                 <!-- Conteo de reacciones -->
-                <div class="text-sm text-gray-600 mb-4">
+                <!-- Conteo de reacciones con Modal -->
+                <div x-data="{ showModal: false }" class="text-sm text-gray-600 mb-4">
                     <span class="font-semibold">💬 Reacciones:</span>
-                    <span class="text-gray-800">{{ $anuncio->conteo_reacciones }}</span>
+
+                    <button @click="showModal = true" class="text-blue-600 hover:underline font-medium focus:outline-none">
+                        {{ $anuncio->conteo_reacciones }}
+                    </button>
+
+                    <!-- Modal -->
+                    <div x-show="showModal" x-transition
+                        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+                        style="display: none;">
+                        <div @click.away="showModal = false" class="bg-white w-full max-w-md p-6 rounded-xl shadow-lg relative">
+                            <h2 class="text-xl font-bold mb-4 text-gray-800">👥 Empleados que reaccionaron</h2>
+
+                            @if($anuncio->reactions && $anuncio->reactions->count() > 0)
+                                <ul class="space-y-2 text-gray-700 max-h-60 overflow-y-auto">
+                                    @foreach($anuncio->reactions as $reaction)
+                                        <li class="border-b pb-1">{{ $reaction->empleado->nombre }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p class="text-gray-500">Nadie ha reaccionado todavía.</p>
+                            @endif
+
+
+                            <button @click="showModal = false"
+                                class="mt-6 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
 
                 <!-- Asignado a (Audiencia) -->
                 <div class="bg-gray-100 p-4 rounded-lg mt-4">

@@ -4,7 +4,7 @@
 @section('content')
 
 
-    <a href="{{ route('empleado.permisos.index') }}" class="btn btn-secondary mb-3">
+    <a href="{{ route('empleado.permisos.index') }}" class="btn btn-secondary mb-3 m-3">
         ← Volver
     </a>
 

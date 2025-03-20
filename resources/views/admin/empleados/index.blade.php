@@ -17,8 +17,8 @@
 
         <div class="d-flex justify-content-between align-items-center mb-6">
             <h2 class="text-xl font-semibold text-gray-800">📋 Listado de Empleados</h2>
-            <div class="btn-group">
-                <a href="{{ route('admin.empleados.create') }}" class="btn btn-primary btn-sm">
+            <div class="btn-group m-3">
+                <a href="{{ route('admin.empleados.create') }}" class="btn btn-primary btn-sm me-3">
                     <i class="fas fa-plus-circle"></i> Crear Empleado
                 </a>
 
@@ -77,7 +77,7 @@
 
         {{-- TABLA DE EMPLEADOS --}}
         <div class="table-responsive shadow-lg rounded-lg border border-gray-300">
-            <table class="table table-sm table-bordered table-hover">
+            <table class="table table-sm table-bordered table-hover" style="background-color: rgb(255, 255, 255);">
                 <thead class="bg-indigo-600 text-white text-center">
                     <tr>
                         <th>Nombre Completo</th>
