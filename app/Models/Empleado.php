@@ -77,7 +77,7 @@ class Empleado extends Model
     {
         return $this->hasMany(Reaccion::class, 'empleado_id');
     }
-    
+
 
     public function calcularBalanceVacaciones()
     {
@@ -90,7 +90,14 @@ class Empleado extends Model
         \Log::info("Años trabajados: " . $anosTrabajados);
 
         if ($anosTrabajados < 1) {
-            $vacacionesRestantes = 5;
+            // Proporcionalidad según el mes de ingreso
+            $mesIngreso = (int) $fechaIngreso->format('n'); // 1=enero, 12=diciembre
+            $mesesRestantesDelAno = 12 - $mesIngreso; // No incluimos el mes actual
+            $vacacionesProporcionales = round(($mesesRestantesDelAno / 12) * 5); // Redondeamos al entero más cercano
+            \Log::info("Mes ingreso: " . $mesIngreso);
+            \Log::info("Meses restantes del año: " . $mesesRestantesDelAno);
+            \Log::info("Vacaciones proporcionales calculadas: " . $vacacionesProporcionales);
+            $vacacionesRestantes = $vacacionesProporcionales;
         } elseif ($anosTrabajados >= 1 && $anosTrabajados < 2) {
             $vacacionesRestantes = 10;
         } elseif ($anosTrabajados >= 2 && $anosTrabajados < 3) {
@@ -103,27 +110,24 @@ class Empleado extends Model
 
         \Log::info("Vacaciones Restantes Iniciales: " . $vacacionesRestantes);
 
-        // Aquí calculamos solo las vacaciones que NO están rechazadas
+        // Vacaciones tomadas no rechazadas
         $vacacionesNoRechazadas = $this->vacaciones()
             ->whereIn('estado', ['aprobadas', 'pendiente', 'pendientes_aprobacion'])
             ->sum(DB::raw('DATEDIFF(fecha_fin, fecha_inicio) + 1'));
 
         \Log::info("Vacaciones No Rechazadas (sumadas): " . $vacacionesNoRechazadas);
 
-        // Restar solo las vacaciones que NO estén rechazadas
         $vacacionesRestantes -= min($vacacionesNoRechazadas, $vacacionesRestantes);
 
         \Log::info("Vacaciones Restantes después de la resta: " . $vacacionesRestantes);
 
-        // Asegúrate de que no se sumen más días de los disponibles
         $vacacionesRestantes = max($vacacionesRestantes, 0);
-
-        // Guardar el saldo calculado en el campo 'vacaciones_restantes'
         $this->vacaciones_restantes = $vacacionesRestantes;
         $this->save();
 
         return $vacacionesRestantes;
     }
+
 
 
     public function restaurarVacaciones($dias)

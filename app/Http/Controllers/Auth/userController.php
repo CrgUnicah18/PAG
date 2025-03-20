@@ -14,13 +14,19 @@ class UserController extends Controller
     // Mostrar el formulario para crear el usuario
     public function create($empleado_id)
     {
-        // Obtener el empleado por ID
+        // Verificar si ya existe un usuario con este empleado_id
+        $userExists = User::where('empleado_id', $empleado_id)->exists();
+
+        // Si ya existe un usuario, redirigir a la página de inicio o donde prefieras
+        if ($userExists) {
+            return redirect()->route('empleado.inicio.home')->with('message', 'El usuario ya ha sido creado para este empleado.');
+        }
+
+        // Si no existe un usuario, continuar con la creación del usuario
         $empleado = Empleado::findOrFail($empleado_id);
-
         return view('login.crear_usuario', compact('empleado'));
-
-
     }
+
 
     // Procesar la creación del usuario
     public function store(Request $request, $empleado_id)
