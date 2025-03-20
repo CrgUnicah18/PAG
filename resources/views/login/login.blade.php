@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="min-h-screen flex items-center justify-center bg-gray-100">
+<body class="min-h-screen flex items-center justify-center" style="background-color: rgb(232, 236, 237);">
     <!-- Mensaje de éxito -->
     @if (session('status'))
         <div class="absolute top-16 w-full bg-green-500 text-white p-4 rounded-lg mb-4">
@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+    <div class="p-8 rounded-lg shadow-lg max-w-md w-full" style="background-color: rgb(255, 255, 255);">
         <!-- Logo -->
         <div class="flex justify-center mb-6">
             <img src="http://pag.test/images/logopag2.png" alt="Logo de la empresa" class="h-16">
