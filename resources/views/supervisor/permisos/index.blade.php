@@ -3,24 +3,33 @@
 @section('content')
     <div class="container mt-4">
 
-        <!-- Estilo para tus permisos (sin acciones) -->
-        <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="mb-3">
-                    <h2 class="text-xl font-semibold text-gray-800">📝 Solicitud de Permisos</h2>
-                </div>
+        {{-- Título centrado y con estilo --}}
+<div class="text-center mb-6">
+    <h2 class="text-4xl font-bold text-gray-800 border-b-4 border-blue-600 inline-block pb-2">
+        📝 Solicitud de Permisos
+    </h2>
+</div>
 
-                {{-- Botón para crear un nuevo permiso --}}
-                <a href="{{ route('supervisor.permisos.create') }}" class="btn btn-primary btn-sm">Solicitar Permiso</a>
-                
-            </div>
-            <div class="text-center mb-4">
-            <a href="{{ route('supervisor.permisos.lista') }}" 
-                class="btn btn-secondary px-6 py-2 rounded-lg shadow-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none">
-                Ver Lista de tipos de permisos
-            </a>
-        </div>
-        </h4>
+{{-- Botones con íconos --}}
+<div class="flex justify-center gap-4 mb-6">
+    {{-- Botón para solicitar permiso --}}
+    <a href="{{ route('supervisor.permisos.create') }}"
+        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition"
+        style="background-color: rgb(231, 173, 33); color: white; padding: 10px 20px; border: none; border-radius: 8px;">
+        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+        Solicitar Permiso
+    </a>
+
+    {{-- Botón para ver lista de permisos --}}
+    <a href="{{ route('supervisor.permisos.lista') }}"
+        class="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg shadow-md transition">
+        <i data-lucide="list" class="w-5 h-5"></i>
+        Ver Lista de tipos de permisos
+    </a>
+</div>
+
+
+
 
         @if(session('success'))
             <div class="alert alert-success mb-4 rounded-lg">
@@ -166,4 +175,7 @@
         </div>
 
     </div>
+    <script>
+        lucide.createIcons();
+    </script>
 @endsection

@@ -250,8 +250,8 @@ class PermisoController extends Controller
             return redirect()->route('supervisor.permisos.index')->with('success', 'Pre-aprobado por supervisor.');
         }
 
-        // El admin puede aprobar, solo si el estado es 'pendiente_aprobacion'
-        if ($user->hasRole('admin') && $permiso->estado == 'pendiente_aprobacion' || $permiso->estado == 'pendiente') {
+        // El admin puede aprobar, solo si el estado es 'pendiente_aprobacion' o 'pendiente'
+        if ($user->hasRole('admin') && ($permiso->estado == 'pendiente_aprobacion' || $permiso->estado == 'pendiente')) {
             // Evitar que el admin apruebe su propio permiso
             if ($permiso->empleado_id == $user->empleado->id) {
                 return redirect()->back()->with('error', 'No puedes aprobar tu propio permiso.');
@@ -259,17 +259,19 @@ class PermisoController extends Controller
 
             $permiso->update(['estado' => 'aprobado']);
 
-            // TODO: Cambiar el estado solo cuando este aprobado y este en la fecha de inicio.
+            // Solo cambiar a inactivo si la fecha de inicio del permiso es hoy o ya pasó
+            if (Carbon::parse($permiso->fecha_inicio)->lte(now())) {
+                $empleado = $permiso->empleado;
+                $empleado->update(['estado' => 'inactivo']);
+            }
 
-            // Ahora que el permiso fue aprobado, cambiar el estado del empleado a 'inactivo'
-            $empleado = $permiso->empleado;
-            $empleado->update(['estado' => 'inactivo']); // Cambio el estado del empleado a 'inactivo'
             return redirect()->route('admin.permisos.index')->with('success', 'Aprobado por Admin.');
         }
 
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Este permiso no puede ser aprobado en este momento.');
     }
+
 
     // Rechazar un permiso (Supervisor o Admin)
     public function declinar($id)

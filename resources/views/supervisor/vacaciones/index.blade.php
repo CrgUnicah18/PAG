@@ -10,10 +10,11 @@
                 <span>🌴 Solicitud de Vacaciones</span>
                 {{-- Botón para crear una nueva solicitud de vacaciones --}}
                 <a href="{{ route('supervisor.vacaciones.create') }}"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs">
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs"
+                    style="background-color: rgb(231, 173, 33);">
                     Solicitar Vacaciones
                 </a>
-                
+
 
             </h2>
         </div>
@@ -31,14 +32,14 @@
         <!-- Tabla de vacaciones propias -->
         <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
             <table class="min-w-full table-auto border-collapse">
-                <thead class="bg-gray-200">
+                <thead style="background-color: rgb(117, 178, 59);">
                     <tr>
-                        <th class="px-4 py-2 text-left text-gray-600">Empleado</th>
-                        <th class="px-4 py-2 text-left text-gray-600">Fecha de Inicio</th>
-                        <th class="px-4 py-2 text-left text-gray-600">Fecha de Fin</th>
-                        <th class="px-4 py-2 text-left text-gray-600">Estado</th>
-                        <th class="px-4 py-2 text-left text-gray-600">Comentario</th>
-                        <th class="px-4 py-2 text-left text-gray-600">Acciones</th>
+                        <th class="px-4 py-2 text-left text-gray-600 text-white">Empleado</th>
+                        <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Inicio</th>
+                        <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Fin</th>
+                        <th class="px-4 py-2 text-left text-gray-600 text-white">Estado</th>
+                        <th class="px-4 py-2 text-left text-gray-600 text-white">Comentario</th>
+                        <th class="px-4 py-2 text-left text-gray-600 text-white">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,10 +68,17 @@
                                 @endif
                             </td>
                             <td class="px-4 py-2">
-                                <span class="px-2 py-1 text-blue-800 bg-blue-100 rounded-full">Solo admin puede aprobar</span>
+                                @if($vacacion->estado == 'pendientes_aprobacion')
+                                    <span class="px-2 py-1 text-yellow-800 bg-yellow-200 rounded-full">Procesando</span>
+                                @elseif($vacacion->estado == 'aprobadas' || $vacacion->estado == 'rechazadas')
+                                    <span class="px-2 py-1 text-gray-800 bg-gray-200 rounded-full">Procesado</span>
+                                @else
+                                    <span class="px-2 py-1 text-blue-800 bg-blue-100 rounded-full">Solo admin puede aprobar</span>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
+
                 </tbody>
             </table>
         </div>
@@ -84,14 +92,14 @@
 
             <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
                 <table class="min-w-full table-auto border-collapse">
-                    <thead class="bg-gray-200">
+                    <thead style="background-color: rgb(117, 178, 59);">
                         <tr>
-                            <th class="px-4 py-2 text-left text-gray-600">Empleado</th>
-                            <th class="px-4 py-2 text-left text-gray-600">Fecha de Inicio</th>
-                            <th class="px-4 py-2 text-left text-gray-600">Fecha de Fin</th>
-                            <th class="px-4 py-2 text-left text-gray-600">Estado</th>
-                            <th class="px-4 py-2 text-left text-gray-600">Comentario</th>
-                            <th class="px-4 py-2 text-left text-gray-600 w-32">Acciones</th>
+                            <th class="px-4 py-2 text-left text-gray-600 text-white rounded-tl-lg">Empleado</th>
+                            <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Inicio</th>
+                            <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Fin</th>
+                            <th class="px-4 py-2 text-left text-gray-600 text-white">Estado</th>
+                            <th class="px-4 py-2 text-left text-gray-600 text-white">Comentario</th>
+                            <th class="px-4 py-2 text-left text-gray-600 w-32 text-white rounded-tr-lg">Acciones</th>
                             <!-- Ajusta el ancho de la columna -->
                         </tr>
                     </thead>

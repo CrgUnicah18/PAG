@@ -34,27 +34,37 @@
                 </div>
                 <!-- Cumpleaños de hoy y mañana -->
                 <div class="p-4 bg-blue-100 rounded-lg shadow-sm mb-6">
+                    <!-- Cumpleaños de Hoy -->
                     <h3 class="text-2xl font-semibold text-gray-800 mb-2 flex items-center">
                         <span class="mr-2 text-3xl">🎉</span>
-                        ¡Cumpleaños de hoy!
+                        ¡Cumpleaños de Hoy!
                     </h3>
-                    <ul class="list-disc pl-5">
-                        @foreach ($cumpleañosHoy as $empleado)
-                            <li class="text-lg text-gray-700">{{ $empleado->nombre }}
-                                ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
-                        @endforeach
-                    </ul>
+                    @if ($cumpleañosHoy->isEmpty())
+                        <p class="text-lg text-gray-700">No hay cumpleaños hoy.</p>
+                    @else
+                        <ul class="list-disc pl-5">
+                            @foreach ($cumpleañosHoy as $empleado)
+                                <li class="text-lg text-gray-700">{{ $empleado->nombre }}
+                                    ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
+                            @endforeach
+                        </ul>
+                    @endif
 
+                    <!-- Cumpleaños de Mañana -->
                     <h3 class="text-2xl font-semibold text-gray-800 mt-6 mb-2 flex items-center">
                         <span class="mr-2 text-3xl">🎂</span>
-                        ¡Cumpleaños de mañana!
+                        ¡Cumpleaños de Mañana!
                     </h3>
-                    <ul class="list-disc pl-5">
-                        @foreach ($cumpleañosMañana as $empleado)
-                            <li class="text-lg text-gray-700">{{ $empleado->nombre }}
-                                ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
-                        @endforeach
-                    </ul>
+                    @if ($cumpleañosMañana->isEmpty())
+                        <p class="text-lg text-gray-700">No hay cumpleaños mañana.</p>
+                    @else
+                        <ul class="list-disc pl-5">
+                            @foreach ($cumpleañosMañana as $empleado)
+                                <li class="text-lg text-gray-700">{{ $empleado->nombre }}
+                                    ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
             </div>
         </div>
