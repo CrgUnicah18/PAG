@@ -43,7 +43,7 @@
                 <label class="block text-gray-700 font-medium">Estado</label>
                 <div class="space-y-3">
                     <div class="flex items-center">
-                        <input type="checkbox" name="estado[]" value="pendientes" id="estado_pendiente" class="mr-2"
+                        <input type="checkbox" name="estado[]" value="pendiente" id="estado_pendiente" class="mr-2"
                             {{ in_array('pendientes', old('estado', [])) ? 'checked' : '' }}>
                         <label for="estado_pendiente" class="text-gray-600">Pendiente</label>
                     </div>

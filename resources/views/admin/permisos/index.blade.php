@@ -4,14 +4,18 @@
     <div class="container mx-auto px-4 py-6">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-3xl font-semibold text-gray-800">Solicitudes de Permisos</h2>
-            <a href="{{ route('admin.permisos.create') }}"
-                class="px-6 py-2 rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
-                Solicitar Permiso
-            </a>
-            <a href="{{ route('admin.permisos.formulario') }}"
-                class="px-6 py-2 rounded-lg shadow-md text-white bg-red-600 hover:bg-blue-700 focus:outline-none">
-                Solicitar reporte
-            </a>
+            <div class="flex space-x-6"> <!-- Espacio entre los botones sin separarlos tanto -->
+                <a href="{{ route('admin.permisos.create') }}"
+                    class="px-6 py-2 rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none flex items-center">
+                    <i class="fas fa-calendar-plus mr-2"></i>
+                    Solicitar Permiso
+                </a>
+                <a href="{{ route('admin.permisos.formulario') }}"
+                    class="px-6 py-2 rounded-lg shadow-md text-white bg-red-600 hover:bg-blue-700 focus:outline-none flex items-center">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    Reporte
+                </a>
+            </div>
         </div>
 
 
