@@ -42,7 +42,11 @@
                 </div>
                 <div class="form-group mb-4 flex items-center">
                     <input type="checkbox" id="es_licencia" name="es_licencia" value="1" class="mr-2" {{ old('es_licencia', isset($tipoPermiso) ? $tipoPermiso->es_licencia : 0) ? 'checked' : '' }}>
-                    <label for="es_licencia" class="font-semibold">¿Es Licencia?</label>
+                    <label for="es_licencia" class="font-semibold">¿Es Licencia Femenina?</label>
+                </div>
+                <div class="form-group mb-4 flex items-center">
+                    <input type="checkbox" id="es_licenciam" name="es_licenciam" value="1" class="mr-2" {{ old('es_licenciam', isset($tipoPermiso) ? $tipoPermiso->es_licenciam : 0) ? 'checked' : '' }}>
+                    <label for="es_licenciam" class="font-semibold">¿Es Licencia Masculina?</label>
                 </div>
 
                 <!-- Botones de guardar y cancelar -->

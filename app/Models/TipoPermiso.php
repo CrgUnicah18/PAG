@@ -9,7 +9,7 @@ class TipoPermiso extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'descripcion', 'dias', 'es_vacacion', 'es_licencia'];
+    protected $fillable = ['nombre', 'descripcion', 'dias', 'es_vacacion', 'es_licencia', 'es_licenciam'];
 
     // Relación con Vacacion (una tipo de permiso puede estar en muchas vacaciones)
     public function vacaciones()
@@ -22,5 +22,5 @@ class TipoPermiso extends Model
     {
         return $this->hasMany(Permiso::class, 'tipo_permiso_id');
     }
-    
+
 }

@@ -100,25 +100,27 @@ class PermisoController extends Controller
         return redirect()->back()->with('error', 'No tienes acceso a esta sección.');
     }
 
-
-
-
-
-    // Mostrar el formulario para solicitar un permiso
+    // FIXME: Mostrar el formulario para solicitar un permiso
     public function create()
     {
-        $user = auth()->user(); // Obtener el usuario logueado
-        $tiposPermiso = TipoPermiso::where('es_vacacion', 0); // Filtrar permisos que no sean vacaciones
+        $user = auth()->user(); // Usuario logueado
 
-        // Si el empleado es femenino (género "F"), incluir permisos de tipo "licencia"
-        if ($user->genero === 'F') {
-            $tiposPermiso = $tiposPermiso->orWhere('es_licencia', 1); // Agregar permisos de licencia solo si es femenino
-        }
+        $tiposPermiso = TipoPermiso::where(function ($query) use ($user) {
+            $query->where('es_vacacion', 0); // Siempre excluir vacaciones
 
-        // Obtener los tipos de permiso
-        $tiposPermiso = $tiposPermiso->get();
+            // Agregar permisos por género
+            if ($user->genero === 'F') {
+                $query->orWhere(function ($q) {
+                    $q->where('es_licencia', 1)->where('es_vacacion', 0);
+                });
+            } elseif ($user->genero === 'M') {
+                $query->orWhere(function ($q) {
+                    $q->where('es_licenciam', 1)->where('es_vacacion', 0);
+                });
+            }
+        })->get();
 
-        // Comprobar los roles del usuario y devolver la vista correspondiente
+        // Cargar vista según rol
         if ($user->hasRole('supervisor')) {
             return view('supervisor.permisos.create', compact('tiposPermiso'));
         }
@@ -158,14 +160,21 @@ class PermisoController extends Controller
         }
 
         // ** Validación 1: Verificar el máximo de 2 solicitudes por mes **
+        // ! IMPORTANTE: Solo se deben contar los permisos que estén en estado 'pendiente', 'pendiente_aprobacion' o 'aprobado'
+        // !ya que los permisos 'rechazados' NO deben contabilizarse como parte del límite mensual.
+        // !Esto permite que un empleado pueda volver a solicitar otro permiso si uno anterior fue rechazado.
+
+        // TODO Validación 1: Verificar el máximo de 2 solicitudes por mes (excepto los rechazados)
         $permisosEsteMes = Permiso::where('empleado_id', $empleado->id)
-            ->whereYear('fecha_inicio', Carbon::now()->year) // Filtrar por el año actual
-            ->whereMonth('fecha_inicio', Carbon::now()->month) // Filtrar por el mes actual
+            ->whereYear('fecha_inicio', Carbon::now()->year)
+            ->whereMonth('fecha_inicio', Carbon::now()->month)
+            ->whereIn('estado', ['pendiente', 'pendiente_aprobacion', 'aprobado']) // Excluye los rechazados
             ->count();
 
         if ($permisosEsteMes >= 2) {
             return redirect()->back()->with('error', 'Ya has alcanzado el límite de 2 permisos por mes.');
         }
+
 
         // ** Validación 2: Verificar el máximo de 15 permisos por año **
         $permisosEsteAnio = Permiso::where('empleado_id', $empleado->id)
@@ -234,12 +243,7 @@ class PermisoController extends Controller
         return redirect()->back()->with('error', 'No tienes acceso para crear un permiso.');
     }
 
-
-
-
-
-    // Aprobar un permiso (Supervisor o Admin)
-    // Aprobar un permiso (Supervisor o Admin)
+    // FIXME: Aprobar un permiso (Supervisor o Admin)
     public function aprobar($id)
     {
         $permiso = Permiso::findOrFail($id);
@@ -259,6 +263,8 @@ class PermisoController extends Controller
             }
 
             $permiso->update(['estado' => 'aprobado']);
+
+            // TODO: Cambiar el estado solo cuando este aprobado y este en la fecha de inicio.
 
             // Ahora que el permiso fue aprobado, cambiar el estado del empleado a 'inactivo'
             $empleado = $permiso->empleado;
@@ -425,6 +431,23 @@ class PermisoController extends Controller
         // Descargar el PDF
         return $pdf->download('reporte_permisos.pdf');
     }
+
+    public function listaSupervisor()
+    {
+        // Obtener los tipos de permisos que pueden ver los supervisores
+        $tiposPermiso = TipoPermiso::all(); // Aquí puedes agregar condiciones si es necesario
+
+        return view('supervisor.permisos.lista', compact('tiposPermiso'));
+    }
+
+    public function listaEmpleado()
+    {
+        // Obtener los tipos de permisos que pueden ver los empleados
+        $tiposPermiso = TipoPermiso::all(); // Aquí también puedes agregar condiciones si es necesario
+
+        return view('empleado.permisos.lista', compact('tiposPermiso'));
+    }
+
 
 
 

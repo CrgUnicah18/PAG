@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1 class="mb-4 text-center">Solicitudes de Vacaciones</h1>
+    <div class="container mx-auto px-4 py-6">
+        <h1 class="text-3xl font-semibold text-gray-800">Solicitudes de Vacaciones</h1>
         <div class="flex space-x-3 mt-6 mb-4">
             <!-- Asignar Vacaciones (usamos icono "plus-circle" que sí carga bien) -->
             <button type="button" onclick="openVacacionesModal()"
@@ -67,16 +67,18 @@
             </form>
         </div>
 
-        <table class="table table-hover table-bordered text-center">
-            <thead class="table-dark">
+        <!-- Tabla de Vacaciones -->
+        <table class="table table-hover table-bordered text-center rounded-lg shadow-md"
+            style="background-color: rgb(255, 255, 255);">
+            <thead style="background-color: rgb(36, 94, 167);" class="text-white">
                 <tr>
-                    <th>Empleado</th>
+                    <th class="rounded-tl-lg">Empleado</th>
                     <th>Fecha Inicio</th>
                     <th>Fecha Fin</th>
                     <th>Duración</th>
                     <th>Estado</th>
                     <th>Comentario</th>
-                    <th>Acciones</th>
+                    <th class="rounded-tr-lg">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,17 +123,18 @@
         </div>
     </div>
 
-    <!-- Nueva tabla de vacaciones propias del usuario (sin acciones) -->
-    <h2 class="mt-5 text-center">Mis Solicitudes de Vacaciones</h2>
+    <!-- Nueva tabla de vacaciones propias del usuario -->
+    <h2 class="text-2xl font-semibold text-gray-800 text-center p-2">Mis Solicitudes de Vacaciones</h2>
 
-    <table class="table table-hover table-bordered text-center">
-        <thead class="table-dark">
+    <table class="table table-hover table-bordered text-center rounded-lg shadow-md"
+        style="background-color: rgb(255, 255, 255);">
+        <thead style="background-color: rgb(36, 94, 167);" class="text-white">
             <tr>
-                <th>Fecha Inicio</th>
+                <th class="rounded-tl-lg">Fecha Inicio</th>
                 <th>Fecha Fin</th>
                 <th>Duración</th>
                 <th>Estado</th>
-                <th>Comentario</th>
+                <th class="rounded-tr-lg">Comentario</th>
             </tr>
         </thead>
         <tbody>
