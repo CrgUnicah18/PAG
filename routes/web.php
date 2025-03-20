@@ -154,10 +154,15 @@ Route::middleware(['auth', 'isAdmin'])->prefix('supervisor')->name('supervisor.'
     Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
 
     // Rutas para permisos (puede incluir aprobación/rechazo, si es necesario)
-    Route::resource('permisos', PermisoController::class);
+    Route::get('permisos', [PermisoController::class, 'index'])->name('permisos.index');
+    Route::get('permisos/create', [PermisoController::class, 'create'])->name('permisos.create');
+    Route::post('permisos', [PermisoController::class, 'store'])->name('permisos.store');
     Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
+
+    // Ruta para la lista de permisos en la vista de empleado
+    Route::get('/permisos/lista', [PermisoController::class, 'listaSupervisor'])->name('permisos.lista');
 
     // Rutas para vacaciones (gestión similar a permisos)
     Route::resource('vacaciones', VacacionController::class);
@@ -182,10 +187,15 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
     //Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
 
     // Rutas para permisos (puede incluir aprobación/rechazo, si es necesario)
-    Route::resource('permisos', PermisoController::class);
+    Route::get('permisos', [PermisoController::class, 'index'])->name('permisos.index');
+    Route::get('permisos/create', [PermisoController::class, 'create'])->name('permisos.create');
+    Route::post('permisos', [PermisoController::class, 'store'])->name('permisos.store');
     Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
+
+    // Ruta para la lista de permisos en la vista de empleado
+    Route::get('/permisos/lista', [PermisoController::class, 'listaEmpleado'])->name('permisos.lista');
 
     // Rutas para vacaciones (gestión similar a permisos)
     Route::resource('vacaciones', VacacionController::class);

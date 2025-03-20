@@ -57,27 +57,37 @@
 <body class="bg-gray-100">
 
     <!-- Navbar lateral -->
-    <?php echo $__env->make('navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?> <!-- Aquí se incluye el navbar -->
 
     <!-- Header superior -->
-    <?php echo $__env->make('header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?> <!-- Aquí se incluye el header -->
 
     <!-- Contenido dinámico -->
-    <main class="ml-64 mt-16 p-6" style="margin-top: 80px;">
-        <?php echo $__env->yieldContent('content'); ?> <!-- Aquí va el contenido de cada vista -->
+    <main class="bg-[rgb(232,236,237)] lg:ml-64 mt-4 lg:mt-16 p-6">
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 
-    <script>
-        function toggleModal(permisoId) {
-            const modal = document.getElementById('commentModal' + permisoId);
-            if (modal) {
-                modal.classList.toggle('hidden');
-            } else {
-                console.error("No se encontró el modal para el permiso ID:", permisoId);
-            }
-        }
-    </script>
 
+    <script>
+        // Toggle sidebar en pantallas pequeñas
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        });
+
+        // Toggle Dropdown de usuario
+        document.getElementById('userMenuButton').addEventListener('click', function () {
+            document.getElementById('userDropdown').classList.toggle('hidden');
+        });
+
+        // Cierra el menú si haces clic fuera de él
+        document.addEventListener('click', function (event) {
+            let dropdown = document.getElementById('userDropdown');
+            let button = document.getElementById('userMenuButton');
+            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
 
     <!-- Activar íconos de Feather al cargar -->
     <script>

@@ -20,6 +20,13 @@
                 Mis Solicitudes de Permiso
             </h2>
         </div>
+        <!-- Botón para ver la lista de tipos de permisos -->
+        <div class="text-center mb-4">
+            <a href="{{ route('empleado.permisos.lista') }}" 
+                class="btn btn-secondary px-6 py-2 rounded-lg shadow-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none">
+                Ver Lista de tipos de permisos
+            </a>
+        </div>
 
         <!-- Tabla de permisos -->
         <div class="overflow-x-auto shadow-lg rounded-lg bg-white">

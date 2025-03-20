@@ -37,12 +37,12 @@
                     required>
                     <option value="">Selecciona el tipo de permiso</option>
                     @foreach($tiposPermiso as $tipo)
-                        @if(auth()->user()->genero === 'F' || $tipo->es_licencia == 0)
-                            <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
-                        @endif
+                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                     @endforeach
                 </select>
             </div>
+
+
 
             <div class="form-group">
                 <label for="fecha_inicio" class="text-lg font-medium text-gray-700">Fecha de Inicio</label>

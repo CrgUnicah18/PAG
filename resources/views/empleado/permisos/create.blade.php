@@ -37,15 +37,17 @@
                     required>
                     <option value="">Selecciona el tipo de permiso</option>
                     @foreach($tiposPermiso as $tipo)
-                        @if(auth()->user()->genero === 'M' && $tipo->es_licencia == 1)
-                            <!-- Si el género es M y el permiso es de licencia, no lo mostramos -->
-                            @continue
-                        @endif
-                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                    <!-- Se muestra el permiso solo si corresponde al género -->
+                                    @if(
+                                        (auth()->user()->genero === 'F' && $tipo->es_licencia == 1) ||
+                                        (auth()->user()->genero === 'M' && $tipo->es_licenciam == 1) ||
+                                        ($tipo->es_licencia == 0 && $tipo->es_licenciam == 0)
+                                    )
+                                                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                    @endif
                     @endforeach
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="fecha_inicio" class="text-lg font-medium text-gray-700">Fecha de Inicio</label>
                 <input type="date" id="fecha_inicio" name="fecha_inicio" min="{{ \Carbon\Carbon::today()->toDateString() }}"
