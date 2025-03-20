@@ -69,10 +69,10 @@
 
         {{-- TABLA DE EMPLEADOS --}}
         <div class="table-responsive">
-            <table class="table table-sm table-bordered table-hover shadow-sm">
+            <table class="table table-sm table-bordered table-hover shadow-sm" style="background-color: rgb(255, 255, 255);">
                 <thead class="bg-indigo-600 text-white text-center">
                     <tr>
-                        <th>Nombre Completo</th>
+                        <th class="rounded-tl-lg">Nombre Completo</th>
                         <th>Teléfono</th>
                         <th>Grupo</th>
                         <th>Oficina</th>
@@ -80,7 +80,7 @@
                         <th>Email</th>
                         <th>Rol</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th class="rounded-tr-lg">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,10 +100,20 @@
                             </td>
 
                             <td>
-                                <span class="badge {{ $empleado->estado == 'activo' ? 'bg-success' : 'bg-danger' }}">
+                                @php
+                                    $badgeClass = match(strtolower($empleado->estado)) {
+                                        'activo' => 'bg-success',
+                                        'inactivo' => 'bg-warning', // Amarillo con texto oscuro para que se lea bien
+                                        'terminado' => 'bg-danger',
+                                        default => 'bg-secondary'
+                                    };
+                                @endphp
+
+                                <span class="badge {{ $badgeClass }}">
                                     {{ ucfirst($empleado->estado) }}
                                 </span>
                             </td>
+
 
                             <td>
                                 <div class="btn-group btn-group-sm">

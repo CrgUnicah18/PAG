@@ -68,11 +68,11 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 Colores: 
 
-Blanco: rgb (255, 255, 255)
-Gris: rgb (232, 236, 237)
-Morado: rgb (124, 37, 105)
-Azul: rgb (35, 94, 167)
-Verde: rgb (117, 178, 59)
-Amarillo: (231, 173, 33)
-Naranja: rgb (196, 112, 48)
+Blanco: rgb(255, 255, 255)
+Gris: rgb(232, 236, 237)
+Morado: rgb(124, 37, 105)
+Azul: rgb(35, 94, 167)
+Verde: rgb(117, 178, 59)
+Amarillo: rgb(231, 173, 33) 
+Naranja: rgb(196, 112, 48)
 

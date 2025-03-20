@@ -3,27 +3,41 @@
 namespace App\Http\Controllers;
 
 use App\Models\Anuncio;
-use App\Models\Reaccion; // Asegúrate de que el nombre del modelo esté correcto
+use App\Models\Reaccion;
 use App\Models\Oficina;
 use App\Models\Grupo;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AnuncioController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $usuario = auth()->user();
         $empleado = $usuario->empleado;
 
         // Si es admin, muestra todo sin filtros
         if ($usuario->hasRole('admin')) {
-            $anuncios = Anuncio::with('oficinas', 'grupos', 'reactions')
-                ->latest()
-                ->paginate(5); // Paginación de 5 anuncios por página
+            // Filtros por prioridad
+            $query = Anuncio::with('oficinas', 'grupos', 'reactions')
+                ->latest();
+
+            if ($request->has('prioridad') && $request->prioridad != '') {
+                $query->where('prioridad', $request->prioridad);
+            }
+
+            // Filtrar por anuncios no expirados
+            $query->where(function ($q) {
+                $q->whereNull('fecha_expiracion')
+                    ->orWhere('fecha_expiracion', '>', Carbon::now());
+            });
+
+            $anuncios = $query->paginate(5); // Paginación de 5 anuncios por página
 
             // Contar las reacciones para cada anuncio
             foreach ($anuncios as $anuncio) {
                 $anuncio->conteo_reacciones = $anuncio->reactions->count();
+                $anuncio->is_new = Carbon::parse($anuncio->fecha_hora)->greaterThan(Carbon::now()->subDays(3)); // Marcar como "Nuevo" si el anuncio tiene menos de 3 días
             }
 
             return view('admin.anuncios.index', compact('anuncios'));
@@ -58,11 +72,14 @@ class AnuncioController extends Controller
                         });
                 });
         })
+            ->where(function ($q) {
+                // Filtrar por anuncios no expirados (igual que en el admin)
+                $q->whereNull('fecha_expiracion')
+                    ->orWhere('fecha_expiracion', '>', Carbon::now());
+            })
             ->with('reactions') // Asegúrate de cargar las reacciones aquí
             ->latest()
             ->paginate(5); // Paginación de 5 anuncios por página
-
-        // Aquí ya no filtramos los anuncios que el empleado ha visto, ya que no queremos eliminarlos del listado
 
         // Vistas según el rol
         if ($usuario->hasRole('supervisor')) {
@@ -71,33 +88,6 @@ class AnuncioController extends Controller
 
         return view('empleado.anuncios.index', compact('anuncios'));
     }
-
-    public function reactToAnuncio(Anuncio $anuncio)
-    {
-        $usuario = auth()->user();
-        $empleado = $usuario->empleado;
-
-        // Verificar si el empleado ya reaccionó
-        $reaccion = Reaccion::firstOrCreate(
-            ['empleado_id' => $empleado->id, 'anuncio_id' => $anuncio->id],
-            ['visto' => true] // Si no existía, se marca como visto
-        );
-
-        // Si ya existía, se actualiza el campo visto
-        if (!$reaccion->wasRecentlyCreated) {
-            $reaccion->update(['visto' => true]);
-        }
-
-        // Validación con hasRole() para comprobar si es supervisor o empleado
-        if ($usuario->hasRole('supervisor')) {
-            // Si el usuario es supervisor, redirigir al panel de supervisores
-            return redirect()->route('supervisor.anuncios.index')->with('success', 'Has marcado este anuncio como visto.');
-        } else {
-            // Si el usuario es empleado, redirigir al panel de empleados
-            return redirect()->route('empleado.anuncios.index')->with('success', 'Has marcado este anuncio como visto.');
-        }
-    }
-
 
 
     public function create()
@@ -109,7 +99,62 @@ class AnuncioController extends Controller
         return view('admin.anuncios.create', compact('oficinas', 'grupos'));
     }
 
+
     public function store(Request $request)
+    {
+        // Validación de los campos
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'contenido' => 'required|string',
+            'audiencia' => 'required|string',
+            'fecha_expiracion' => 'required|date',
+            'prioridad' => 'required|string',
+        ]);
+
+        // Crear el anuncio
+        $anuncio = new Anuncio();
+        $anuncio->titulo = $request->titulo;
+        $anuncio->contenido = $request->contenido;
+        $anuncio->audiencia = $request->audiencia;
+        $anuncio->fecha_hora = now(); // Fecha y hora actual
+        $anuncio->fecha_expiracion = $request->fecha_expiracion;
+        $anuncio->prioridad = $request->prioridad;
+
+        // Guardar los grupos seleccionados (si hay)
+        if ($request->audiencia === 'grupo' || $request->audiencia === 'todos') {
+            $anuncio->grupos()->sync($request->grupos);
+        }
+
+        // Guardar las oficinas seleccionadas (si hay)
+        if ($request->audiencia === 'oficina' || $request->audiencia === 'todos') {
+            $anuncio->oficinas()->sync($request->oficinas);
+        }
+
+        // Guardar el anuncio
+        $anuncio->save();
+
+        return redirect()->route('admin.anuncios.index')->with('success', 'Anuncio creado con éxito.');
+    }
+
+
+    public function destroy(Anuncio $anuncio)
+    {
+        // Eliminar el anuncio
+        $anuncio->delete();
+
+        // Redirigir con mensaje de éxito
+        return redirect()->route('admin.anuncios.index')->with('success', 'Anuncio eliminado exitosamente');
+    }
+
+    public function edit(Anuncio $anuncio)
+    {
+        $oficinas = Oficina::all();
+        $grupos = Grupo::all();
+
+        return view('admin.anuncios.edit', compact('anuncio', 'oficinas', 'grupos'));
+    }
+
+    public function update(Request $request, Anuncio $anuncio)
     {
         // Validar los datos del formulario
         $request->validate([
@@ -118,16 +163,18 @@ class AnuncioController extends Controller
             'audiencia' => 'required|in:empresa,todos,oficina,grupo',
             'fecha_hora' => 'nullable|date',
             'prioridad' => 'required|in:alta,media,baja',
+            'fecha_expiracion' => 'nullable|date|after:fecha_hora', // Validar fecha de expiración
             'oficinas' => 'nullable|array|exists:oficinas,id', // Validar existencia de oficinas
-            'grupos' => 'nullable|array|exists:grupos,id',     // Validar existencia de grupos
+            'grupos' => 'nullable|array|exists:grupos,id', // Validar existencia de grupos
         ]);
 
-        // Crear el anuncio
-        $anuncio = Anuncio::create([
+        // Actualizar el anuncio
+        $anuncio->update([
             'titulo' => $request->titulo,
             'contenido' => $request->contenido,
             'audiencia' => $request->audiencia,
             'fecha_hora' => $request->fecha_hora,
+            'fecha_expiracion' => $request->fecha_expiracion, // Actualizar fecha de expiración
             'prioridad' => $request->prioridad,
         ]);
 
@@ -148,16 +195,6 @@ class AnuncioController extends Controller
         }
 
         // Redirigir con mensaje de éxito
-        return redirect()->route('admin.anuncios.index')->with('success', 'Anuncio creado exitosamente');
+        return redirect()->route('admin.anuncios.index')->with('success', 'Anuncio actualizado exitosamente');
     }
-
-    public function destroy(Anuncio $anuncio)
-    {
-        // Eliminar el anuncio
-        $anuncio->delete();
-
-        // Redirigir con mensaje de éxito
-        return redirect()->route('admin.anuncios.index')->with('success', 'Anuncio eliminado exitosamente');
-    }
-
 }
