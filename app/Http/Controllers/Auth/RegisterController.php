@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Oficina;
 use App\Models\Grupo;
 use App\Models\TipoContrato;
+use App\Models\User; // Asegúrate de incluir el modelo User
 
 class RegisterController extends Controller
 {
@@ -52,6 +53,13 @@ class RegisterController extends Controller
 
         // Obtener el nombre del tipo de contrato
         $tipoContrato = TipoContrato::find($request->tipo_contrato_id);
+
+        // Verificar si el empleado ya tiene un usuario asociado
+        $empleadoExistente = Empleado::find($request->empleado_id);
+        if ($empleadoExistente && $empleadoExistente->user) {
+            // Si ya tiene un usuario asociado, redirigir
+            return redirect()->route('empleado.inicio.home')->with('error', 'Este empleado ya tiene un usuario creado.');
+        }
 
         // Crear el empleado
         $empleado = Empleado::create([
