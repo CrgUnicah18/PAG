@@ -17,7 +17,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -26,11 +27,13 @@
     <!-- Incluye Heroicons desde CDN si no estás usando Laravel Mix o Vite -->
     <script src="https://unpkg.com/feather-icons"></script>
 
-    <!-- Agregar FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+
 
     <!-- Agregar en tu archivo Blade (resources/views/layouts/app.blade.php) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <style>
@@ -54,7 +57,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-[rgb(232,236,237)]">
 
     <!-- Navbar lateral -->
     @include('navbar') <!-- Aquí se incluye el navbar -->
@@ -93,6 +96,8 @@
     <script>
         feather.replace()
     </script>
+    {{-- Script para íconos Lucide --}}
+
 </body>
 
 </html>

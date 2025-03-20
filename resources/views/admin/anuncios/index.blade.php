@@ -15,33 +15,40 @@
         @forelse($anuncios as $anuncio)
             <div class="bg-white shadow-md rounded-2xl p-6 mb-6 border border-gray-200">
                 <h2 class="text-2xl font-semibold text-blue-700 mb-2">{{ $anuncio->titulo }}</h2>
-                <p class="text-gray-700 mb-4">{{ $anuncio->contenido }}</p>
 
-                <div class="text-sm text-gray-600 mb-2">
-                    <span class="font-semibold">📌 Prioridad:</span>
-                    @if($anuncio->prioridad === 'alta')
-                        <span class="inline-block bg-red-500 text-white px-3 py-1 rounded-full text-sm">Alta</span>
-                    @elseif($anuncio->prioridad === 'media')
-                        <span class="inline-block bg-yellow-500 text-white px-3 py-1 rounded-full text-sm">Media</span>
-                    @elseif($anuncio->prioridad === 'baja')
-                        <span class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-sm">Baja</span>
-                    @else
-                        <span class="inline-block bg-gray-400 text-white px-3 py-1 rounded-full text-sm">Desconocida</span>
-                    @endif
+                <!-- Contenido del anuncio -->
+                <div class="whitespace-pre-line text-gray-800 mb-4">
+                    {{ $anuncio->contenido }}
                 </div>
 
-                <div class="text-sm text-gray-600 mb-4">
-                    <span class="font-semibold">🕒 Publicado el:</span>
-                    {{ \Carbon\Carbon::parse($anuncio->fecha_hora)->format('d/m/Y h:i A') }}
+                <!-- Información de Prioridad y Publicación -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div class="text-sm text-gray-600">
+                        <span class="font-semibold">📌 Prioridad:</span>
+                        @if($anuncio->prioridad === 'alta')
+                            <span class="inline-block bg-red-500 text-white px-3 py-1 rounded-full text-sm">Alta</span>
+                        @elseif($anuncio->prioridad === 'media')
+                            <span class="inline-block bg-yellow-500 text-white px-3 py-1 rounded-full text-sm">Media</span>
+                        @elseif($anuncio->prioridad === 'baja')
+                            <span class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-sm">Baja</span>
+                        @else
+                            <span class="inline-block bg-gray-400 text-white px-3 py-1 rounded-full text-sm">Desconocida</span>
+                        @endif
+                    </div>
+
+                    <div class="text-sm text-gray-600">
+                        <span class="font-semibold">🕒 Publicado el:</span>
+                        {{ \Carbon\Carbon::parse($anuncio->fecha_hora)->format('d/m/Y h:i A') }}
+                    </div>
                 </div>
 
-                {{-- Mostrar el conteo de reacciones --}}
+                <!-- Conteo de reacciones -->
                 <div class="text-sm text-gray-600 mb-4">
                     <span class="font-semibold">💬 Reacciones:</span>
                     <span class="text-gray-800">{{ $anuncio->conteo_reacciones }}</span>
                 </div>
 
-                {{-- Mostrar a quién se le asignó el anuncio --}}
+                <!-- Asignado a (Audiencia) -->
                 <div class="bg-gray-100 p-4 rounded-lg mt-4">
                     <h3 class="font-semibold text-gray-700 mb-2">👥 Asignado a:</h3>
 
@@ -64,12 +71,13 @@
                     @endif
                 </div>
             </div>
-
         @empty
             <div class="bg-yellow-100 text-yellow-800 p-4 rounded-md">
                 No hay anuncios creados aún.
             </div>
         @endforelse
+
+        <!-- Paginación -->
         <div class="pagination">
             {{ $anuncios->links() }}
         </div>

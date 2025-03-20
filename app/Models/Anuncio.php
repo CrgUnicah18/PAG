@@ -19,7 +19,8 @@ class Anuncio extends Model
         'grupos',
         'fecha_hora',
         'prioridad',
-        'activo'
+        'activo',
+        'fecha_expiracion',
     ];
 
     // Relación con oficinas

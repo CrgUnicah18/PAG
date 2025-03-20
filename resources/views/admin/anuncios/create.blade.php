@@ -67,11 +67,12 @@
                 </div>
             </div>
 
-            <!-- Fecha y Hora -->
+            <!-- Fecha de Expiración -->
             <div class="mb-4">
-                <label for="fecha_hora" class="block text-sm font-medium text-gray-700">Fecha y Hora</label>
-                <input type="datetime-local" name="fecha_hora" id="fecha_hora"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <label for="fecha_expiracion" class="block text-sm font-medium text-gray-700">Fecha de Expiración</label>
+                <input type="datetime-local" name="fecha_expiracion" id="fecha_expiracion"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    required>
             </div>
 
             <!-- Prioridad -->

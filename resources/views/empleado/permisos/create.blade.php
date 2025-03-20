@@ -76,7 +76,8 @@
             </div>
 
             <button type="submit"
-                class="w-full py-3 px-4 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                class="w-full py-3 px-4 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                style="background-color: rgb(35, 94, 167);">
                 Solicitar Permiso
             </button>
         </form>

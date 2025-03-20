@@ -1,80 +1,90 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-6">
+    <div class="container mt-8">
 
-        <!-- Mensajes de éxito o error -->
+        {{-- Mensajes de éxito o error --}}
         @if(session('success'))
-            <div class="alert alert-success mb-4 p-4 rounded-md bg-green-100 border border-green-400 text-green-700">
+            <div class="alert alert-success mb-6 p-4 rounded-lg bg-green-100 border border-green-400 text-green-700">
                 {{ session('success') }}
             </div>
         @elseif(session('error'))
-            <div class="alert alert-danger mb-4 p-4 rounded-md bg-red-100 border border-red-400 text-red-700">
+            <div class="alert alert-danger mb-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700">
                 {{ session('error') }}
             </div>
         @endif
 
-        <!-- Título de la sección -->
-        <div class="mb-6">
-            <h2 class="text-3xl font-semibold text-gray-800 border-b-2 border-gray-300 pb-2">
+        {{-- Título centrado y con estilo --}}
+        <div class="text-center mb-6">
+            <h2 class="text-4xl font-bold text-gray-800 border-b-4 border-blue-600 inline-block pb-2">
                 Mis Solicitudes de Permiso
             </h2>
         </div>
-        <!-- Botón para ver la lista de tipos de permisos -->
-        <div class="text-center mb-4">
-            <a href="{{ route('empleado.permisos.lista') }}" 
-                class="btn btn-secondary px-6 py-2 rounded-lg shadow-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none">
-                Ver Lista de tipos de permisos
+
+        {{-- Botones con íconos --}}
+        <div class="flex justify-center gap-4 mb-6">
+            <a href="{{ route('empleado.permisos.lista') }}"
+                class="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg shadow-md transition">
+                <i data-lucide="list" class="w-5 h-5"></i>
+                Ver tipos de permisos
+            </a>
+
+            <a href="{{ route('empleado.permisos.create') }}"
+                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition"
+                style="background-color: rgb(231, 173, 33); color: white; padding: 10px 20px; border: none; border-radius: 8px;">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                Solicitar Permiso
             </a>
         </div>
 
-        <!-- Tabla de permisos -->
-        <div class="overflow-x-auto shadow-lg rounded-lg bg-white">
-            <table class="min-w-full table-auto">
-                <thead class="bg-gray-200">
+        {{-- Tabla de permisos --}}
+        <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+            <table class="min-w-full text-sm text-gray-700">
+                <thead style="background-color: rgb(36, 94, 167);">
                     <tr>
-                        <th class="px-4 py-2 text-left text-sm text-gray-600">Empleado</th>
-                        <th class="px-4 py-2 text-left text-sm text-gray-600">Tipo de Permiso</th>
-                        <th class="px-4 py-2 text-left text-sm text-gray-600">Fecha de Inicio</th>
-                        <th class="px-4 py-2 text-left text-sm text-gray-600">Fecha de Fin</th>
-                        <th class="px-4 py-2 text-left text-sm text-gray-600">Estado</th>
-                        <th class="px-4 py-2 text-left text-sm text-gray-600">Comentario</th>
-                        <th class="px-4 py-2 text-center text-sm text-gray-600">Acciones</th>
+                        <th class="px-4 py-3 text-left text-white">Empleado</th>
+                        <th class="px-4 py-3 text-left text-white">Tipo de Permiso</th>
+                        <th class="px-4 py-3 text-left text-white">Fecha de Inicio</th>
+                        <th class="px-4 py-3 text-left text-white">Fecha de Fin</th>
+                        <th class="px-4 py-3 text-left text-white">Estado</th>
+                        <th class="px-4 py-3 text-left text-white">Comentario</th>
+                        <th class="px-4 py-3 text-center text-white">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     @foreach($permisosEmpleado as $permiso)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-4 py-2 text-sm text-gray-700">{{ $permiso->empleado->nombre }}
-                                {{ $permiso->empleado->apellido }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-700">{{ $permiso->tipoPermiso->nombre }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-700">
-                                {{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-700">
-                                {{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-700">
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-4 py-3">{{ $permiso->empleado->nombre }} {{ $permiso->empleado->apellido }}</td>
+                            <td class="px-4 py-3">{{ $permiso->tipoPermiso->nombre }}</td>
+                            <td class="px-4 py-3">{{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
+                            <td class="px-4 py-3">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
+                            <td class="px-4 py-3">
                                 @if($permiso->estado == 'pendiente')
-                                    <span class="badge bg-yellow-400 text-white px-2 py-1 rounded">Pendiente</span>
+                                    <span
+                                        class="inline-block px-3 py-1 text-xs font-semibold bg-yellow-400 text-white rounded">Pendiente</span>
                                 @elseif($permiso->estado == 'pendiente_aprobacion')
-                                    <span class="badge bg-blue-500 text-white px-2 py-1 rounded">Pendiente de Aprobación</span>
+                                    <span class="inline-block px-3 py-1 text-xs font-semibold bg-blue-500 text-white rounded">Pend.
+                                        Aprobación</span>
                                 @elseif($permiso->estado == 'aprobado')
-                                    <span class="badge bg-green-500 text-white px-2 py-1 rounded">Aprobado</span>
+                                    <span
+                                        class="inline-block px-3 py-1 text-xs font-semibold bg-green-500 text-white rounded">Aprobado</span>
                                 @elseif($permiso->estado == 'rechazado')
-                                    <span class="badge bg-red-500 text-white px-2 py-1 rounded">Rechazado</span>
+                                    <span
+                                        class="inline-block px-3 py-1 text-xs font-semibold bg-red-500 text-white rounded">Rechazado</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-2 text-sm text-gray-700">
+                            <td class="px-4 py-3">
                                 @if($permiso->comentario)
                                     {{ $permiso->comentario }}
                                 @else
-                                    <span class="text-gray-400">No hay comentario</span>
+                                    <span class="text-gray-400 italic">Sin comentario</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-2 text-sm text-center">
+                            <td class="px-4 py-3 text-center">
                                 @if($permiso->estado == 'pendiente' || $permiso->estado == 'pendiente_aprobacion')
-                                    <span class="text-gray-500">En espera de aprobación</span>
+                                    <span class="text-gray-500 italic">En espera</span>
                                 @else
-                                    <span class="text-green-500">Procesado</span>
+                                    <span class="text-green-500 font-semibold">Procesado</span>
                                 @endif
                             </td>
                         </tr>
@@ -83,17 +93,13 @@
             </table>
         </div>
 
-        <!-- Paginación -->
-        <div class="mt-4 text-center">
+        {{-- Paginación --}}
+        <div class="mt-6 text-center">
             {{ $permisosEmpleado->links() }}
         </div>
-
-        <!-- Botón para crear un nuevo permiso -->
-        <div class="text-center mt-4">
-            <a href="{{ route('empleado.permisos.create') }}"
-                class="btn btn-primary px-6 py-2 rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
-                Solicitar Permiso
-            </a>
-        </div>
     </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
 @endsection
