@@ -55,6 +55,7 @@ class EmpleadosExportExcel implements FromCollection, WithHeadings, WithMapping,
     public function headings(): array
     {
         $nombres = [
+            'dn' => 'DNI',
             'nombre' => 'Nombre',
             'apellido' => 'Apellido',
             'genero' => 'Género',
@@ -193,6 +194,7 @@ class EmpleadosExportExcel implements FromCollection, WithHeadings, WithMapping,
     private function getColumnHeading($campo)
     {
         $nombres = [
+            'dn' => 'DNI',
             'nombre' => 'Nombre',
             'apellido' => 'Apellido',
             'genero' => 'Género',

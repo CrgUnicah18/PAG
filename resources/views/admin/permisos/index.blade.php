@@ -93,11 +93,28 @@
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 @if($permiso->comentario)
-                                    {{ $permiso->comentario }}
+                                    <div class="comment-container">
+                                        {{-- Dividiendo los comentarios si es necesario para mayor claridad --}}
+                                        @foreach(explode("\n", $permiso->comentario) as $line)
+                                            <p class="comment-line">{{ $line }}</p>
+                                        @endforeach
+                                    </div>
                                 @else
-                                    <span class="text-gray-400">No hay comentario</span>
+                                    <span class="text-gray-400 italic">Sin comentario</span>
+                                @endif
+
+                                {{-- Ver Subsidio --}}
+                                @if($permiso->subsidio_archivo)
+                                    <div class="mt-2">
+                                        <a href="{{ asset('storage/' . $permiso->subsidio_archivo) }}" target="_blank"
+                                            class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 hover:underline">
+                                            <i class="fa fa-file mr-1 text-red-600"></i> Refrendamiento
+                                        </a>
+                                    </div>
                                 @endif
                             </td>
+
+
                             <td class="px-6 py-4 text-sm">
                                 <button data-bs-toggle="modal" data-bs-target="#commentModal{{ $permiso->id }}"
                                     class="bg-yellow-500 text-white hover:bg-yellow-400 rounded-lg px-3 py-1 text-xs"

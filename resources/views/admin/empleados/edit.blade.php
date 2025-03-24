@@ -23,6 +23,10 @@
             <div class="card shadow-sm p-4 mb-4">
                 <div class="row mb-3">
                     <div class="col-md-4">
+                        <label for="dn" class="form-label">DNI</label>
+                        <input type="text" class="form-control" name="dn" value="{{ old('dn', $empleado->dn) }}" required>
+                    </div>
+                    <div class="col-md-4">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" name="nombre" value="{{ old('nombre', $empleado->nombre) }}"
                             required>
@@ -41,7 +45,7 @@
 
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label for="grupo_id" class="form-label">Grupo</label>
+                        <label for="grupo_id" class="form-label">Programa</label>
                         <select class="form-control" name="grupo_id" required>
                             @foreach($grupos as $grupo)
                                 <option value="{{ $grupo->id }}" {{ old('grupo_id', $empleado->grupo_id) == $grupo->id ? 'selected' : '' }}>
@@ -128,6 +132,18 @@
                             <div class="mt-2">
                                 <img src="{{ asset('empleados/img_contratos/' . $empleado->documento_contrato) }}"
                                     alt="Contrato" width="100" class="rounded">
+                            </div>
+                        @endif
+                    </div>
+                    <!-- Imagen del DNI -->
+                    <div class="col-md-6">
+                        <label for="dn_file" class="form-label">Imagen del DNI</label>
+                        <input type="file" class="form-control" name="dn_file" accept="image/*">
+
+                        @if($empleado->dn_file)
+                            <div class="mt-2">
+                                <img src="{{ asset('empleados/img_contratos/' . $empleado->dn_file) }}" alt="Dni" width="100"
+                                    class="rounded">
                             </div>
                         @endif
                     </div>

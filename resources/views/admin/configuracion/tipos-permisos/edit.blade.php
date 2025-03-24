@@ -37,17 +37,43 @@
 
                 <div class="mb-4 flex items-center">
                     <input type="hidden" name="es_vacacion" value="0">
-                    <input type="checkbox" id="es_vacacion" name="es_vacacion" value="1" class="mr-2" {{ old('es_vacacion', $tipoPermiso->es_vacacion ?? false) ? 'checked' : '' }}>
+                    <label class="switch">
+                        <input type="checkbox" id="es_vacacion" name="es_vacacion" value="1" {{ old('es_vacacion', $tipoPermiso->es_vacacion ?? false) ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
                     <label for="es_vacacion" class="font-semibold">Este permiso es de tipo "Vacaciones"</label>
                 </div>
+
                 <div class="form-group mb-4 flex items-center">
-                    <input type="checkbox" id="es_licencia" name="es_licencia" value="1" class="mr-2" {{ old('es_licencia', isset($tipoPermiso) ? $tipoPermiso->es_licencia : 0) ? 'checked' : '' }}>
+                    <input type="hidden" name="es_licencia" value="0">
+                    <label class="switch">
+                        <input type="checkbox" id="es_licencia" name="es_licencia" value="1" {{ old('es_licencia', isset($tipoPermiso) ? $tipoPermiso->es_licencia : 0) ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
                     <label for="es_licencia" class="font-semibold">¿Es Licencia Femenina?</label>
                 </div>
+
                 <div class="form-group mb-4 flex items-center">
-                    <input type="checkbox" id="es_licenciam" name="es_licenciam" value="1" class="mr-2" {{ old('es_licenciam', isset($tipoPermiso) ? $tipoPermiso->es_licenciam : 0) ? 'checked' : '' }}>
+                    <input type="hidden" name="es_licenciam" value="0">
+                    <label class="switch">
+                        <input type="checkbox" id="es_licenciam" name="es_licenciam" value="1" {{ old('es_licenciam', isset($tipoPermiso) ? $tipoPermiso->es_licenciam : 0) ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
                     <label for="es_licenciam" class="font-semibold">¿Es Licencia Masculina?</label>
                 </div>
+
+
+                <div class="mb-4 flex items-center">
+                    <input type="hidden" name="requiere_subsidio" value="0">
+                    <label class="switch">
+                        <input type="checkbox" id="requiere_subsidio" name="requiere_subsidio" value="1" {{ old('requiere_subsidio', isset($tipoPermiso) ? $tipoPermiso->requiere_subsidio : 0) ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
+                    <label for="requiere_subsidio" class="font-semibold">Refrendamiento</label>
+                </div>
+
+
+
 
                 <!-- Botones de guardar y cancelar -->
                 <div class="form-group mt-6 flex justify-between">
@@ -61,5 +87,6 @@
                 </div>
             </form>
         </div>
+
     </div>
 @endsection

@@ -32,7 +32,10 @@ class Empleado extends Model
         'tipo_contrato_id',
         'foto_perfil',
         'documento_contrato',
-        'vacaciones_restantes'
+        'vacaciones_restantes',
+        'dn',
+        'dn_file',
+        'supervisor_id',
     ];
     // Relación con Oficina
     public function oficina()
@@ -93,7 +96,7 @@ class Empleado extends Model
             // Proporcionalidad según el mes de ingreso
             $mesIngreso = (int) $fechaIngreso->format('n'); // 1=enero, 12=diciembre
             $mesesRestantesDelAno = 12 - $mesIngreso; // No incluimos el mes actual
-            $vacacionesProporcionales = round(($mesesRestantesDelAno / 12) * 5); // Redondeamos al entero más cercano
+            $vacacionesProporcionales = round(($mesesRestantesDelAno / 12) * 10); // Redondeamos al entero más cercano
             \Log::info("Mes ingreso: " . $mesIngreso);
             \Log::info("Meses restantes del año: " . $mesesRestantesDelAno);
             \Log::info("Vacaciones proporcionales calculadas: " . $vacacionesProporcionales);

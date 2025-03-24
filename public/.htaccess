@@ -23,6 +23,4 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 
-    # Permitir acceso a la carpeta public/storage
-    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
 </IfModule>

@@ -94,7 +94,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
 
     // Ruta para formulario de reporte
     Route::get('permisos/formulario', [PermisoController::class, 'mostrarFormulario'])->name('permisos.formulario');
-    Route::post('permisos/reporte', [PermisoController::class, 'generarReporte'])->name('permisos.reporte');
+    Route::match(['get', 'post'], 'permisos/reporte', [PermisoController::class, 'generarReporte'])->name('permisos.reporte');
     Route::get('permisos/reporte/pdf', [PermisoController::class, 'descargarPDF'])->name('permisos.reporte.pdf');
 
     // Rutas para vacaciones
@@ -190,7 +190,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
     Route::get('permisos', [PermisoController::class, 'index'])->name('permisos.index');
     Route::get('permisos/create', [PermisoController::class, 'create'])->name('permisos.create');
     Route::post('permisos', [PermisoController::class, 'store'])->name('permisos.store');
-    Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
+    Route::post('/permisos/{permiso}/comentar', [PermisoController::class, 'comentar'])->name('permisos.comentar');
+    //Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
 
