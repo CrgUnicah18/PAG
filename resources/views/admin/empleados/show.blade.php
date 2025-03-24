@@ -17,6 +17,10 @@
                 <table class="w-full text-gray-800 text-sm">
                     <tbody>
                         <tr class="border-b">
+                            <th class="text-left py-2 font-semibold">DNI</th>
+                            <td class="py-2">{{ $empleado->dn }}</td>
+                        </tr>
+                        <tr class="border-b">
                             <th class="text-left py-2 font-semibold">Dirección</th>
                             <td class="py-2">{{ $empleado->direccion }}</td>
                         </tr>
@@ -37,7 +41,7 @@
                             <td class="py-2">{{ $empleado->oficina->nombre }}</td>
                         </tr>
                         <tr class="border-b">
-                            <th class="text-left py-2 font-semibold">Grupo</th>
+                            <th class="text-left py-2 font-semibold">Programa</th>
                             <td class="py-2">{{ $empleado->grupo->nombre }}</td>
                         </tr>
                         <tr class="border-b">
@@ -51,9 +55,26 @@
                                 {{ $empleado->supervisor ? $empleado->supervisor->nombre . ' ' . $empleado->supervisor->apellido : 'N/A' }}
                             </td>
                         </tr>
+                        <!-- Aquí agregamos el botón para abrir el archivo -->
+                        <tr class="border-b">
+                            <th class="text-left py-2 font-semibold">Ver DNI</th>
+                            <td class="py-2">
+                                @if($empleado->dn_file)
+                                    <!-- Enlace al archivo almacenado -->
+                                    <a href="{{ asset($empleado->dn_file) }}"
+                                        class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                                        target="_blank">
+                                        Ver Documento DNI
+                                    </a>
+                                @else
+                                    <span>No disponible</span>
+                                @endif
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
+
             <div class="text-center mt-6">
                 @if ($empleado->documento_contrato)
                     <a href="{{ asset($empleado->documento_contrato) }}"

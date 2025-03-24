@@ -49,14 +49,14 @@ class PermisoController extends Controller
                     ->when($estado, function ($query, $estado) {
                         return $query->where('estado', $estado);
                     })
-                    ->orderBy('created_at', 'desc') // ← ORDEN NUEVO
+                    ->orderBy('created_at', 'desc')
                     ->paginate(10);
             } else {
                 $permisosEmpleados = collect();
             }
 
             $permisosSupervisor = Permiso::where('empleado_id', $empleado->id)
-                ->orderBy('created_at', 'desc') // ← ORDEN NUEVO
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             return view('supervisor.permisos.index', compact('empleadosBajoSupervision', 'permisosSupervisor', 'permisosEmpleados', 'empleados'));
@@ -65,7 +65,7 @@ class PermisoController extends Controller
         // EMPLEADO
         if ($user->hasRole('empleado')) {
             $permisosEmpleado = Permiso::where('empleado_id', $empleado->id)
-                ->orderBy('created_at', 'desc') // ← ORDEN NUEVO
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             return view('empleado.permisos.index', compact('permisosEmpleado', 'empleados'));
@@ -74,7 +74,7 @@ class PermisoController extends Controller
         // ADMIN
         if ($user->hasRole('admin')) {
             $permisosAdmin = Permiso::where('empleado_id', $user->empleado->id)
-                ->orderBy('created_at', 'desc') // ← ORDEN NUEVO
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             $permisos = Permiso::when($estado, function ($query, $estado) {
@@ -85,7 +85,7 @@ class PermisoController extends Controller
                         $q->where('nombre', 'like', '%' . $nombreEmpleado . '%');
                     });
                 })
-                ->orderBy('created_at', 'desc') // ← ORDEN NUEVO
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             return view('admin.permisos.index', compact('permisos', 'permisosAdmin', 'empleados', 'nombreEmpleado', 'estado'));
@@ -93,6 +93,7 @@ class PermisoController extends Controller
 
         return redirect()->back()->with('error', 'No tienes acceso a esta sección.');
     }
+
 
 
     // FIXME: Mostrar el formulario para solicitar un permiso
@@ -154,51 +155,53 @@ class PermisoController extends Controller
             return redirect()->back()->with('error', 'El empleado no existe en el sistema.');
         }
 
-        // ** Validación 1: Verificar el máximo de 2 solicitudes por mes **
-        // ! IMPORTANTE: Solo se deben contar los permisos que estén en estado 'pendiente', 'pendiente_aprobacion' o 'aprobado'
-        // !ya que los permisos 'rechazados' NO deben contabilizarse como parte del límite mensual.
-        // !Esto permite que un empleado pueda volver a solicitar otro permiso si uno anterior fue rechazado.
+        // Obtener el tipo de permiso seleccionado
+        $tipoPermiso = TipoPermiso::find($request->tipo_permiso_id);
 
-        // TODO Validación 1: Verificar el máximo de 2 solicitudes por mes (excepto los rechazados)
-        $permisosEsteMes = Permiso::where('empleado_id', $empleado->id)
-            ->whereYear('fecha_inicio', Carbon::now()->year)
-            ->whereMonth('fecha_inicio', Carbon::now()->month)
-            ->whereIn('estado', ['pendiente', 'pendiente_aprobacion', 'aprobado']) // Excluye los rechazados
-            ->count();
-
-        if ($permisosEsteMes >= 2) {
-            return redirect()->back()->with('error', 'Ya has alcanzado el límite de 2 permisos por mes.');
+        // Verificar si el tipo de permiso requiere subsidio
+        if ($tipoPermiso && $tipoPermiso->requiere_subsidio == 1) {
+            // Validar que se haya subido un archivo (pdf o imagen)
+            $request->validate([
+                'subsidio_archivo' => 'nullable|mimes:pdf,jpg,jpeg,png|max:10240', // Máximo 10MB
+            ]);
         }
 
+        // ** Ignorar validaciones de permisos para subsidio **
+        if ($tipoPermiso && $tipoPermiso->requiere_subsidio != 1) {
+            // ** Validación 1: Verificar el máximo de 2 solicitudes por mes **
+            $permisosEsteMes = Permiso::where('empleado_id', $empleado->id)
+                ->whereYear('fecha_inicio', Carbon::now()->year)
+                ->whereMonth('fecha_inicio', Carbon::now()->month)
+                ->whereIn('estado', ['pendiente', 'pendiente_aprobacion', 'aprobado'])
+                ->count();
 
-        // ** Validación 2: Verificar el máximo de 15 permisos por año **
-        $permisosEsteAnio = Permiso::where('empleado_id', $empleado->id)
-            ->whereYear('fecha_inicio', Carbon::now()->year) // Filtrar por el año actual
-            ->count();
+            if ($permisosEsteMes >= 2) {
+                return redirect()->back()->with('error', 'Ya has alcanzado el límite de 2 permisos por mes.');
+            }
 
-        if ($permisosEsteAnio >= 15) {
-            return redirect()->back()->with('error', 'Ya has alcanzado el límite de 15 permisos por año.');
+            // ** Validación 2: Verificar el máximo de 15 permisos por año **
+            $permisosEsteAnio = Permiso::where('empleado_id', $empleado->id)
+                ->whereYear('fecha_inicio', Carbon::now()->year)
+                ->count();
+
+            if ($permisosEsteAnio >= 15) {
+                return redirect()->back()->with('error', 'Ya has alcanzado el límite de 15 permisos por año.');
+            }
         }
 
         // ** Validación 3: Verificar si el tipo de permiso no es vacación y la duración excede el máximo permitido **
-        $tipoPermiso = TipoPermiso::find($request->tipo_permiso_id);
-
-        // Verificar si el tipo de permiso no es vacación (es_vacacion == 0)
         if ($tipoPermiso && $tipoPermiso->es_vacacion == 0) {
-            // Obtener el número máximo de días permitidos para este tipo de permiso (campo 'dias')
-            $diasMaximos = $tipoPermiso->dias; // Campo 'dias' de la tabla 'tipo_permisos'
-
-            // Calcular la duración del permiso solicitado
-            $diasDuracion = Carbon::parse($request->fecha_inicio)->diffInDays(Carbon::parse($request->fecha_fin)) + 1; // +1 para incluir el día de inicio
+            $diasMaximos = $tipoPermiso->dias;
+            $diasDuracion = Carbon::parse($request->fecha_inicio)->diffInDays(Carbon::parse($request->fecha_fin)) + 1;
 
             if ($diasDuracion > $diasMaximos) {
                 return redirect()->back()->with('error', 'El permiso no puede exceder los ' . $diasMaximos . ' días.');
             }
         }
 
-        // Verificar si hay permisos pendientes o pendientes_aprobacion con fechas sobrepuestas para el empleado
+        // Verificar si hay permisos pendientes o pendientes_aprobacion con fechas sobrepuestas
         $fechasSobrepuestas = Permiso::where('empleado_id', $empleado->id)
-            ->whereIn('estado', ['pendiente', 'pendiente_aprobacion', 'aprobado']) // Verificar ambos estados
+            ->whereIn('estado', ['pendiente', 'pendiente_aprobacion', 'aprobado'])
             ->where(function ($query) use ($request) {
                 $query->whereBetween('fecha_inicio', [$request->fecha_inicio, $request->fecha_fin])
                     ->orWhereBetween('fecha_fin', [$request->fecha_inicio, $request->fecha_fin])
@@ -213,15 +216,35 @@ class PermisoController extends Controller
             return redirect()->back()->with('error', 'Ya tienes una solicitud de permiso pendiente en las fechas seleccionadas.');
         }
 
+        $archivoSubsidio = null;
+
+        if ($tipoPermiso && $tipoPermiso->requiere_subsidio == 1) {
+            if ($request->hasFile('subsidio_archivo')) {
+                // Obtener el archivo
+                $archivo = $request->file('subsidio_archivo');
+
+                // Limpiar y definir el nombre del archivo
+                $nombreOriginal = $archivo->getClientOriginalName();
+                $nombreLimpio = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $nombreOriginal); // Quita espacios raros
+                $nombreArchivo = time() . '_' . $nombreLimpio;
+
+                // Guardar el archivo en storage/app/public/subsidios
+                $archivo->storeAs('subsidios', $nombreArchivo, 'public');
+
+                $archivoSubsidio = $archivo->storeAs('subsidios', $nombreArchivo, 'public');
+
+            }
+        }
+
         // Crear el nuevo permiso
         $permiso = new Permiso();
-        $permiso->empleado_id = $empleado->id;  // Usar el ID del empleado relacionado con el usuario
+        $permiso->empleado_id = $empleado->id;
         $permiso->tipo_permiso_id = $request->tipo_permiso_id;
         $permiso->fecha_inicio = $request->fecha_inicio;
         $permiso->fecha_fin = $request->fecha_fin;
-        $permiso->estado = 'pendiente';  // Estado inicial
+        $permiso->estado = 'pendiente';
         $permiso->comentario = $request->comentario;
-        // Eliminar esta línea porque 'es_licencia' no debe ir en la tabla 'permisos'
+        $permiso->subsidio_archivo = $archivoSubsidio;
         $permiso->save();
 
         // Redirigir según el rol del usuario
@@ -237,6 +260,7 @@ class PermisoController extends Controller
 
         return redirect()->back()->with('error', 'No tienes acceso para crear un permiso.');
     }
+
 
     // FIXME: Aprobar un permiso (Supervisor o Admin)
     public function aprobar($id)
@@ -300,7 +324,6 @@ class PermisoController extends Controller
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Este permiso no puede ser rechazado en este momento.');
     }
-
     public function comentar(Request $request, $permisoId)
     {
         // Validar que el comentario no esté vacío
@@ -308,14 +331,40 @@ class PermisoController extends Controller
             'comentario' => 'required|string|max:500',
         ]);
 
-        // Buscar el permiso y agregar el comentario
+        // Buscar el permiso
         $permiso = Permiso::findOrFail($permisoId);
-        $permiso->comentario = $request->comentario;
+
+        // Obtener el nombre del usuario autenticado
+        $usuario = auth()->user();
+
+        // Verificar si el usuario tiene el rol 'admin' usando Spatie
+        if ($usuario->hasRole('admin')) {
+            $autor = 'Admin'; // Si el usuario tiene el rol 'admin', asignamos 'Admin'
+        } else {
+            $autor = 'Empleado'; // En caso contrario, 'Empleado'
+        }
+
+        // Armar el nuevo comentario con fecha y autor
+        $nuevoComentario = "[" . now()->format('d/m/Y H:i') . " - {$autor}]: " . $request->comentario;
+
+        // Si ya hay un comentario anterior, lo concatenamos con el nuevo
+        if ($permiso->comentario) {
+            // Evitar duplicación
+            $comentarios = explode("\n\n", $permiso->comentario);
+            if (!in_array($nuevoComentario, $comentarios)) {
+                $permiso->comentario .= "\n\n" . $nuevoComentario;
+            }
+        } else {
+            $permiso->comentario = $nuevoComentario;
+        }
+
+        // Guardar
         $permiso->save();
 
-        // Redirigir de vuelta con un mensaje de éxito
+        // Redirigir con mensaje de éxito
         return redirect()->back()->with('success', 'Comentario guardado exitosamente.');
     }
+
 
     public function actualizarEstadoEmpleados()
     {
@@ -350,11 +399,11 @@ class PermisoController extends Controller
 
     public function generarReporte(Request $request)
     {
-        $empleadoId = $request->input('empleado_id');
-        $tipoPermisoId = $request->input('tipo_permiso_id');
-        $mes = $request->input('mes');
-        $anio = $request->input('anio');
-
+        // Usar los parámetros con fallback por si no vienen
+        $empleadoId = $request->input('empleado_id', 'todos');
+        $tipoPermisoId = $request->input('tipo_permiso_id', 'todos');
+        $mes = $request->input('mes', 'todos');
+        $anio = $request->input('anio', date('Y'));
         $query = Permiso::query();
 
         // Filtros de búsqueda
@@ -444,8 +493,5 @@ class PermisoController extends Controller
 
         return view('empleado.permisos.lista', compact('tiposPermiso'));
     }
-
-
-
 
 }

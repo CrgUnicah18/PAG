@@ -32,7 +32,10 @@ class Empleado extends Model
         'tipo_contrato_id',
         'foto_perfil',
         'documento_contrato',
-        'vacaciones_restantes'
+        'vacaciones_restantes',
+        'dn',
+        'dn_file',
+        'supervisor_id',
     ];
     // Relación con Oficina
     public function oficina()

@@ -75,31 +75,62 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($permiso->comentario)
-                                    {{ $permiso->comentario }}
+                                    <div class="comment-container">
+                                        {{-- Dividiendo los comentarios si es necesario para mayor claridad --}}
+                                        @foreach(explode("\n", $permiso->comentario) as $line)
+                                            <p class="comment-line">{{ $line }}</p>
+                                        @endforeach
+                                    </div>
                                 @else
                                     <span class="text-gray-400 italic">Sin comentario</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-center">
-                                @if($permiso->estado == 'pendiente' || $permiso->estado == 'pendiente_aprobacion')
-                                    <span class="text-gray-500 italic">En espera</span>
-                                @else
-                                    <span class="text-green-500 font-semibold">Procesado</span>
-                                @endif
+                                <button data-bs-toggle="modal" data-bs-target="#commentModal{{ $permiso->id }}"
+                                    class="bg-yellow-500 text-white hover:bg-yellow-400 rounded-lg px-3 py-1 text-xs">
+                                    <i class="fas fa-comment-dots text-xl"></i> Comentar
+                                </button>
                             </td>
+
+                            <!-- Modal de Comentario -->
+                            @foreach($permisosEmpleado as $permiso)
+                                <div class="modal fade" id="commentModal{{ $permiso->id }}" tabindex="-1"
+                                    aria-labelledby="commentModalLabel{{ $permiso->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="commentModalLabel{{ $permiso->id }}">Agregar Comentario
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="{{ route('empleado.permisos.comentar', $permiso->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <div class="mb-3">
+                                                        <label for="comentario" class="form-label">Comentario</label>
+                                                        <textarea class="form-control" id="comentario" name="comentario" rows="3"
+                                                            required></textarea> <!-- Esto ahora estará vacío -->
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Guardar Comentario</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </tr>
                     @endforeach
-                </tbody>
-            </table>
+
+
+                    {{-- Paginación --}}
+                    <div class="mt-6 text-center">
+                        {{ $permisosEmpleado->links() }}
+                    </div>
         </div>
 
-        {{-- Paginación --}}
-        <div class="mt-6 text-center">
-            {{ $permisosEmpleado->links() }}
-        </div>
-    </div>
-
-    <script>
-        lucide.createIcons();
-    </script>
+        <script>
+            lucide.createIcons();
+        </script>
 @endsection

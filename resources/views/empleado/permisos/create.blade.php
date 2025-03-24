@@ -25,7 +25,7 @@
             </div>
         @endif
 
-        <form action="{{ route('empleado.permisos.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('empleado.permisos.store') }}" method="POST" class="space-y-6" enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="empleado_id" value="{{ auth()->user()->id }}">
@@ -43,11 +43,14 @@
                                         (auth()->user()->genero === 'M' && $tipo->es_licenciam == 1) ||
                                         ($tipo->es_licencia == 0 && $tipo->es_licenciam == 0)
                                     )
-                                                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                                    <option value="{{ $tipo->id }}" data-requiere-subsidio="{{ $tipo->requiere_subsidio }}">
+                                                        {{ $tipo->nombre }}
+                                                    </option>
                                     @endif
                     @endforeach
                 </select>
             </div>
+
             <div class="form-group">
                 <label for="fecha_inicio" class="text-lg font-medium text-gray-700">Fecha de Inicio</label>
                 <input type="date" id="fecha_inicio" name="fecha_inicio" min="{{ \Carbon\Carbon::today()->toDateString() }}"
@@ -75,6 +78,15 @@
                     rows="4" placeholder="Detalles del permiso..."></textarea>
             </div>
 
+            <!-- Subsidio archivo: este campo se habilita solo si el tipo de permiso requiere subsidio -->
+            <div class="form-group" id="subsidio_archivo_div" style="display: none;">
+                <label for="subsidio_archivo" class="text-lg font-medium text-gray-700">Archivo de Subsidio (PDF o
+                    Imagen)</label>
+                <input type="file" name="subsidio_archivo" id="subsidio_archivo"
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    accept="application/pdf, image/*">
+            </div>
+
             <button type="submit"
                 class="w-full py-3 px-4 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
                 style="background-color: rgb(35, 94, 167);">
@@ -84,30 +96,25 @@
     </div>
 
     <script>
-        document.querySelector("form").addEventListener("submit", function (event) {
-            let valid = true;
-            const fechaInicio = document.getElementById("fecha_inicio");
-            const fechaFin = document.getElementById("fecha_fin");
+        document.addEventListener('DOMContentLoaded', function () {
+            const tipoPermisoSelect = document.getElementById('tipo_permiso_id');
+            const subsidioArchivoDiv = document.getElementById('subsidio_archivo_div');
+            const subsidioInput = document.getElementById('subsidio'); // Asegúrate de tener el ID correcto para el campo de subsidio
 
-            // Validar que la fecha de inicio no sea anterior a hoy
-            if (new Date(fechaInicio.value) < new Date()) {
-                document.getElementById("fecha_inicio_error").classList.remove("hidden");
-                valid = false;
-            } else {
-                document.getElementById("fecha_inicio_error").classList.add("hidden");
-            }
+            // Verifica el tipo de permiso seleccionado y muestra el campo de archivo de subsidio si corresponde
+            tipoPermisoSelect.addEventListener('change', function () {
+                const selectedOption = tipoPermisoSelect.options[tipoPermisoSelect.selectedIndex];
+                const requiereSubsidio = selectedOption.getAttribute('data-requiere-subsidio');
 
-            // Validar que la fecha de fin no sea anterior a la fecha de inicio
-            if (new Date(fechaFin.value) < new Date(fechaInicio.value)) {
-                document.getElementById("fecha_fin_error").classList.remove("hidden");
-                valid = false;
-            } else {
-                document.getElementById("fecha_fin_error").classList.add("hidden");
-            }
-
-            if (!valid) {
-                event.preventDefault();
-            }
+                if (requiereSubsidio == 1) {
+                    subsidioArchivoDiv.style.display = 'block'; // Muestra el campo de archivo
+                    subsidioInput.removeAttribute('required'); // Siempre lo hace opcional, incluso cuando se muestre
+                } else {
+                    subsidioArchivoDiv.style.display = 'none'; // Oculta el campo de archivo
+                    subsidioInput.removeAttribute('required'); // Siempre lo hace opcional, incluso cuando se oculte
+                }
+            });
         });
     </script>
+
 @endsection

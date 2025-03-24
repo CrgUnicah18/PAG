@@ -21,20 +21,56 @@
                         $empleado = $empleado ?? new \App\Models\Empleado();
                     @endphp
 
-                    <div class="row mb-3">
+                    <div class="row p-2 shadow m-3">
                         <!-- Nombre -->
                         <div class="col-md-6">
-                            <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" name="nombre" class="form-control" id="nombre"
-                                placeholder="Nombre del empleado" required>
+                            <label for="nombre" class="form-label">Nombre <span class="text-red-500">*</span></label>
+                            <input type="text" name="nombre"
+                                class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="nombre" placeholder="Nombre del empleado" required>
                         </div>
+
+                        <!-- Campo de DN -->
+                        <div class="col-md-6">
+                            <label for="dn" class="form-label">Número de Identidad (DNI) <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text"
+                                class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="dn" name="dn" required maxlength="15" placeholder="xxxx-xxxx-xxxxx"
+                                oninput="formatDN(this)">
+                        </div>
+
+                        <script>
+                            function formatDN(input) {
+                                // Remover cualquier carácter no numérico
+                                let value = input.value.replace(/\D/g, '');
+
+                                // Agregar guiones en el formato xxxx-xxxx-xxxxx
+                                if (value.length > 8) {
+                                    value = value.replace(/(\d{4})(\d{4})(\d{0,3})/, '$1-$2-$3');
+                                } else if (value.length > 4) {
+                                    value = value.replace(/(\d{4})(\d{0,4})/, '$1-$2');
+                                }
+
+                                // Asignar el valor con guiones
+                                input.value = value;
+                            }
+                        </script>
 
                         <!-- Apellido -->
                         <div class="col-md-6">
-                            <label for="apellido" class="form-label">Apellido</label>
-                            <input type="text" name="apellido" class="form-control" id="apellido"
-                                placeholder="Apellido del empleado" required>
+                            <label for="apellido" class="form-label">Apellido <span class="text-red-500">*</span></label>
+                            <input type="text" name="apellido"
+                                class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="apellido" placeholder="Apellido del empleado" required>
                         </div>
+
+                        <!-- Campo para subir archivo (fotografía o PDF) -->
+                        <div class="col-md-6">
+                            <label for="dn_file" class="form-label p-1">DNI</label>
+                            <input type="file" class="form-control" id="dn_file" name="dn_file">
+                        </div>
+
                     </div>
 
                     <div class="row mb-3">
@@ -49,23 +85,29 @@
                     <div class="row mb-3">
                         <!-- Teléfono -->
                         <div class="col-md-6">
-                            <label for="telefono" class="form-label">Teléfono</label>
-                            <input type="text" name="telefono" class="form-control" id="telefono"
-                                placeholder="Teléfono del empleado" required>
+                            <label for="telefono" class="form-label">Teléfono <span class="text-red-500">*</span></label>
+                            <input type="text" name="telefono"
+                                class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="telefono" placeholder="Teléfono del empleado" required>
                         </div>
 
                         <!-- Fecha de Nacimiento -->
                         <div class="col-md-6">
-                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                            <input type="date" name="fecha_nacimiento" class="form-control" id="fecha_nacimiento" required>
+                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento <span
+                                    class="text-red-500">*</span></label>
+                            <input type="date" name="fecha_nacimiento"
+                                class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="fecha_nacimiento" required>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <!-- Oficina -->
                         <div class="col-md-6">
-                            <label for="oficina_id" class="form-label">Oficina</label>
-                            <select name="oficina_id" class="form-select" id="oficina_id" required>
+                            <label for="oficina_id" class="form-label">Oficina <span class="text-red-500">*</span></label>
+                            <select name="oficina_id"
+                                class="form-select border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="oficina_id" required>
                                 <option value="">Seleccionar Oficina</option>
                                 @foreach($oficinas as $oficina)
                                     <option value="{{ $oficina->id }}">{{ $oficina->nombre }}</option>
@@ -75,9 +117,11 @@
 
                         <!-- Grupo -->
                         <div class="col-md-6">
-                            <label for="grupo_id" class="form-label">Grupo</label>
-                            <select name="grupo_id" class="form-select" id="grupo_id" required>
-                                <option value="">Seleccionar Grupo</option>
+                            <label for="grupo_id" class="form-label">Programa <span class="text-red-500">*</span></label>
+                            <select name="grupo_id"
+                                class="form-select border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="grupo_id" required>
+                                <option value="">Seleccionar programa</option>
                                 @foreach($grupos as $grupo)
                                     <option value="{{ $grupo->id }}">{{ $grupo->nombre }}</option>
                                 @endforeach
@@ -100,8 +144,11 @@
 
                         <!-- Tipo de Contrato -->
                         <div class="col-md-6">
-                            <label for="tipo_contrato_id" class="form-label">Tipo de Contrato</label>
-                            <select name="tipo_contrato_id" class="form-select" id="tipo_contrato_id" required>
+                            <label for="tipo_contrato_id" class="form-label">Tipo de Contrato <span
+                                    class="text-red-500">*</span></label>
+                            <select name="tipo_contrato_id"
+                                class="form-select border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="tipo_contrato_id" required>
                                 <option value="">Seleccionar Tipo de Contrato</option>
                                 @foreach($tiposContratos as $tipo)
                                     <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
@@ -113,8 +160,11 @@
                     <div class="row mb-3">
                         <!-- Fecha de Ingreso -->
                         <div class="col-md-6">
-                            <label for="fecha_ingreso">Fecha de Ingreso</label>
-                            <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required>
+                            <label for="fecha_ingreso" class="form-label">Fecha de Ingreso <span
+                                    class="text-red-500">*</span></label>
+                            <input type="date"
+                                class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="fecha_ingreso" name="fecha_ingreso" required>
                             @error('fecha_ingreso')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
@@ -122,8 +172,10 @@
 
                         <!-- Estado -->
                         <div class="col-md-6">
-                            <label for="estado" class="form-label">Estado</label>
-                            <select class="form-select" name="estado" required>
+                            <label for="estado" class="form-label">Estado <span class="text-red-500">*</span></label>
+                            <select
+                                class="form-select border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                name="estado" required>
                                 <option value="activo" {{ old('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
                                 <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                             </select>
@@ -144,9 +196,12 @@
                                 accept=".pdf, .doc, .docx">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="genero">Género</label>
-                        <select name="genero" id="genero" class="form-control">
+
+                    <div class="col-md-6 m-2">
+                        <label for="genero" class="form-label">Género <span class="text-red-500">*</span></label>
+                        <select name="genero" id="genero"
+                            class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            required>
                             <option value="M" {{ old('genero', $empleado->genero) == 'M' ? 'selected' : '' }}>Masculino
                             </option>
                             <option value="F" {{ old('genero', $empleado->genero) == 'F' ? 'selected' : '' }}>Femenino

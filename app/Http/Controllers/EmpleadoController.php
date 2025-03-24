@@ -115,6 +115,8 @@ class EmpleadoController extends Controller
             'genero' => 'required|in:M,F',
             'foto_perfil' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'documento_contrato' => 'nullable|mimes:pdf,doc,docx|max:2048',
+            'dn' => 'required|string|max:15 unique:empleados,dn',
+            'dn_file' => 'required|mimes:pdf,jpeg,jpg,png|max:2048',
         ], [
             'fecha_ingreso.before_or_equal' => 'La fecha de ingreso no puede ser en el futuro.',
             'estado.required' => 'El estado es obligatorio.',
@@ -122,6 +124,11 @@ class EmpleadoController extends Controller
             'foto_perfil.image' => 'La foto de perfil debe ser una imagen válida.',
             'foto_perfil.mimes' => 'La foto de perfil debe tener uno de los siguientes formatos: jpeg, png, jpg, gif.',
             'documento_contrato.mimes' => 'El documento del contrato debe ser un archivo PDF, DOC o DOCX.',
+            'dn.required' => 'El DNI es obligatorio.',
+            'dn.unique' => 'El DNI ya ha sido registrado.',
+            'dn.max' => 'El DNI no puede tener más de 15 caracteres.',
+            'dn_file.required' => 'El archivo del DNI es obligatorio.',
+            'dn_file.mimes' => 'El archivo del DNI debe ser un archivo PDF, JPEG, JPG o PNG.',
         ]);
 
         // Inicia la transacción
@@ -146,6 +153,8 @@ class EmpleadoController extends Controller
             $empleado->fecha_ingreso = $request->fecha_ingreso;
             $empleado->estado = $request->estado;
             $empleado->genero = $request->genero;
+            $empleado->dn = $request->dn;
+            $empleado->dn_file = $request->dn_file;
 
             // Subir foto de perfil
             if ($request->hasFile('foto_perfil')) {
@@ -161,6 +170,14 @@ class EmpleadoController extends Controller
                 $path = public_path('empleados/img_contratos');
                 $request->file('documento_contrato')->move($path, $documentName);
                 $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;
+            }
+
+            // Subir dni
+            if ($request->hasFile('dn_file')) {
+                $imageName = time() . '-' . $request->file('dn_file')->getClientOriginalName();
+                $path = public_path('empleados/dni');
+                $request->file('dn_file')->move($path, $imageName);
+                $empleado->dn_file = 'empleados/dni/' . $imageName;
             }
 
             // Guardar empleado
@@ -258,6 +275,8 @@ class EmpleadoController extends Controller
             'fecha_ingreso' => 'required|date',
             'foto_peril' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'documento_contrato' => 'nullable|mimes:pdf,doc,docx,zip|max:2048', // Solo PDF, DOC, DOCX, ZIP
+            'dn' => 'required|string|max:15|unique:empleados,dn,' . $empleado->id, // Validación para el DN
+            'dn_file' => 'required|mimes:pdf,jpeg,jpg,png|max:2048', // Para almacenar el archivo (fotografía o PDF)
         ]);
 
         // Actualización de los datos del empleado
@@ -271,6 +290,8 @@ class EmpleadoController extends Controller
         $empleado->tipo_contrato_id = $request->tipo_contrato_id;
         $empleado->fecha_ingreso = $request->fecha_ingreso;
         $empleado->genero = $request->genero;
+        $empleado->dn = $request->dn;
+        $empleado->dn_file = $request->dn_file;
 
         // Subir foto de perfil
         if ($request->hasFile('foto_perfil')) {
@@ -288,6 +309,14 @@ class EmpleadoController extends Controller
             $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;  // Guardar la ruta en la base de datos sin 'public/'
         }
 
+        // Subir dni
+        if ($request->hasFile('dn_file')) {
+            $imageName = time() . '-' . $request->file('dn_file')->getClientOriginalName();
+            $path = public_path('empleados/dni');
+            $request->file('dn_file')->move($path, $imageName);
+            $empleado->dn_file = 'empleados/dni/' . $imageName;
+        }
+
         // Guardar los cambios
         $empleado->save();
 
@@ -298,6 +327,7 @@ class EmpleadoController extends Controller
     {
         // Obtener los campos disponibles de los empleados para mostrarlos en el formulario
         $campos = [
+            'dn' => 'DNI',
             'nombre' => 'Nombre',
             'apellido' => 'Apellido',
             'genero' => 'Genero',
@@ -326,6 +356,7 @@ class EmpleadoController extends Controller
 
         // Definir los campos disponibles
         $campos = [
+            'dn' => 'DNI',
             'nombre' => 'Nombre',
             'apellido' => 'Apellido',
             'genero' => 'Genero',

@@ -62,11 +62,7 @@
                         </tbody>
                     </table>
 
-                    <!-- Paginación -->
-                    <div class="mt-4">
-                        <!-- Paginación general para los permisos agrupados -->
-                        {{ $permisos->links() }} <!-- Enlace de paginación general -->
-                    </div>
+                   
                 </div>
             @endforeach
         @else
@@ -88,6 +84,12 @@
                     Descargar PDF
                 </button>
             </form>
+        </div>
+        <!-- TODO: Paginación -->
+        <div class="mt-4">
+            <!-- Paginación general para los permisos agrupados -->
+            {{ $permisos->appends(request()->all())->links() }}
+
         </div>
     </div>
 @endsection

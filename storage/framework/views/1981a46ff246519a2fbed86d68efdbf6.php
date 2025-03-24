@@ -28,7 +28,7 @@
     <script src="https://unpkg.com/feather-icons"></script>
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <script src="//unpkg.com/alpinejs" defer></script>
 
 
@@ -40,6 +40,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <style>
+        .comment-container {
+            max-height: 120px;
+            /* Mantén esta propiedad para que puedas hacer scroll */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+            line-height: 1.0;
+            /* Ajusta la altura de línea para que no esté tan espaciado */
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+        }
+
+        .comment-line {
+            margin-bottom: 0.5px;
+            /* Reduce el espacio entre comentarios */
+        }
+
+        .comment-container p {
+            word-wrap: break-word;
+            /* Evita que el texto largo se desborde */
+            margin: 0;
+            /* Elimina márgenes adicionales de los párrafos */
+            padding: 0;
+            /* Elimina padding extra dentro de los párrafos */
+        }
+
+
         a {
             text-decoration: none !important;
         }
@@ -57,7 +86,61 @@
             color: inherit !important;
             text-decoration: none !important;
         }
+
+        /* Contenedor del switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        /* Estilo del switch (fondo) */
+        .switch input {
+            opacity: 0;
+            /* Ocultar el input real */
+            width: 0;
+            height: 0;
+        }
+
+        /* Estilo del fondo del switch */
+        .switch .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 50px;
+        }
+
+        /* Estilo de la palanca (circle) */
+        .switch .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            border-radius: 50px;
+            background-color: white;
+            transition: 0.4s;
+            left: 4px;
+            bottom: 4px;
+        }
+
+        /* Cuando el switch está activado (checked) */
+        .switch input:checked+.slider {
+            background-color: #007aff;
+            /* Azul similar al de iPhone */
+        }
+
+        /* Movimiento de la palanca cuando el switch está activado */
+        .switch input:checked+.slider:before {
+            transform: translateX(22px);
+        }
     </style>
+
 </head>
 
 <body class="bg-[rgb(232,236,237)]">

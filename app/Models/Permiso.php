@@ -17,6 +17,7 @@ class Permiso extends Model
         'fecha_inicio',
         'fecha_fin',
         'comentario',
+        'subsidio_archivo',
     ];
 
     public function empleado()

@@ -71,6 +71,13 @@
                     rows="4" placeholder="Detalles del permiso..."></textarea>
             </div>
 
+            {{-- Dentro del form --}}
+            <div id="campo-subsidio" style="display: none;">
+                <label for="subsidio_archivo">Subsidio (constancia médica):</label>
+                <input type="file" name="subsidio_archivo" accept="application/pdf,image/*">
+            </div>
+
+
             <button type="submit"
                 class="w-full py-3 px-4 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
                 Solicitar Permiso
@@ -107,5 +114,29 @@
                 event.preventDefault();
             }
         });
+
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tipoPermisoSelect = document.querySelector('select[name="tipo_permiso_id"]');
+            const subsidioDiv = document.getElementById('campo-subsidio');
+
+            tipoPermisoSelect.addEventListener('change', function () {
+                const tipoId = this.value;
+
+                fetch(`/api/tipo-permiso/${tipoId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.requiere_subsidio) {
+                            subsidioDiv.style.display = 'block';
+                        } else {
+                            subsidioDiv.style.display = 'none';
+                        }
+                    });
+            });
+
+            tipoPermisoSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+
 @endsection
