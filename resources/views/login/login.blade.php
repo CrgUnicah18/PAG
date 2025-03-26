@@ -36,6 +36,14 @@
             </div>
         @endif
 
+        <!-- Mensaje de error por empleado "terminado" -->
+        @if (session('error'))
+            <div class="mb-4 text-red-600">
+                <p>{{ session('error') }}</p>
+            </div>
+        @endif
+
+
         <!-- Formulario de Login -->
         <form method="POST" action="{{ route('login.submit') }}">
             @csrf

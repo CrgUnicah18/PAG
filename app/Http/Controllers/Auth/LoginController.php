@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Empleado;  // Asegúrate de tener el modelo para la tabla empleados.
 use Spatie\Permission\Traits\HasRoles;
-
 
 class LoginController extends Controller
 {
@@ -31,6 +31,18 @@ class LoginController extends Controller
             // Obtener usuario autenticado
             $user = Auth::user();
 
+            // Obtener el empleado relacionado con el usuario
+            $empleado = Empleado::find($user->empleado_id);
+
+            // Verificar si el estado del empleado es 'terminado'
+            if ($empleado && $empleado->estado == 'terminado') {
+                // Cerrar la sesión del usuario
+                Auth::logout();
+
+                // Redirigir con un mensaje de error
+                return redirect()->route('login')->with('error', 'No pertenece a la organización, contacte con soporte.');
+            }
+
             // Redirigir al usuario según su rol después de autenticarse
             if ($user->hasRole('admin')) {
                 return redirect()->route('admin.inicio.home');
@@ -39,6 +51,7 @@ class LoginController extends Controller
             } elseif ($user->hasRole('empleado')) {
                 return redirect()->route('empleado.inicio.home');
             }
+
             // Si el usuario no tiene un rol específico, redirigir a una ruta por defecto
             return redirect()->intended('/');
         }
@@ -56,5 +69,4 @@ class LoginController extends Controller
 
         return redirect('/'); // Redirige al formulario de login (GET)
     }
-
 }

@@ -34,6 +34,8 @@
                                 <th>¿Es Licencia Femenina?</th>
                                 <th>¿Es Licencia Masculina?</th>
                                 <th>¿Es Subsidio?</th>
+                                <th>Grave Calamidad</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -47,6 +49,7 @@
                                         <td>{!! $tipoPermiso->es_licencia ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>' !!}</td>
                                         <td>{!! $tipoPermiso->es_licenciam ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>' !!}</td>
                                         <td>{!! $tipoPermiso->es_subsidio ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>' !!}</td>
+                                        <td>{!! $tipoPermiso->calamidad ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>' !!}</td>
                                     </tr>
                                 @endforeach
                             @else

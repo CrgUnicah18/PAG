@@ -166,9 +166,11 @@ class PermisoController extends Controller
             ]);
         }
 
-        // ** Ignorar validaciones de permisos para subsidio **
-        if ($tipoPermiso && $tipoPermiso->requiere_subsidio != 1) {
-            // ** Validación 1: Verificar el máximo de 2 solicitudes por mes **
+        // ** Ignorar validación de 2 permisos por mes para subsidio o calamidad **
+        if ($tipoPermiso && ($tipoPermiso->requiere_subsidio == 1 || $tipoPermiso->calamidad == 1)) {
+            // No validamos el máximo de 2 permisos por mes para subsidio y calamidad
+        } else {
+            // ** Validación 1: Verificar el máximo de 2 solicitudes por mes para los demás permisos **
             $permisosEsteMes = Permiso::where('empleado_id', $empleado->id)
                 ->whereYear('fecha_inicio', Carbon::now()->year)
                 ->whereMonth('fecha_inicio', Carbon::now()->month)
@@ -178,16 +180,18 @@ class PermisoController extends Controller
             if ($permisosEsteMes >= 2) {
                 return redirect()->back()->with('error', 'Ya has alcanzado el límite de 2 permisos por mes.');
             }
-
-            // ** Validación 2: Verificar el máximo de 15 permisos por año **
-            $permisosEsteAnio = Permiso::where('empleado_id', $empleado->id)
-                ->whereYear('fecha_inicio', Carbon::now()->year)
-                ->count();
-
-            if ($permisosEsteAnio >= 15) {
-                return redirect()->back()->with('error', 'Ya has alcanzado el límite de 15 permisos por año.');
-            }
         }
+
+        // ** Validación 2: Verificar el máximo de 15 permisos aprobados por año para todos los permisos **
+        $permisosEsteAnioAprobados = Permiso::where('empleado_id', $empleado->id)
+            ->whereYear('fecha_inicio', Carbon::now()->year)
+            ->where('estado', 'aprobado') // Solo contar los permisos aprobados
+            ->count();
+
+        if ($permisosEsteAnioAprobados >= 15) {
+            return redirect()->back()->with('error', 'Ya has alcanzado el límite de 15 permisos aprobados por año.');
+        }
+
 
         // Si el tipo de permiso no es vacación, verificar duración
         if ($tipoPermiso && $tipoPermiso->es_vacacion == 0) {
@@ -249,14 +253,12 @@ class PermisoController extends Controller
             return redirect()->back()->with('error', 'Ya tienes una solicitud de permiso pendiente en las fechas seleccionadas.');
         }
 
-
+        // Subir archivo de subsidio si se requiere
         $archivoSubsidio = null;
-
         if ($tipoPermiso && $tipoPermiso->requiere_subsidio == 1) {
             if ($request->hasFile('subsidio_archivo')) {
                 // Obtener el archivo
                 $archivo = $request->file('subsidio_archivo');
-
                 // Limpiar y definir el nombre del archivo
                 $nombreOriginal = $archivo->getClientOriginalName();
                 $nombreLimpio = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $nombreOriginal); // Quita espacios raros
@@ -264,9 +266,7 @@ class PermisoController extends Controller
 
                 // Guardar el archivo en storage/app/public/subsidios
                 $archivo->storeAs('subsidios', $nombreArchivo, 'public');
-
                 $archivoSubsidio = $archivo->storeAs('subsidios', $nombreArchivo, 'public');
-
             }
         }
 
@@ -294,6 +294,7 @@ class PermisoController extends Controller
 
         return redirect()->back()->with('error', 'No tienes acceso para crear un permiso.');
     }
+
 
 
     // FIXME: Aprobar un permiso (Supervisor o Admin)

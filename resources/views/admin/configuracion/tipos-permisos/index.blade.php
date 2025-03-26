@@ -39,6 +39,7 @@
                                 <th>¿Es Licencia Femenina?</th>
                                 <th>¿Es Licencia Masculina?</th>
                                 <th>¿Requiere Subsidio?</th>
+                                <th>Grave Calamidad</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -56,6 +57,8 @@
                                         <td>{!! $tipoPermiso->es_licenciam ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>' !!}
                                         </td>
                                         <td>{!! $tipoPermiso->requiere_subsidio ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>' !!}
+                                        </td>
+                                        <td>{!! $tipoPermiso->calamidad ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>' !!}
                                         </td>
                                         <td>
                                             <a href="{{ route('admin.configuracion.tipos-permisos.edit', $tipoPermiso->id) }}"

@@ -40,6 +40,7 @@ class TipoPermisoController extends Controller
             'es_licencia' => 'boolean', // Validar el checkbox
             'es_licenciam' => 'boolean', // Validar el checkbox
             'requiere_subsidio' => 'required|boolean',
+            'calamidad' => 'required|boolean',
         ]);
 
         TipoPermiso::create([
@@ -50,6 +51,7 @@ class TipoPermisoController extends Controller
             'es_licencia' => $request->has('es_licencia'), // Guardar si se marcó
             'es_licenciam' => $request->has('es_licenciam'), // Guardar si se marcó
             'requiere_subsidio' => $request->requiere_subsidio,
+            'calamidad' => $request->calamidad,
         ]);
 
 
