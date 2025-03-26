@@ -33,8 +33,8 @@
             <p class="mt-2 text-2xl">{{ $empleadosActivos }}</p>
         </div>
 
-        <div class="p-4 bg-blue-100 rounded-lg shadow-sm mb-6">
-            <!-- Cumpleaños de Hoy -->
+        <!-- Cartilla de Cumpleaños -->
+        <div class="col-span-1 sm:col-span-2 lg:col-span-3 p-4 bg-blue-100 rounded-lg shadow-sm mb-6">
             <h3 class="text-2xl font-semibold text-gray-800 mb-2 flex items-center">
                 <span class="mr-2 text-3xl">🎉</span>
                 ¡Cumpleaños de Hoy!
@@ -44,13 +44,14 @@
             @else
                 <ul class="list-disc pl-5">
                     @foreach ($cumpleañosHoy as $empleado)
-                        <li class="text-lg text-gray-700">{{ $empleado->nombre }}
-                            ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
+                        <li class="text-lg text-gray-700">{{ $empleado->nombre }} {{ $empleado->apellido }}
+                            {{ $empleado->oficina->nombre }}
+                            {{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }}
+                        </li>
                     @endforeach
                 </ul>
             @endif
 
-            <!-- Cumpleaños de Mañana -->
             <h3 class="text-2xl font-semibold text-gray-800 mt-6 mb-2 flex items-center">
                 <span class="mr-2 text-3xl">🎂</span>
                 ¡Cumpleaños de Mañana!
@@ -60,11 +61,12 @@
             @else
                 <ul class="list-disc pl-5">
                     @foreach ($cumpleañosMañana as $empleado)
-                        <li class="text-lg text-gray-700">{{ $empleado->nombre }}
+                        <li class="text-lg text-gray-700">{{ $empleado->nombre }} {{ $empleado->apellido }}
                             ({{ \Carbon\Carbon::parse($empleado->fecha_nacimiento)->format('d/m') }})</li>
                     @endforeach
                 </ul>
             @endif
         </div>
     </div>
+
 @endsection

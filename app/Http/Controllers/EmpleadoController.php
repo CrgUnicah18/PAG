@@ -115,7 +115,7 @@ class EmpleadoController extends Controller
             'genero' => 'required|in:M,F',
             'foto_perfil' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'documento_contrato' => 'nullable|mimes:pdf,doc,docx|max:2048',
-            'dn' => 'required|string|max:15 unique:empleados,dn',
+            'dn' => 'required|string|max:15',
             'dn_file' => 'required|mimes:pdf,jpeg,jpg,png|max:2048',
         ], [
             'fecha_ingreso.before_or_equal' => 'La fecha de ingreso no puede ser en el futuro.',
@@ -125,7 +125,6 @@ class EmpleadoController extends Controller
             'foto_perfil.mimes' => 'La foto de perfil debe tener uno de los siguientes formatos: jpeg, png, jpg, gif.',
             'documento_contrato.mimes' => 'El documento del contrato debe ser un archivo PDF, DOC o DOCX.',
             'dn.required' => 'El DNI es obligatorio.',
-            'dn.unique' => 'El DNI ya ha sido registrado.',
             'dn.max' => 'El DNI no puede tener más de 15 caracteres.',
             'dn_file.required' => 'El archivo del DNI es obligatorio.',
             'dn_file.mimes' => 'El archivo del DNI debe ser un archivo PDF, JPEG, JPG o PNG.',
@@ -184,7 +183,9 @@ class EmpleadoController extends Controller
             $empleado->save();
 
             // Calcular y guardar el balance de vacaciones
-            $empleado->vacaciones_restantes = $empleado->calcularBalanceVacaciones();
+            $balanceVacaciones = $empleado->calcularBalanceVacaciones();
+            $empleado->vacaciones_restantes = $balanceVacaciones['vacaciones_restantes'];  // Asegúrate de usar el valor correcto
+            $empleado->vacaciones_tomadas = $balanceVacaciones['vacaciones_tomadas'];  // Si lo necesitas
             $empleado->save();
 
             // Confirmar la transacción
@@ -269,7 +270,7 @@ class EmpleadoController extends Controller
             'telefono' => 'required|string|max:255',
             'grupo_id' => 'required|exists:grupos,id',
             'oficina_id' => 'required|exists:oficinas,id',
-            'supervisor_id' => 'nullable|exists:empleados,id',
+            'supervisor_id' => 'nullable|exists:empleados,id',                          // ! ESTAS LINDSIMA NAYE, LOVE U <3
             'estado' => 'required|in:activo,inactivo',
             'tipo_contrato_id' => 'required|exists:tipo_contratos,id',
             'fecha_ingreso' => 'required|date',

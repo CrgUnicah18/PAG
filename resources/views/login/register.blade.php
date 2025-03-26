@@ -33,14 +33,14 @@
                     <label for="nombre" class="block text-sm font-medium text-gray-600">Nombre</label>
                     <input id="nombre" type="text" name="nombre"
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="{{ old('nombre') }}"
-                        required autofocus>
+                        required autofocus oninput="this.value = this.value.toUpperCase()">
                 </div>
 
-                <div class="mb-6">
+                <div class=" mb-6">
                     <label for="apellido" class="block text-sm font-medium text-gray-600">Apellido</label>
                     <input id="apellido" type="text" name="apellido"
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="{{ old('apellido') }}"
-                        required>
+                        required oninput="this.value = this.value.toUpperCase()">
                 </div>
                 <!-- Campo de DN -->
                 <div class="mb-6">

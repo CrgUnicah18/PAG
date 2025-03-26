@@ -20,30 +20,50 @@
     <!-- Contenedor flex para alinear la cartilla y el formulario -->
     <div class="flex flex-wrap lg:flex-nowrap space-x-10 items-start">
 
-        <!-- Cartilla de días de vacaciones disponibles -->
-        <div
-            class="w-full lg:w-72 bg-gradient-to-br from-white to-gray-100 rounded-2xl shadow-2xl border border-gray-200 p-6 transition-transform hover:scale-105 duration-300 ease-in-out">
-            <!-- Encabezado -->
-            <div class="bg-green-600 text-white py-3 px-4 rounded-xl shadow-md text-center mb-5">
-                <h2 class="text-xl font-bold tracking-wide">Vacaciones Restantes</h2>
-            </div>
-
-            <!-- Cuerpo de la cartilla -->
-            <div class="text-center space-y-2">
-                <p class="text-gray-600 text-sm">Días disponibles para el empleado:</p>
-                <div class="text-5xl font-extrabold text-orange-500 drop-shadow-sm">
-                    {{ $vacacionesRestantes }}<span class="text-2xl font-medium"> días</span>
+        <div class="flex flex-col items-center space-y-6 mt-8">
+            <!-- Cartilla de Vacaciones Disponibles -->
+            <div
+                class="w-full max-w-sm bg-gradient-to-br from-white to-gray-100 rounded-2xl shadow-2xl border border-gray-200 p-6 transition-transform hover:scale-105 duration-300 ease-in-out">
+                <div class="bg-green-600 text-white py-3 px-4 rounded-xl shadow-md text-center mb-5">
+                    <h2 class="text-xl font-bold tracking-wide">Vacaciones Disponibles</h2>
+                </div>
+                <div class="text-center space-y-2">
+                    <p class="text-gray-600 text-sm">Días disponibles para el empleado:</p>
+                    <div class="text-5xl font-extrabold text-orange-500 drop-shadow-sm">
+                        {{ $vacacionesRestantes['vacaciones_restantes'] }}<span class="text-2xl font-medium"> días</span>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500 opacity-70" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 12H4m0 0l4-4m-4 4l4 4" />
+                    </svg>
                 </div>
             </div>
 
-            <!-- Ícono decorativo -->
-            <div class="mt-6 flex justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500 opacity-70" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4m0 0l4-4m-4 4l4 4" />
-                </svg>
+            <!-- Cartilla de Total de Días Legales -->
+            <div
+                class="w-full max-w-sm bg-gradient-to-br from-white to-gray-100 rounded-2xl shadow-2xl border border-gray-200 p-6 transition-transform hover:scale-105 duration-300 ease-in-out">
+                <div class="bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md text-center mb-5">
+                    <h2 class="text-xl font-bold tracking-wide">Total de días legales</h2>
+                </div>
+                <div class="text-center space-y-2">
+                    <p class="text-gray-600 text-sm">Días al año por el empleado:</p>
+                    <div class="text-5xl font-extrabold text-blue-500 drop-shadow-sm">
+                        {{ $vacacionesRestantes['vacaciones_tomadas'] }}<span class="text-2xl font-medium"> días</span>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-500 opacity-70" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 12H4m0 0l4-4m-4 4l4 4" />
+                    </svg>
+                </div>
             </div>
         </div>
+
 
         <!-- Formulario de solicitud de vacaciones -->
         <div class="flex-1 bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
