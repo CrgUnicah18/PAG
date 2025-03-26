@@ -37,9 +37,9 @@
                         placeholder="Buscar por nombre" value="{{ request()->get('nombre') }}">
                 </div>
                 <div class="col-md-3">
-                    <label for="grupo_id" class="text-sm font-semibold">Grupo:</label>
+                    <label for="grupo_id" class="text-sm font-semibold">Programa:</label>
                     <select name="grupo_id" id="grupo_id" class="form-control form-control-sm shadow-sm">
-                        <option value="">Selecciona un grupo</option>
+                        <option value="">Selecciona un programa</option>
                         @foreach($grupos as $grupo)
                             <option value="{{ $grupo->id }}" {{ request()->get('grupo_id') == $grupo->id ? 'selected' : '' }}>
                                 {{ $grupo->nombre }}
@@ -82,7 +82,7 @@
                     <tr>
                         <th>Nombre Completo</th>
                         <th>Teléfono</th>
-                        <th>Grupo</th>
+                        <th>Programa</th>
                         <th>Oficina</th>
                         <th>Supervisor</th>
                         <th>Email</th>
@@ -117,7 +117,7 @@
 
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm">
+                                <div class="btn-group btn-group-sm space-x-4 p-1">
                                     <a href="{{ route('admin.empleados.show', $empleado->id) }}" class="btn btn-info" title="Ver perfil">
                                         <i class="fas fa-eye"></i>
                                     </a>

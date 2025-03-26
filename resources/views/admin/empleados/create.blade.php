@@ -27,7 +27,8 @@
                             <label for="nombre" class="form-label">Nombre <span class="text-red-500">*</span></label>
                             <input type="text" name="nombre"
                                 class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                id="nombre" placeholder="Nombre del empleado" required>
+                                id="nombre" placeholder="Nombre del empleado" required
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <!-- Campo de DN -->
@@ -62,7 +63,8 @@
                             <label for="apellido" class="form-label">Apellido <span class="text-red-500">*</span></label>
                             <input type="text" name="apellido"
                                 class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                id="apellido" placeholder="Apellido del empleado" required>
+                                id="apellido" placeholder="Apellido del empleado" required
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <!-- Campo para subir archivo (fotografía o PDF) -->

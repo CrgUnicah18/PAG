@@ -9,6 +9,8 @@
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <!-- Bootstrap 5 -->
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -19,27 +21,24 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- jQuery (si lo necesitas) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Incluye Heroicons desde CDN si no estás usando Laravel Mix o Vite -->
-    <script src="https://unpkg.com/feather-icons"></script>
-
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script src="//unpkg.com/alpinejs" defer></script>
-
-
-
+    <!-- Agregar el CSS de Flatpickr -->
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
 
     <!-- Agregar en tu archivo Blade (resources/views/layouts/app.blade.php) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <!-- Incluir fuente de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
 
     <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            /* Cambia 'Roboto' por la fuente que desees */
+            font-size: 16px;
+            color: #333;
+        }
+
         .comment-container {
             max-height: 120px;
             /* Mantén esta propiedad para que puedas hacer scroll */
@@ -178,11 +177,29 @@
         });
     </script>
 
-    <!-- Activar íconos de Feather al cargar -->
+    <script src="https://unpkg.com/feather-icons"></script>
     <script>
-        feather.replace()
+        feather.replace();
     </script>
-    
+
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jQuery (si lo necesitas) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Incluye Heroicons desde CDN si no estás usando Laravel Mix o Vite -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="//unpkg.com/alpinejs" defer></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <!-- Agregar el JS de Flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
+
+
 
 </body>
 

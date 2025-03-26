@@ -140,7 +140,7 @@ class PermisoController extends Controller
         $request->validate([
             'tipo_permiso_id' => 'required|exists:tipo_permisos,id',
             'fecha_inicio' => 'required|date|after_or_equal:' . Carbon::today()->toDateString(),
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'fecha_fin' => 'date|after_or_equal:fecha_inicio',
             'comentario' => 'nullable|string|max:255',
         ]);
 
@@ -189,14 +189,47 @@ class PermisoController extends Controller
             }
         }
 
-        // ** Validación 3: Verificar si el tipo de permiso no es vacación y la duración excede el máximo permitido **
+        // Si el tipo de permiso no es vacación, verificar duración
         if ($tipoPermiso && $tipoPermiso->es_vacacion == 0) {
-            $diasMaximos = $tipoPermiso->dias;
-            $diasDuracion = Carbon::parse($request->fecha_inicio)->diffInDays(Carbon::parse($request->fecha_fin)) + 1;
-
-            if ($diasDuracion > $diasMaximos) {
-                return redirect()->back()->with('error', 'El permiso no puede exceder los ' . $diasMaximos . ' días.');
+            // Si fecha_fin está vacía, asignamos el mismo valor de fecha_inicio
+            if (empty($request->fecha_fin)) {
+                $request->merge(['fecha_fin' => $request->fecha_inicio]);
             }
+
+            // Calcular la duración del permiso solo contando los días laborables
+            $fechaInicio = Carbon::parse($request->fecha_inicio);
+            $fechaFin = Carbon::parse($request->fecha_fin);
+
+            $diasDuracion = 0;
+            $fechaAuxiliar = $fechaInicio->copy();
+
+            // Contamos los días laborables, excluyendo los fines de semana
+            while ($fechaAuxiliar <= $fechaFin) {
+                if (!$fechaAuxiliar->isWeekend()) {
+                    $diasDuracion++;
+                }
+                $fechaAuxiliar->addDay();
+            }
+
+            // Si la duración supera los días permitidos
+            $diasMaximos = $tipoPermiso->dias;
+            if ($diasDuracion > $diasMaximos) {
+                return redirect()->back()->with('error', 'El permiso no puede exceder los ' . $diasMaximos . ' días laborables.');
+            }
+
+            // Ajustar la fecha de fin según la duración del permiso, considerando los días laborables
+            $diasRestantes = $diasDuracion;
+            $fechaFinAjustada = $fechaInicio;
+
+            while ($diasRestantes > 0) {
+                $fechaFinAjustada->addDay(); // Avanzamos un día
+                if (!$fechaFinAjustada->isWeekend()) { // Si no es fin de semana
+                    $diasRestantes--;
+                }
+            }
+
+            // Actualizar la fecha de fin en la solicitud
+            $request->merge(['fecha_fin' => $fechaFinAjustada->format('Y-m-d')]);
         }
 
         // Verificar si hay permisos pendientes o pendientes_aprobacion con fechas sobrepuestas
@@ -215,6 +248,7 @@ class PermisoController extends Controller
         if ($fechasSobrepuestas) {
             return redirect()->back()->with('error', 'Ya tienes una solicitud de permiso pendiente en las fechas seleccionadas.');
         }
+
 
         $archivoSubsidio = null;
 
@@ -404,6 +438,8 @@ class PermisoController extends Controller
         $tipoPermisoId = $request->input('tipo_permiso_id', 'todos');
         $mes = $request->input('mes', 'todos');
         $anio = $request->input('anio', date('Y'));
+        $estado = $request->input('estado', ''); // Nuevo filtro para estado
+
         $query = Permiso::query();
 
         // Filtros de búsqueda
@@ -415,18 +451,30 @@ class PermisoController extends Controller
             $query->where('tipo_permiso_id', $tipoPermisoId);
         }
 
+        if ($estado) {
+            $query->where('estado', $estado);  // Filtrar por estado
+        }
+
         $query->whereYear('fecha_inicio', $anio);
 
         if ($mes && $mes != 'todos') {
             $query->whereMonth('fecha_inicio', $mes);
         }
 
-        // Obtener los permisos con paginación (5 por página)
+        // Obtener los permisos sin paginación para agrupar
         $permisos = $query->with('empleado')
             ->join('tipo_permisos', 'permisos.tipo_permiso_id', '=', 'tipo_permisos.id')
             ->select('permisos.*', 'tipo_permisos.nombre as tipo_permiso')
             ->orderBy('fecha_inicio')
-            ->paginate(5); // Aquí usamos paginate()
+            ->get(); // Aquí usamos get() en vez de paginate() para obtener todos los permisos
+
+        // Agrupar permisos por mes y año
+        $permisosAgrupados = $permisos->groupBy(function ($item) {
+            return \Carbon\Carbon::parse($item->fecha_inicio)->format('F Y'); // Agrupar por mes y año
+        });
+
+        // Calcular el total general de permisos
+        $totalPermisos = $permisos->count();
 
         // Obtener el empleado si fue filtrado
         $empleado = $empleadoId && $empleadoId != 'todos' ? Empleado::findOrFail($empleadoId) : null;
@@ -435,19 +483,24 @@ class PermisoController extends Controller
         $isPdf = false;
 
         // Mostrar la vista del reporte
-        return view('admin.permisos.reporte_pdf', compact('permisos', 'empleado', 'empleadoId', 'tipoPermisoId', 'mes', 'anio', 'isPdf'));
+        return view('admin.permisos.reporte_pdf', compact('permisosAgrupados', 'empleado', 'empleadoId', 'tipoPermisoId', 'mes', 'anio', 'isPdf', 'permisos', 'totalPermisos', 'estado'));
     }
+
 
     public function descargarPDF(Request $request)
     {
+
+        // Obtener los valores de los filtros
         $empleadoId = $request->input('empleado_id');
         $tipoPermisoId = $request->input('tipo_permiso_id');
         $mes = $request->input('mes');
         $anio = $request->input('anio');
+        $estado = $request->input('estado');
 
         // Repetir la lógica de filtrado para obtener los permisos
         $query = Permiso::query();
 
+        // Filtros aplicados para cada uno
         if ($empleadoId && $empleadoId != 'todos') {
             $query->where('empleado_id', $empleadoId);
         }
@@ -456,27 +509,46 @@ class PermisoController extends Controller
             $query->where('tipo_permiso_id', $tipoPermisoId);
         }
 
-        $query->whereYear('fecha_inicio', $anio);
-
-        if ($mes && $mes != 'todos') {
-            $query->whereMonth('fecha_inicio', $mes);
+        if ($estado) {  // Solo aplicamos filtro si no es nulo
+            $query->where('estado', $estado);
         }
 
+        $query->whereYear('fecha_inicio', $anio);  // Filtrado por año
+
+        if ($mes && $mes != 'todos') {
+            $query->whereMonth('fecha_inicio', $mes);  // Filtrado por mes
+        }
+
+        // Obtener los permisos que cumplen con los filtros
         $permisos = $query->with('empleado')
             ->join('tipo_permisos', 'permisos.tipo_permiso_id', '=', 'tipo_permisos.id')
             ->select('permisos.*', 'tipo_permisos.nombre as tipo_permiso')
             ->orderBy('fecha_inicio')
             ->get();
 
+        // Agrupar permisos por mes y año
+        $permisosAgrupados = $permisos->groupBy(function ($item) {
+            return \Carbon\Carbon::parse($item->fecha_inicio)->format('F Y'); // Agrupar por mes y año
+        });
+
+        // Obtener la información del empleado si fue filtrado
         $empleado = $empleadoId && $empleadoId != 'todos' ? Empleado::findOrFail($empleadoId) : null;
+
+        // Obtener todos los tipos de permisos
         $tiposPermiso = TipoPermiso::all();
 
-        // Generar el PDF con la nueva vista
-        $pdf = PDF::loadView('admin.permisos.pdf_reporte', compact('permisos', 'empleado', 'mes', 'anio', 'empleadoId', 'tipoPermisoId', 'tiposPermiso'));
+        // Calcular el total general de permisos
+        $totalPermisos = $permisos->count();
+
+
+        // Generar el PDF con la vista
+        $pdf = PDF::loadView('admin.permisos.pdf_reporte', compact('permisosAgrupados', 'empleado', 'mes', 'anio', 'empleadoId', 'tipoPermisoId', 'tiposPermiso', 'estado', 'totalPermisos'));
 
         // Descargar el PDF
         return $pdf->download('reporte_permisos.pdf');
     }
+
+
 
     public function listaSupervisor()
     {

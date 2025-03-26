@@ -25,6 +25,9 @@ class VacacionController extends Controller
         // Calcular los días de vacaciones restantes para el empleado
         $vacacionesRestantes = $empleado->calcularBalanceVacaciones();
 
+        // Obtener el total de días de vacaciones a los que tiene derecho el empleado
+        $diasTotales = $empleado->calcularBalanceVacaciones();
+
         // Variables para los filtros de nombre de empleado y estado
         $nombreEmpleado = $request->input('nombreEmpleado');
         $estado = $request->input('estado');
@@ -56,7 +59,7 @@ class VacacionController extends Controller
                 ->paginate(8)
                 ->appends(['nombreEmpleado' => $nombreEmpleado, 'estado' => $estado]); // Agregar filtros a la paginación
 
-            return view('admin.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesRestantes', 'nombreEmpleado', 'estado'));
+            return view('admin.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesRestantes', 'diasTotales', 'nombreEmpleado', 'estado'));
         }
 
         // Si el usuario es un supervisor
@@ -89,7 +92,7 @@ class VacacionController extends Controller
                 ->paginate(8)
                 ->appends(['nombreEmpleado' => $nombreEmpleado, 'estado' => $estado]); // Agregar filtros a la paginación
 
-            return view('supervisor.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesRestantes', 'nombreEmpleado', 'estado'));
+            return view('supervisor.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesRestantes', 'diasTotales', 'nombreEmpleado', 'estado'));
         }
 
         // Si el usuario es un empleado
@@ -110,12 +113,16 @@ class VacacionController extends Controller
             // No es necesario mostrar todas las solicitudes para un empleado
             $vacacionesGenerales = collect(); // Solo mostramos las propias del empleado
 
-            return view('empleado.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'vacacionesRestantes', 'tiposVacaciones', 'nombreEmpleado', 'estado'));
+            return view('empleado.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesRestantes', 'diasTotales', 'nombreEmpleado', 'estado'));
         }
 
         // Si no tiene un rol válido
         return abort(403, 'No tienes permiso para ver esta página');
+
+
+
     }
+
 
 
     public function store(Request $request)
@@ -146,7 +153,8 @@ class VacacionController extends Controller
 
         // Si existen solicitudes con fechas sobrepuestas, retornar un error
         if ($solicitudesExistentes) {
-            return redirect()->back()->withErrors('Ya existe una solicitud de vacaciones con fechas sobrepuestas.');
+            return redirect()->back()->withErrors(['error_key' => 'Ya existe una solicitud de vacaciones con fechas sobrepuestas.']);
+
         }
 
         $fechaInicio = Carbon::parse($request->fecha_inicio);
@@ -157,7 +165,8 @@ class VacacionController extends Controller
         // Verifica si las fechas fueron creadas correctamente
         if (!$fechaInicio || !$fechaFin) {
             // Si alguna de las fechas no es válida, muestra un mensaje de error
-            return back()->withErrors('Las fechas no tienen el formato correcto (d-m-Y).');
+            return redirect()->back()->withErrors(['error_key' => 'Las fechas no tienen un formato válido.']);
+
         }
 
         // Obtener el empleado y calcular sus vacaciones restantes
@@ -166,7 +175,8 @@ class VacacionController extends Controller
 
         // Verificar si el empleado tiene suficientes vacaciones disponibles
         if ($vacacionesRestantes < $duracionDias) {
-            return redirect()->back()->withErrors('No tienes suficientes días de vacaciones disponibles.');
+            return redirect()->back()->withErrors(['error_key' => 'No hay suficientes días de vacaciones disponibles.']);
+
         }
 
         // Obtener el tipo de permiso y su máximo de días permitidos

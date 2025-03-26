@@ -10,11 +10,6 @@
                 class="btn btn-primary mb-3 text-white px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700">Solicitar
                 Vacaciones</a>
 
-            <!-- Mostrar los días de vacaciones disponibles para el empleado -->
-            <div class="vacaciones-restantes mb-3">
-                <p class="text-gray-700 font-medium">Días de vacaciones disponibles: {{ $vacacionesRestantes }}</p>
-            </div>
-
             <!-- Tabla de Solicitudes -->
             <div class="overflow-x-auto">
                 <table class="min-w-full table-auto border-separate border-spacing-2">

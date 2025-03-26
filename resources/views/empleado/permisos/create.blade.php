@@ -43,7 +43,8 @@
                                         (auth()->user()->genero === 'M' && $tipo->es_licenciam == 1) ||
                                         ($tipo->es_licencia == 0 && $tipo->es_licenciam == 0)
                                     )
-                                                    <option value="{{ $tipo->id }}" data-requiere-subsidio="{{ $tipo->requiere_subsidio }}">
+                                                    <option value="{{ $tipo->id }}" data-requiere-subsidio="{{ $tipo->requiere_subsidio }} "
+                                                        data-duracion="{{ $tipo->dias }}">
                                                         {{ $tipo->nombre }}
                                                     </option>
                                     @endif
@@ -51,23 +52,23 @@
                 </select>
             </div>
 
+            <!-- Calendario de selección de rango de fechas -->
             <div class="form-group">
                 <label for="fecha_inicio" class="text-lg font-medium text-gray-700">Fecha de Inicio</label>
-                <input type="date" id="fecha_inicio" name="fecha_inicio" min="{{ \Carbon\Carbon::today()->toDateString() }}"
+                <input type="text" id="fecha_inicio" name="fecha_inicio"
                     class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required>
-                <div id="fecha_inicio_error" class="text-red-500 text-sm mt-1 hidden">
-                    La fecha de inicio no puede ser menor a hoy.
-                </div>
-            </div>
+                    placeholder="Selecciona la fecha de inicio" required>
 
-            <div class="form-group">
-                <label for="fecha_fin" class="text-lg font-medium text-gray-700">Fecha de Fin</label>
-                <input type="date" id="fecha_fin" name="fecha_fin" min="{{ \Carbon\Carbon::today()->toDateString() }}"
+                <label for="fecha_fin" class="text-lg font-medium text-gray-700 mt-4">Fecha de Fin</label>
+                <input type="text" id="fecha_fin" name="fecha_fin"
                     class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required>
-                <div id="fecha_fin_error" class="text-red-500 text-sm mt-1 hidden">
-                    La fecha de fin debe ser igual o posterior a la de inicio.
+                    placeholder="Selecciona la fecha de fin" required readonly>
+
+                <!-- Campo oculto para enviar fecha_fin aunque esté bloqueado -->
+                <input type="hidden" name="fecha_fin_hidden" id="fecha_fin_hidden" value="">
+
+                <div id="fecha_rango_error" class="text-red-500 text-sm mt-1 hidden">
+                    El rango de fechas no es válido.
                 </div>
             </div>
 
@@ -98,23 +99,75 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const tipoPermisoSelect = document.getElementById('tipo_permiso_id');
+            const fechaInicioInput = document.getElementById('fecha_inicio');
+            const fechaFinInput = document.getElementById('fecha_fin');
             const subsidioArchivoDiv = document.getElementById('subsidio_archivo_div');
-            const subsidioInput = document.getElementById('subsidio'); // Asegúrate de tener el ID correcto para el campo de subsidio
+            const subsidioInput = document.getElementById('subsidio_archivo');
 
             // Verifica el tipo de permiso seleccionado y muestra el campo de archivo de subsidio si corresponde
             tipoPermisoSelect.addEventListener('change', function () {
                 const selectedOption = tipoPermisoSelect.options[tipoPermisoSelect.selectedIndex];
                 const requiereSubsidio = selectedOption.getAttribute('data-requiere-subsidio');
+                const duracionPermiso = selectedOption.getAttribute('data-duracion');
 
                 if (requiereSubsidio == 1) {
                     subsidioArchivoDiv.style.display = 'block'; // Muestra el campo de archivo
-                    subsidioInput.removeAttribute('required'); // Siempre lo hace opcional, incluso cuando se muestre
                 } else {
                     subsidioArchivoDiv.style.display = 'none'; // Oculta el campo de archivo
-                    subsidioInput.removeAttribute('required'); // Siempre lo hace opcional, incluso cuando se oculte
+                }
+
+                // Si el tipo de permiso es de 1 día, asignamos el mismo valor a fecha_fin
+                if (duracionPermiso == 1) {
+                    // Asignamos el valor de fecha_inicio a fecha_fin
+                    fechaFinInput.value = fechaInicioInput.value;
+                    fechaFinInput.disabled = true; // Bloqueamos el campo de fecha_fin
+                } else {
+                    fechaFinInput.disabled = false; // Habilitamos el campo de fecha_fin
+                }
+            });
+
+            // Inicializar flatpickr para los dos campos de fechas
+            flatpickr("#fecha_inicio", {
+                minDate: "today", // La fecha mínima es hoy
+                dateFormat: "Y-m-d", // Formato de fecha
+                locale: {
+                    weekdays: {
+                        shorthand: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+                    }
+                },
+                disable: [
+                    function (date) {
+                        // Deshabilita sábados (6) y domingos (0) de todos los meses
+                        return (date.getDay() === 0 || date.getDay() === 6);
+                    }
+                ]
+            });
+
+            flatpickr("#fecha_fin", {
+                minDate: "today", // La fecha mínima es hoy
+                dateFormat: "Y-m-d", // Formato de fecha
+                locale: {
+                    weekdays: {
+                        shorthand: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+                    }
+                },
+                disable: [
+                    function (date) {
+                        // Deshabilita sábados (6) y domingos (0) de todos los meses
+                        return (date.getDay() === 0 || date.getDay() === 6);
+                    }
+                ]
+            });
+
+            // Actualizar fecha_fin automáticamente cuando se elija fecha_inicio
+            fechaInicioInput.addEventListener('change', function () {
+                const tipoPermisoSelect = document.getElementById('tipo_permiso_id');
+                const duracionPermiso = tipoPermisoSelect.options[tipoPermisoSelect.selectedIndex].getAttribute('data-duracion');
+
+                if (duracionPermiso == 1) {
+                    fechaFinInput.value = fechaInicioInput.value; // Actualizamos fecha_fin con fecha_inicio
                 }
             });
         });
     </script>
-
 @endsection

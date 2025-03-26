@@ -26,6 +26,7 @@
 
         <!-- Mostrar permisos si existen -->
         @if ($permisos->count())
+            <?php $totalPermisos = 0; ?> <!-- Variable para acumular los totales de permisos -->
             @foreach ($permisos->groupBy(function($item) {
                 return \Carbon\Carbon::parse($item->fecha_inicio)->format('F Y'); // Agrupar por mes y año
             }) as $mesAnio => $permisosPorMes)
@@ -62,9 +63,24 @@
                         </tbody>
                     </table>
 
-                   
+                    <!-- Total de permisos para el mes -->
+                    <div class="mt-4 text-right font-semibold text-gray-700">
+                        Total de permisos: {{ $permisosPorMes->count() }}
+                    </div>
+
+                    <!-- Acumulación total de permisos -->
+                    <?php $totalPermisos += $permisosPorMes->count(); ?>
+
                 </div>
+
+           
             @endforeach
+
+            <!-- Total general de permisos -->
+            <div class="mt-6 text-right font-semibold text-gray-700">
+                Total general de permisos: {{ $totalPermisos }}
+            </div>
+
         @else
             <!-- Mensaje si no hay permisos -->
             <div class="text-center py-4">
@@ -75,21 +91,15 @@
         <!-- Botón para descargar el PDF -->
         <div class="text-center mt-6">
             <form action="{{ route('admin.permisos.reporte.pdf') }}" method="GET">
-                @csrf
                 <input type="hidden" name="empleado_id" value="{{ $empleadoId }}">
                 <input type="hidden" name="tipo_permiso_id" value="{{ $tipoPermisoId }}">
                 <input type="hidden" name="mes" value="{{ $mes }}">
                 <input type="hidden" name="anio" value="{{ $anio }}">
+                <input type="hidden" name="estado" value="{{ $estado }}">
                 <button type="submit" class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md">
                     Descargar PDF
                 </button>
             </form>
-        </div>
-        <!-- TODO: Paginación -->
-        <div class="mt-4">
-            <!-- Paginación general para los permisos agrupados -->
-            {{ $permisos->appends(request()->all())->links() }}
-
         </div>
     </div>
 @endsection

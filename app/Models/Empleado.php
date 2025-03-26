@@ -92,26 +92,32 @@ class Empleado extends Model
 
         \Log::info("Años trabajados: " . $anosTrabajados);
 
+        // Calcular los días totales de vacaciones
         if ($anosTrabajados < 1) {
-            // Proporcionalidad según el mes de ingreso
             $mesIngreso = (int) $fechaIngreso->format('n'); // 1=enero, 12=diciembre
             $mesesRestantesDelAno = 12 - $mesIngreso; // No incluimos el mes actual
             $vacacionesProporcionales = round(($mesesRestantesDelAno / 12) * 10); // Redondeamos al entero más cercano
             \Log::info("Mes ingreso: " . $mesIngreso);
             \Log::info("Meses restantes del año: " . $mesesRestantesDelAno);
             \Log::info("Vacaciones proporcionales calculadas: " . $vacacionesProporcionales);
-            $vacacionesRestantes = $vacacionesProporcionales;
+            $diasTotales = 10; // Total derecho de vacaciones al final del año
+            $vacacionesRestantes = round(($fechaActual->format('n') - $mesIngreso) * ($diasTotales / 12)); // Calcular días restantes proporcionalmente
         } elseif ($anosTrabajados >= 1 && $anosTrabajados < 2) {
-            $vacacionesRestantes = 10;
+            $diasTotales = 10; // Total derecho al final del año
+            $vacacionesRestantes = $diasTotales;
         } elseif ($anosTrabajados >= 2 && $anosTrabajados < 3) {
-            $vacacionesRestantes = 12;
+            $diasTotales = 12; // Total derecho al final del año
+            $vacacionesRestantes = $diasTotales;
         } elseif ($anosTrabajados >= 3 && $anosTrabajados < 4) {
-            $vacacionesRestantes = 15;
+            $diasTotales = 15; // Total derecho al final del año
+            $vacacionesRestantes = $diasTotales;
         } else {
-            $vacacionesRestantes = 20;
+            $diasTotales = 20; // Total derecho al final del año
+            $vacacionesRestantes = $diasTotales;
         }
 
-        \Log::info("Vacaciones Restantes Iniciales: " . $vacacionesRestantes);
+        \Log::info("Vacaciones Totales: " . $diasTotales);
+        \Log::info("Vacaciones Restantes: " . $vacacionesRestantes);
 
         // Vacaciones tomadas no rechazadas
         $vacacionesNoRechazadas = $this->vacaciones()
@@ -126,9 +132,19 @@ class Empleado extends Model
 
         $vacacionesRestantes = max($vacacionesRestantes, 0);
         $this->vacaciones_restantes = $vacacionesRestantes;
+        $this->vacaciones_tomadas = $diasTotales; // Guardar el total de días en el campo vacaciones_tomadas
         $this->save();
 
-        return $vacacionesRestantes;
+        \Log::info("vacacionesRestantes: " . $vacacionesRestantes);
+        \Log::info("diasTotales: " . $diasTotales);
+
+
+        return [
+            'vacaciones_restantes' => $vacacionesRestantes,
+            'vacaciones_tomadas' => $diasTotales,
+        ];
+
+
     }
 
 
