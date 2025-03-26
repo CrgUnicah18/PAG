@@ -72,6 +72,16 @@
                     <label for="requiere_subsidio" class="font-semibold">Refrendamiento</label>
                 </div>
 
+                <div class="mb-4 flex items-center">
+                    <input type="hidden" name="requiere_subsidio" value="0">
+                    <label class="switch">
+                        <input type="checkbox" id="calamidad" name="calamidad" value="1" {{ old('calamidad', isset($tipoPermiso) ? $tipoPermiso->calamidad : 0) ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
+                    <label for="calamidad" class="font-semibold">Grave Calamidad</label>
+                </div>
+
+
 
 
 
