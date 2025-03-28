@@ -76,15 +76,17 @@
                 <!-- Fecha de Inicio -->
                 <div>
                     <label for="fecha_inicio" class="block text-gray-700 font-medium mb-1">Fecha de Inicio</label>
-                    <input type="date" name="fecha_inicio" id="fecha_inicio"
-                        class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300" required>
+                    <input type="text" name="fecha_inicio" id="fecha_inicio"
+                        class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300" placeholder="Fecha de inicio"
+                        required>
                 </div>
 
                 <!-- Fecha de Fin -->
                 <div>
                     <label for="fecha_fin" class="block text-gray-700 font-medium mb-1">Fecha de Fin</label>
-                    <input type="date" name="fecha_fin" id="fecha_fin"
-                        class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300" required>
+                    <input type="text" name="fecha_fin" id="fecha_fin"
+                        class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300"
+                        placeholder="Fecha de finalización" required>
                 </div>
 
                 <!-- Tipo de Vacación -->
@@ -129,4 +131,30 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function deshabilitarFinesDeSemana(date) {
+                return (date.getDay() === 0 || date.getDay() === 6);
+            }
+
+            // Configurar Flatpickr para Fecha de Inicio
+            flatpickr("#fecha_inicio", {
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                disable: [deshabilitarFinesDeSemana]
+            });
+
+            // Configurar Flatpickr para Fecha de Fin
+            flatpickr("#fecha_fin", {
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                disable: [deshabilitarFinesDeSemana]
+            });
+        });
+    </script>
+
+
+
+
 @endsection

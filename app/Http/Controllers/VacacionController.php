@@ -12,6 +12,13 @@ use DateTime;
 use Barryvdh\DomPDF\Facade\PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\VacacionesExport;
+use App\Notifications\SolicitudPermisoNotificacion;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\EstadoSolicitudNotificacion;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 
 class VacacionController extends Controller
 {
@@ -44,6 +51,7 @@ class VacacionController extends Controller
                         $query->where('nombre', 'like', '%' . $nombreEmpleado . '%'); // Filtrar por nombre de empleado
                     });
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(8)
                 ->appends(['nombreEmpleado' => $nombreEmpleado, 'estado' => $estado]);
 
@@ -56,6 +64,7 @@ class VacacionController extends Controller
                         $query->where('nombre', 'like', '%' . $nombreEmpleado . '%'); // Filtrar por nombre
                     });
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(8)
                 ->appends(['nombreEmpleado' => $nombreEmpleado, 'estado' => $estado]); // Agregar filtros a la paginación
 
@@ -74,6 +83,7 @@ class VacacionController extends Controller
                         $query->where('nombre', 'like', '%' . $nombreEmpleado . '%'); // Filtrar por nombre de empleado
                     });
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(8)
                 ->appends(['nombreEmpleado' => $nombreEmpleado, 'estado' => $estado]);
 
@@ -89,6 +99,7 @@ class VacacionController extends Controller
                         $query->where('nombre', 'like', '%' . $nombreEmpleado . '%'); // Filtrar por nombre de empleado
                     });
                 })
+                ->orderBy('created_at', 'desc') // Ordenar por fecha de creación
                 ->paginate(8)
                 ->appends(['nombreEmpleado' => $nombreEmpleado, 'estado' => $estado]); // Agregar filtros a la paginación
 
@@ -107,6 +118,7 @@ class VacacionController extends Controller
                         $query->where('nombre', 'like', '%' . $nombreEmpleado . '%'); // Filtrar por nombre de empleado
                     });
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(8)
                 ->appends(['nombreEmpleado' => $nombreEmpleado, 'estado' => $estado]); // Agregar filtros a la paginación
 
@@ -128,19 +140,28 @@ class VacacionController extends Controller
     public function store(Request $request)
     {
         // Validación común para todos los tipos de solicitud de vacaciones
-        $request->validate([
-            'fecha_inicio' => 'required|date|after_or_equal:' . Carbon::today()->toDateString(),
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'tipo_permiso_id' => 'required|exists:tipo_permisos,id', // Validación para tipo_permiso_id
-            'comentario' => 'nullable|string|max:255', // Validación para comentario
-        ]);
+        $validated = $request->validate(
+            [
+                'empleado_id' => 'required|exists:empleados,id',
+                'fecha_inicio' => 'required|date',
+                'fecha_fin' => 'required|date',
+                'tipo_permiso_id' => 'required|exists:tipo_permisos,id', // Asegúrate que este campo esté bien definido
+            ],
+            [
+                'fecha_inicio.after_or_equal' => 'La fecha de inicio debe ser igual o posterior a hoy.',
+                'fecha_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
+                'fecha_fin.after' => 'La fecha de fin debe ser posterior a hoy.',
+                'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            ]
+        );
+
+        //dd($validated);  // Verifica los datos validados
 
         $user = auth()->user();
         $empleadoId = $user->empleado_id;
 
-        // Verificar que no haya solicitudes con fechas sobrepuestas para el mismo empleado
         $solicitudesExistentes = Vacacion::where('empleado_id', $empleadoId)
-            ->whereIn('estado', ['pendiente', 'aprobadas', 'pendientes_aprobacion'])
+            ->whereNotIn('estado', ['rechazadas']) // Excluir las solicitudes rechazadas
             ->where(function ($query) use ($request) {
                 $query->whereBetween('fecha_inicio', [$request->fecha_inicio, $request->fecha_fin])
                     ->orWhereBetween('fecha_fin', [$request->fecha_inicio, $request->fecha_fin])
@@ -154,30 +175,62 @@ class VacacionController extends Controller
         // Si existen solicitudes con fechas sobrepuestas, retornar un error
         if ($solicitudesExistentes) {
             return redirect()->back()->withErrors(['error_key' => 'Ya existe una solicitud de vacaciones con fechas sobrepuestas.']);
-
         }
 
         $fechaInicio = Carbon::parse($request->fecha_inicio);
         $fechaFin = Carbon::parse($request->fecha_fin);
-        // Calcular duración de las vacaciones (en días)
-        $duracionDias = $fechaInicio->diffInDays($fechaFin) + 1; // +1 para incluir el primer día
 
-        // Verifica si las fechas fueron creadas correctamente
-        if (!$fechaInicio || !$fechaFin) {
-            // Si alguna de las fechas no es válida, muestra un mensaje de error
-            return redirect()->back()->withErrors(['error_key' => 'Las fechas no tienen un formato válido.']);
-
+        // Si la fecha de fin está vacía, asignamos la fecha de inicio
+        if (empty($request->fecha_fin)) {
+            $request->merge(['fecha_fin' => $request->fecha_inicio]);
         }
+
+        // Calcular la duración de las vacaciones solo contando los días laborables
+        $duracionDias = 0;
+        $fechaAuxiliar = $fechaInicio->copy();
+
+        // Contamos los días laborables, excluyendo los fines de semana
+        while ($fechaAuxiliar <= $fechaFin) {
+            if (!$fechaAuxiliar->isWeekend()) {
+                $duracionDias++;
+            }
+            $fechaAuxiliar->addDay();
+        }
+
+        // Aquí puedes verificar si la duración está dentro de los límites de días de vacaciones permitidos (si aplicable)
+        $request->merge(['duracion' => $duracionDias]);
+
+        // Actualizamos la fecha de fin en la solicitud si es necesario (aunque solo la duración es lo importante)
+        $request->merge(['fecha_fin' => $fechaFin->format('Y-m-d')]);
+
+        // Ahora puedes hacer la validación adicional que necesites para asegurarte que la duración no exceda el máximo de vacaciones permitidas
+
+
+        // Si la duración de días es 0, significa que no se eligieron días laborables
+        if ($duracionDias <= 0) {
+            return redirect()->back()->withErrors(['error_key' => 'No se seleccionaron días laborables válidos.']);
+        }
+
+        // dd($duracionDias); // Verifica la cantidad de días laborables calculados
+
+        // dd($duracionDias); // Verifica la cantidad de días laborables calculados
+
+
+        //dd($duracionDias);
 
         // Obtener el empleado y calcular sus vacaciones restantes
         $empleado = Empleado::find($empleadoId);
         $vacacionesRestantes = $empleado->calcularBalanceVacaciones(); // Llamada al método de cálculo
 
+        //dd($empleado, $vacacionesRestantes);
         // Verificar si el empleado tiene suficientes vacaciones disponibles
         if ($vacacionesRestantes < $duracionDias) {
             return redirect()->back()->withErrors(['error_key' => 'No hay suficientes días de vacaciones disponibles.']);
 
         }
+        //dd($vacacionesRestantes, $duracionDias);
+        // Aquí muestro todo lo que está siendo actualizado
+        //dd($request->all());
 
         // Obtener el tipo de permiso y su máximo de días permitidos
         $tipoPermiso = TipoPermiso::find($request->tipo_permiso_id);
@@ -188,52 +241,77 @@ class VacacionController extends Controller
             return redirect()->back()->withInput()->withErrors([
                 'duracion_excedida' => "El número de días solicitados ($duracionDias) supera el máximo permitido para este tipo de permiso ($maxDiasPermiso días)."
             ]);
-
         }
-
 
         // Lógica para crear la solicitud de vacaciones según el rol del usuario
         if ($user->hasRole('admin')) {
             if ($request->empleado_id == $empleadoId) {
                 // Vacaciones del admin
                 $diasSolicitados = $duracionDias;
-                while ($diasSolicitados > 0) {
-                    $diasParaSolicitar = min($diasSolicitados, $maxDiasPermiso);
-                    $fechaFinParcial = $fechaInicio->copy()->addDays($diasParaSolicitar - 1);
 
-                    // Crear la solicitud de vacaciones parcial
-                    Vacacion::create([
+                // Verificamos si las fechas de inicio y fin son correctas antes del ciclo
+                $fechaInicio = Carbon::parse($request->fecha_inicio);
+                $fechaFin = Carbon::parse($request->fecha_fin);
+
+                // Ahora, no modificamos las fechas que el usuario ingresó.
+                while ($diasSolicitados > 0) {
+                    // Aseguramos que no sobrepasemos el máximo de días permitidos
+                    $diasParaSolicitar = min($diasSolicitados, $maxDiasPermiso);
+
+                    // No hay necesidad de hacer más cambios aquí. Solo sumamos los días solicitados y calculamos el fin.
+                    $vacacion = Vacacion::create([
                         'empleado_id' => $empleadoId,
                         'fecha_inicio' => $fechaInicio->toDateString(),
-                        'fecha_fin' => $fechaFinParcial->toDateString(),
+                        'fecha_fin' => $fechaFin->toDateString(),
                         'duracion_dias' => $diasParaSolicitar,
                         'estado' => 'pendiente',
                         'tipo_permiso_id' => $request->tipo_permiso_id,
                         'comentario' => $request->comentario,
                     ]);
+                    // Antes de actualizar las fechas y días restantes, realizamos un debugging
 
-                    // Actualizar las fechas y días restantes
-                    $fechaInicio = $fechaFinParcial->copy()->addDay();
-                    $diasSolicitados -= $diasParaSolicitar;
+                    $diasSolicitados -= $diasParaSolicitar;  // Restamos los días solicitados
+
+                    /* Depuración después de actualizar las fechas y días restantes
+                    dd([
+                        'nuevaFechaInicio' => $fechaInicio->toDateString(),
+                        'fechaFin' => $fechaFin->toDateString(),
+                        'diasSolicitadosRestantes' => $diasSolicitados
+                    ]);*/
+
                 }
 
                 // Descontar los días de vacaciones
                 $empleado->vacaciones_restantes -= $duracionDias;
                 $empleado->save();
 
+                // Notificación al empleado
+                $empleadoUser = $vacacion->empleado->user;
+                if (!$empleadoUser->notifications()->where('data->link', $vacacion->id)->exists()) {
+                    $empleadoUser->notify(new SolicitudPermisoNotificacion($vacacion));
+                }
+
+                // Notificar a los administradores
+                $admins = User::role('admin')->get();
+                foreach ($admins as $admin) {
+                    if (!$admin->notifications()->where('data->link', $vacacion->id)->exists()) {
+                        $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+                    }
+                }
+
+                // Retornar mensaje de éxito
                 return redirect()->route('admin.vacaciones.index')->with('success', 'Solicitud de vacaciones propia creada correctamente.');
             } else {
                 // Vacaciones de otro empleado
                 $diasSolicitados = $duracionDias;
                 while ($diasSolicitados > 0) {
                     $diasParaSolicitar = min($diasSolicitados, $maxDiasPermiso);
-                    $fechaFinParcial = $fechaInicio->copy()->addDays($diasParaSolicitar - 1);
 
                     // Crear la solicitud de vacaciones parcial
-                    Vacacion::create([
+                    $vacacion = Vacacion::create([
                         'empleado_id' => $request->empleado_id,
                         'fecha_inicio' => $fechaInicio->toDateString(),
-                        'fecha_fin' => $fechaFinParcial->toDateString(),
+                        'fecha_fin' => $fechaFin->toDateString(),
                         'duracion_dias' => $diasParaSolicitar,
                         'estado' => 'aprobadas',
                         'tipo_permiso_id' => $request->tipo_permiso_id,
@@ -241,46 +319,75 @@ class VacacionController extends Controller
                     ]);
 
                     // Actualizar las fechas y días restantes
-                    $fechaInicio = $fechaFinParcial->copy()->addDay();
                     $diasSolicitados -= $diasParaSolicitar;
                 }
 
-                // Actualizar estado de empleado
-                $empleado = Empleado::find($request->empleado_id);
-                $empleado->estado = 'inactivo'; // El empleado pasa a estar inactivo durante sus vacaciones
-                $empleado->save();
+                // Verificar si la fecha de inicio de la solicitud es igual a la fecha actual
+                $fechaActual = Carbon::now()->toDateString(); // Obtener la fecha actual del sistema
+
+                if ($vacacion->fecha_inicio == $fechaActual) {
+                    // Actualizar estado de empleado a inactivo
+                    $empleado = Empleado::find($request->empleado_id);
+                    $empleado->estado = 'inactivo'; // El empleado pasa a estar inactivo durante sus vacaciones
+                    $empleado->save();
+                }
+
+                $empleado = Empleado::find($empleadoId); // o el empleado correspondient
+
+                // Enviar notificación a todos los administradores
+                $empleadoUser = $vacacion->empleado->user;
+                if (!$empleadoUser->notifications()->where('data->link', $vacacion->id)->exists()) {
+                    $empleadoUser->notify(new EstadoSolicitudNotificacion($vacacion, 'aprobadas'));
+                }
+
+                $admins = User::role('admin')->get();
+                foreach ($admins as $admin) {
+                    if (!$admin->notifications()->where('data->link', $vacacion->id)->exists()) {
+                        $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+                    }
+                }
+
 
                 return redirect()->route('admin.vacaciones.index')->with('success', 'Solicitud de vacaciones para el empleado creada correctamente.');
             }
         }
-
         // Si el usuario es supervisor
         if ($user->hasRole('supervisor')) {
             $diasSolicitados = $duracionDias;
+            $vacacion = null; // Inicializar la variable vacacion
+
             while ($diasSolicitados > 0) {
                 $diasParaSolicitar = min($diasSolicitados, $maxDiasPermiso);
-                $fechaFinParcial = $fechaInicio->copy()->addDays($diasParaSolicitar - 1);
 
-                // Crear la solicitud de vacaciones parcial
-                Vacacion::create([
+                // Crear la solicitud de vacaciones parcial con el estado 'pendiente'
+                $vacacion = Vacacion::create([
                     'empleado_id' => $request->empleado_id,
                     'fecha_inicio' => $fechaInicio->toDateString(),
-                    'fecha_fin' => $fechaFinParcial->toDateString(),
+                    'fecha_fin' => $fechaFinl->toDateString(),
                     'duracion_dias' => $diasParaSolicitar,
-                    'estado' => 'pendiente',
+                    'estado' => 'pendiente', // Estado pendiente para que no pase a aprobado
                     'tipo_permiso_id' => $request->tipo_permiso_id,
                     'comentario' => $request->comentario,
                 ]);
 
                 // Actualizar las fechas y días restantes
-                $fechaInicio = $fechaFinParcial->copy()->addDay();
                 $diasSolicitados -= $diasParaSolicitar;
             }
 
-            // Restamos los días de vacaciones porque está en estado pendiente
+            // Restamos los días de vacaciones disponibles
             $empleado = Empleado::find($request->empleado_id);
             $empleado->vacaciones_restantes -= $duracionDias;
             $empleado->save();
+
+            if ($vacacion) {
+                // Ahora que vacacion está definida, enviamos la notificación
+                $vacacion->empleado->user->notify(new SolicitudPermisoNotificacion($vacacion));
+                // Enviar notificación a todos los administradores
+                $admins = User::role('admin')->get(); // Obtener todos los admins
+                foreach ($admins as $admin) {
+                    $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+                }
+            }
 
             return redirect()->route('supervisor.vacaciones.index')->with('success', 'Solicitud de vacaciones creada para el empleado.');
         }
@@ -290,13 +397,12 @@ class VacacionController extends Controller
             $diasSolicitados = $duracionDias;
             while ($diasSolicitados > 0) {
                 $diasParaSolicitar = min($diasSolicitados, $maxDiasPermiso);
-                $fechaFinParcial = $fechaInicio->copy()->addDays($diasParaSolicitar - 1);
 
                 // Crear la solicitud de vacaciones parcial
-                Vacacion::create([
+                $vacacion = Vacacion::create([
                     'empleado_id' => $empleadoId,
                     'fecha_inicio' => $fechaInicio->toDateString(),
-                    'fecha_fin' => $fechaFinParcial->toDateString(),
+                    'fecha_fin' => $fechaFin->toDateString(),
                     'duracion_dias' => $diasParaSolicitar,
                     'estado' => 'pendiente',
                     'tipo_permiso_id' => $request->tipo_permiso_id,
@@ -304,13 +410,19 @@ class VacacionController extends Controller
                 ]);
 
                 // Actualizar las fechas y días restantes
-                $fechaInicio = $fechaFinParcial->copy()->addDay();
                 $diasSolicitados -= $diasParaSolicitar;
             }
 
             // Restamos los días de vacaciones porque está en estado pendiente
             $empleado->vacaciones_restantes -= $duracionDias;
             $empleado->save();
+            $vacacion->empleado->user->notify(new SolicitudPermisoNotificacion($vacacion));
+
+            // Enviar notificación a todos los administradores
+            $admins = User::role('admin')->get(); // Obtener todos los admins
+            foreach ($admins as $admin) {
+                $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+            }
 
             return redirect()->route('empleado.vacaciones.index')->with('success', 'Solicitud de vacaciones enviada correctamente.');
         }
@@ -364,7 +476,6 @@ class VacacionController extends Controller
         return redirect()->route('admin.vacaciones.index')->with('success', 'Estado de vacaciones actualizado.');
     }
 
-    // VacacionController.php
     public function aprobar($id)
     {
         $vacacion = Vacacion::findOrFail($id);
@@ -381,7 +492,13 @@ class VacacionController extends Controller
                 $vacacionesPropias = Vacacion::where('empleado_id', $empleado->id)->get();
                 $vacacionesGenerales = Vacacion::whereHas('empleado', function ($query) use ($empleado) {
                     $query->where('supervisor_id', $empleado->id); // Filtra los empleados bajo la supervisión del supervisor
-                })->get();
+
+                })
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(5);
+
+                // Notificar al usuario sobre el estado de la solicitud
+                $vacacion->empleado->user->notify(new EstadoSolicitudNotificacion($vacacion, 'pendientes_aprobacion'));
 
                 return view('supervisor.vacaciones.index', compact('vacacionesPropias', 'vacacionesGenerales'))->with('success', 'Pre-aprobadas por supervisor.');
             } else {
@@ -401,15 +518,33 @@ class VacacionController extends Controller
             // Aquí se aprueba la solicitud
             $vacacion->update(['estado' => 'aprobadas']);
 
-            // Cambiar el estado del empleado a inactivo si la vacación es aprobada
-            $empleado = Empleado::find($vacacion->empleado_id); // Asumiendo que $solicitud tiene el empleado_id
-            $empleado->estado = 'inactivo'; // Cambiar a inactivo
-            $empleado->save();
+            // Obtener el empleado y verificar si la fecha de inicio de la vacación es igual a la fecha actual
+            $empleado = Empleado::find($vacacion->empleado_id);
+
+            if ($vacacion->fecha_inicio == now()->toDateString()) { // Compara solo la fecha (sin hora)
+                // Cambiar el estado del empleado a inactivo si la fecha de inicio es la misma que la del sistema
+                $empleado->estado = 'inactivo';
+                $empleado->save();
+            }
+
+            // Marcar como leída la notificación relacionada con la vacación
+            $vacacion->empleado->user->notifications->where('data.id_vacacion', $vacacion->id)->markAsRead();
+
+            // Notificar al usuario sobre el estado de la solicitud
+            $vacacion->empleado->user->notify(new EstadoSolicitudNotificacion($vacacion, 'aprobadas'));
+
 
             // Ahora calculamos el balance de vacaciones
-            $vacacionesRestantes = $empleado->calcularBalanceVacaciones(); // Suponiendo que tienes este método
-            $empleado->vacaciones_restantes = $vacacionesRestantes; // Actualizamos el saldo de vacaciones
-            $empleado->save(); // Guardamos el cambio
+            $balanceVacaciones = $empleado->calcularBalanceVacaciones(); // Retorna un array
+
+            // Extraemos los valores del array
+            $vacacionesRestantes = $balanceVacaciones['vacaciones_restantes'] ?? 0;
+            $vacacionesTomadas = $balanceVacaciones['vacaciones_tomadas'] ?? 0;
+
+            // Actualizamos el saldo de vacaciones en el empleado
+            $empleado->vacaciones_restantes = $vacacionesRestantes;
+            $empleado->vacaciones_tomadas = $vacacionesTomadas;
+            $empleado->save();
 
             // Obtener las vacaciones generales y las del supervisor
             $vacacionesGenerales = Vacacion::paginate(8); // o el número que quieras
@@ -418,6 +553,7 @@ class VacacionController extends Controller
             return view('admin.vacaciones.index', compact('vacacionesGenerales', 'empleados', 'tiposVacaciones', 'vacacionesPropias'))
                 ->with('success', 'Aprobadas por Admin.');
         }
+
 
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Esta solicitud no puede ser aprobada en este momento.');
@@ -464,6 +600,11 @@ class VacacionController extends Controller
                 $vacacion->estado = 'rechazadas';
                 $vacacion->save();
 
+                // Notificar al empleado
+                $vacacion->empleado->user->notifications->where('data.id_vacacion', $vacacion->id)->markAsRead();
+
+                // Notificar al empleado sobre el estado de la solicitud
+                $vacacion->empleado->user->notify(new EstadoSolicitudNotificacion($vacacion, 'rechazadas'));
                 $vacacionesGenerales = Vacacion::all();
                 return redirect()->route('admin.vacaciones.index')
                     ->with(compact('vacacionesGenerales'))

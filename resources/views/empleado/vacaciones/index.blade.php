@@ -32,7 +32,7 @@
                                     @if($vacacion->estado == 'aprobadas')
                                         <span class="bg-green-500 text-white px-4 py-2 rounded-lg">{{ $vacacion->estado }}</span>
                                     @elseif($vacacion->estado == 'pendiente')
-                                        <span class="bg-yellow-500 text-black px-4 py-2 rounded-lg">{{ $vacacion->estado }}</span>
+                                        <span class="bg-yellow-500 text-white px-4 py-2 rounded-lg">{{ $vacacion->estado }}</span>
                                     @elseif($vacacion->estado == 'rechazadas')
                                         <span class="bg-red-500 text-white px-4 py-2 rounded-lg">{{ $vacacion->estado }}</span>
                                     @elseif($vacacion->estado == 'pendientes_aprobacion')

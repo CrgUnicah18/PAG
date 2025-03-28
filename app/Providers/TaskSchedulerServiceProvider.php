@@ -34,6 +34,6 @@ class TaskSchedulerServiceProvider extends ServiceProvider
         // Registrar los comandos programados
         $schedule->command(ActualizarEstadoEmpleado::class)->dailyAt('19:00');
         $schedule->command(VacacionesActualizarEstado::class)->dailyAt('19:00');
-        $schedule->command('empleados:actualizar-vacaciones-anuales')->yearlyOn(1, 1, '00:00'); // ← Nuevo comando programado
+        $schedule->command(ActualizarVacacionesAnuales::class)->yearlyOn(1, 1, '00:00'); // ← Nuevo comando programado
     }
 }

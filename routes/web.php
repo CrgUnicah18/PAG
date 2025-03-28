@@ -17,6 +17,8 @@ use App\Http\Controllers\Auth\UserController;
 use App\Console\Commands\ActualizarEstadoEmpleado;
 use App\Http\Controllers\AnuncioController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\NotificacionController;
+use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('empleados:actualizar-estado', function () {
     // Aquí va la lógica de tu comando (o bien ya está en el archivo de comando que creaste)
@@ -104,6 +106,12 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
     Route::post('vacaciones/addComentario/{vacacion}', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
+    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+    Route::get('/notificaciones/{id}/leer', [NotificacionController::class, 'leerNotificacion'])
+        ->name('notificaciones.leer');
+
+
+
 
     // Ruta para mostrar el formulario de filtros del reporte de vacaciones
     Route::get('vacaciones/reporte', [VacacionController::class, 'mostrarFormularioReporte'])->name('vacaciones.reporte');
@@ -204,5 +212,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
     Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'declinar'])->name('vacaciones.declinar');
+
+    Route::get('notificaciones', [NotificacionController::class, 'index'])->name('empleado.notificaciones');
 });
 

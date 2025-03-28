@@ -4,10 +4,53 @@
         <i class="fas fa-bars"></i> <!-- Ícono de menú -->
     </button>
 
+    <!-- Contenedor de notificaciones -->
+    <!-- Contenedor de notificaciones -->
+    <div class="relative ml-auto mr-6">
+        <button id="notificacionesButton" class="relative focus:outline-none">
+            <i class="fas fa-bell text-white text-xl"></i>
+            @php
+                // Filtrar las notificaciones no leídas que sean de estado pendiente o pendientes_aprobacion
+                $notificacionesPendientes = Auth::user()->unreadNotifications->filter(function ($notificacion) {
+                    return isset($notificacion->data['estado']) && in_array($notificacion->data['estado'], ['pendiente', 'pendientes_aprobacion']);
+                });
+            @endphp
+            @if($notificacionesPendientes->count() > 0)
+                <span class="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                    {{ $notificacionesPendientes->count() }}
+                </span>
+            @endif
+        </button>
+
+        <!-- Dropdown de notificaciones -->
+        <div id="notificacionesDropdown"
+            class="hidden absolute right-0 mt-2 w-64 bg-white text-black rounded-lg shadow-lg">
+            <div class="p-2 text-center font-bold border-b">Notificaciones</div>
+            <div class="max-h-60 overflow-y-auto">
+                @forelse($notificacionesPendientes as $notificacion)
+                    <!-- Cuando se hace clic, se marca como leída y se redirige -->
+                    <a href="{{ route('admin.notificaciones.index', $notificacion->id) }}"
+                        class="block px-4 py-2 hover:bg-gray-200">
+                        {{ $notificacion->data['mensaje'] ?? 'Tienes una nueva notificación' }}
+                    </a>
+
+                @empty
+                    <p class="text-center text-gray-500 py-2">No hay notificaciones pendientes</p>
+                @endforelse
+            </div>
+            <div class="border-t text-center">
+                <a href="{{ route('admin.notificaciones.index') }}"
+                    class="block px-4 py-2 hover:bg-gray-200 text-blue-600">Ver todas</a>
+            </div>
+        </div>
+    </div>
+
+
+
+
     <!-- Contenedor del menú del usuario -->
-    <div class="ml-auto relative">
+    <div class="relative">
         <button id="userMenuButton" class="flex items-center gap-3 focus:outline-none">
-            <!-- Imagen del usuario con sombra blanca -->
             <img src="{{ asset(Auth::user()->empleado->foto_perfil) }}" alt="Perfil"
                 class="w-10 h-10 rounded-full object-cover shadow-lg shadow-[rgb(255,255,255)]">
             <h1 class="text-xl text-white">{{ Auth::user()->name }}</h1>
@@ -22,18 +65,30 @@
 </header>
 
 <script>
-    // Abrir y cerrar el dropdown del usuario
+
+    // Dropdown de usuario
     document.getElementById('userMenuButton').addEventListener('click', function () {
         document.getElementById('userDropdown').classList.toggle('hidden');
     });
 
-    // Cierra el menú si haces clic fuera de él
-    document.addEventListener('click', function (event) {
-        let dropdown = document.getElementById('userDropdown');
-        let button = document.getElementById('userMenuButton');
+    // Dropdown de notificaciones
+    document.getElementById('notificacionesButton').addEventListener('click', function () {
+        document.getElementById('notificacionesDropdown').classList.toggle('hidden');
+    });
 
-        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
-            dropdown.classList.add('hidden');
+    // Cierra los dropdowns si haces clic fuera
+    document.addEventListener('click', function (event) {
+        let userDropdown = document.getElementById('userDropdown');
+        let userButton = document.getElementById('userMenuButton');
+        let notifDropdown = document.getElementById('notificacionesDropdown');
+        let notifButton = document.getElementById('notificacionesButton');
+
+        if (!userDropdown.contains(event.target) && !userButton.contains(event.target)) {
+            userDropdown.classList.add('hidden');
+        }
+
+        if (!notifDropdown.contains(event.target) && !notifButton.contains(event.target)) {
+            notifDropdown.classList.add('hidden');
         }
     });
 </script>

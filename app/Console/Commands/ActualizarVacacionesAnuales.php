@@ -16,7 +16,13 @@ class ActualizarVacacionesAnuales extends Command
         $empleados = Empleado::all();
 
         foreach ($empleados as $empleado) {
-            $empleado->vacaciones_restantes = $empleado->calcularBalanceVacaciones();
+            // Llamamos al método para calcular las vacaciones
+            $resultadoVacaciones = $empleado->calcularBalanceVacaciones();
+
+            // Asignamos solo el valor de 'vacaciones_restantes' al empleado
+            $empleado->vacaciones_restantes = $resultadoVacaciones['vacaciones_restantes'];
+
+            // Guardamos el empleado con el nuevo valor
             $empleado->save();
         }
 

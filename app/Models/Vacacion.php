@@ -22,7 +22,7 @@ class Vacacion extends Model
     {
         return $this->belongsTo(TipoPermiso::class, 'tipo_permiso_id');
     }
-    public function setEstadoAttribute($value)
+    /*public function setEstadoAttribute($value)
     {
         $this->attributes['estado'] = $value;
 
@@ -38,7 +38,7 @@ class Vacacion extends Model
 
             $empleado->save();
         }
-    }
+    }*/
     public function calcularDuracion()
     {
         $fechaInicio = \Carbon\Carbon::parse($this->fecha_inicio);  // Convierte a objeto Carbon
