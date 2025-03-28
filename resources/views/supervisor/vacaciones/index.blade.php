@@ -81,6 +81,7 @@
 
                 </tbody>
             </table>
+            {{ $vacacionesPropias->appends(request()->query())->links() }}
         </div>
 
         <!-- Tabla de vacaciones generales (empleados a cargo) -->
@@ -158,7 +159,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                {{ $vacacionesGenerales->appends(request()->query())->links() }}
             </div>
+
         </div>
 
 

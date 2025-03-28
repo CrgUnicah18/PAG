@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+
     <div class="container mx-auto px-4 py-6">
         <h1 class="text-3xl font-semibold text-gray-800">Solicitudes de Vacaciones</h1>
         <div class="flex space-x-3 mt-6 mb-4">
@@ -211,7 +222,6 @@
                                     <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                                 @endforeach
                             </select>
-
                         </div>
                         <div class="mb-3">
                             <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
@@ -221,6 +231,10 @@
                             <label for="fecha_fin" class="form-label">Fecha de Fin</label>
                             <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
                         </div>
+                        <div class="mb-3">
+                            <label for="comentario" class="form-label">Comentario (Opcional)</label>
+                            <textarea class="form-control" id="comentario" name="comentario" rows="4"></textarea>
+                        </div>
                         <button type="submit" class="btn btn-primary">Asignar Vacaciones</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                             onclick="closeVacacionesModal()">Cancelar</button>
@@ -229,6 +243,7 @@
             </div>
         </div>
     </div>
+
     <!-- Modal de Confirmación -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">

@@ -8,6 +8,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\DB; // Para la clase DB
 use DateTime; // Para la clase DateTime
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 
 
@@ -57,20 +58,20 @@ class Empleado extends Model
 
     // Relación con Vacaciones
     // En el modelo Empleado
+    // Relación con Vacaciones
     public function vacaciones()
     {
         return $this->hasMany(Vacacion::class, 'empleado_id');
     }
+
+    // Relación inversa con User (ya que User tiene un campo empleado_id)
+    public function user()
+    {
+        return $this->hasOne(User::class, 'empleado_id');
+    }
     public function tipoContrato()
     {
         return $this->belongsTo(TipoContrato::class);
-    }
-
-    // Relación con User
-    // En el modelo Empleado
-    public function user()
-    {
-        return $this->hasOne(User::class);  // Relación inversa, si es necesario.
     }
     public function supervisor()
     {
@@ -81,71 +82,77 @@ class Empleado extends Model
         return $this->hasMany(Reaccion::class, 'empleado_id');
     }
 
-
     public function calcularBalanceVacaciones()
     {
         $fechaIngreso = new DateTime($this->fecha_ingreso);
         $fechaActual = new DateTime();
-
         $intervalo = $fechaIngreso->diff($fechaActual);
         $anosTrabajados = $intervalo->y;
 
         \Log::info("Años trabajados: " . $anosTrabajados);
 
-        // Calcular los días totales de vacaciones
+        // Calcular los días totales de vacaciones según los años trabajados
         if ($anosTrabajados < 1) {
-            $mesIngreso = (int) $fechaIngreso->format('n'); // 1=enero, 12=diciembre
-            $mesesRestantesDelAno = 12 - $mesIngreso; // No incluimos el mes actual
-            $vacacionesProporcionales = round(($mesesRestantesDelAno / 12) * 10); // Redondeamos al entero más cercano
-            \Log::info("Mes ingreso: " . $mesIngreso);
-            \Log::info("Meses restantes del año: " . $mesesRestantesDelAno);
-            \Log::info("Vacaciones proporcionales calculadas: " . $vacacionesProporcionales);
-            $diasTotales = 10; // Total derecho de vacaciones al final del año
-            $vacacionesRestantes = round(($fechaActual->format('n') - $mesIngreso) * ($diasTotales / 12)); // Calcular días restantes proporcionalmente
+            $mesIngreso = (int) $fechaIngreso->format('n');
+            $mesesRestantesDelAno = 12 - $mesIngreso;
+            $vacacionesProporcionales = round(($mesesRestantesDelAno / 12) * 10);
+            $diasTotales = 10;
+            $vacacionesRestantes = $vacacionesProporcionales;
         } elseif ($anosTrabajados >= 1 && $anosTrabajados < 2) {
-            $diasTotales = 10; // Total derecho al final del año
+            $diasTotales = 10;
             $vacacionesRestantes = $diasTotales;
         } elseif ($anosTrabajados >= 2 && $anosTrabajados < 3) {
-            $diasTotales = 12; // Total derecho al final del año
+            $diasTotales = 12;
             $vacacionesRestantes = $diasTotales;
         } elseif ($anosTrabajados >= 3 && $anosTrabajados < 4) {
-            $diasTotales = 15; // Total derecho al final del año
+            $diasTotales = 15;
             $vacacionesRestantes = $diasTotales;
         } else {
-            $diasTotales = 20; // Total derecho al final del año
+            $diasTotales = 20;
             $vacacionesRestantes = $diasTotales;
         }
 
         \Log::info("Vacaciones Totales: " . $diasTotales);
-        \Log::info("Vacaciones Restantes: " . $vacacionesRestantes);
+        \Log::info("Vacaciones Restantes antes de restar: " . $vacacionesRestantes);
 
-        // Vacaciones tomadas no rechazadas
+        // Obtener las vacaciones no rechazadas y contar solo los días hábiles
         $vacacionesNoRechazadas = $this->vacaciones()
             ->whereIn('estado', ['aprobadas', 'pendiente', 'pendientes_aprobacion'])
-            ->sum(DB::raw('DATEDIFF(fecha_fin, fecha_inicio) + 1'));
+            ->get();
 
-        \Log::info("Vacaciones No Rechazadas (sumadas): " . $vacacionesNoRechazadas);
+        $diasTomados = 0;
 
-        $vacacionesRestantes -= min($vacacionesNoRechazadas, $vacacionesRestantes);
+        foreach ($vacacionesNoRechazadas as $vacacion) {
+            $inicio = Carbon::parse($vacacion->fecha_inicio);
+            $fin = Carbon::parse($vacacion->fecha_fin);
+
+            while ($inicio->lte($fin)) { // Mientras el inicio sea menor o igual al fin
+                if ($inicio->isWeekday()) { // Solo contar lunes a viernes
+                    $diasTomados++;
+                }
+                $inicio->addDay();
+            }
+        }
+
+        \Log::info("Vacaciones No Rechazadas (solo días hábiles): " . $diasTomados);
+
+        // Restar los días hábiles tomados de las vacaciones restantes
+        $vacacionesRestantes -= min($diasTomados, $vacacionesRestantes);
+        $vacacionesRestantes = max($vacacionesRestantes, 0);
 
         \Log::info("Vacaciones Restantes después de la resta: " . $vacacionesRestantes);
 
-        $vacacionesRestantes = max($vacacionesRestantes, 0);
         $this->vacaciones_restantes = $vacacionesRestantes;
-        $this->vacaciones_tomadas = $diasTotales; // Guardar el total de días en el campo vacaciones_tomadas
+        $this->vacaciones_tomadas = $diasTotales;
         $this->save();
-
-        \Log::info("vacacionesRestantes: " . $vacacionesRestantes);
-        \Log::info("diasTotales: " . $diasTotales);
-
 
         return [
             'vacaciones_restantes' => $vacacionesRestantes,
             'vacaciones_tomadas' => $diasTotales,
         ];
-
-
     }
+
+
 
 
 

@@ -8,8 +8,6 @@ use App\Models\TipoPermiso;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\PDF;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\VacacionesExport;
 
 class PermisoController extends Controller
 {
@@ -323,6 +321,7 @@ class PermisoController extends Controller
                 $empleado = $permiso->empleado;
                 $empleado->update(['estado' => 'inactivo']);
             }
+            ;
 
             return redirect()->route('admin.permisos.index')->with('success', 'Aprobado por Admin.');
         }
