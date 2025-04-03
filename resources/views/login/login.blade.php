@@ -81,6 +81,8 @@
                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition duration-200">
                 Iniciar sesión
             </button>
+            
+
 
             <!-- Enlace para restablecer la contraseña -->
             <div class="text-center mt-4">

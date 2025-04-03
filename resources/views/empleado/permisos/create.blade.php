@@ -101,8 +101,10 @@
             const tipoPermisoSelect = document.getElementById('tipo_permiso_id');
             const fechaInicioInput = document.getElementById('fecha_inicio');
             const fechaFinInput = document.getElementById('fecha_fin');
+            const fechaFinHiddenInput = document.getElementById('fecha_fin_hidden');
             const subsidioArchivoDiv = document.getElementById('subsidio_archivo_div');
             const subsidioInput = document.getElementById('subsidio_archivo');
+            const form = document.querySelector('form');
 
             // Verifica el tipo de permiso seleccionado y muestra el campo de archivo de subsidio si corresponde
             tipoPermisoSelect.addEventListener('change', function () {
@@ -118,12 +120,25 @@
 
                 // Si el tipo de permiso es de 1 día, asignamos el mismo valor a fecha_fin
                 if (duracionPermiso == 1) {
-                    // Asignamos el valor de fecha_inicio a fecha_fin
                     fechaFinInput.value = fechaInicioInput.value;
                     fechaFinInput.disabled = true; // Bloqueamos el campo de fecha_fin
                 } else {
                     fechaFinInput.disabled = false; // Habilitamos el campo de fecha_fin
                 }
+            });
+            // Actualizar fecha_fin automáticamente cuando se elija fecha_inicio
+            fechaInicioInput.addEventListener('change', function () {
+                const duracionPermiso = tipoPermisoSelect.options[tipoPermisoSelect.selectedIndex].getAttribute('data-duracion');
+
+                if (duracionPermiso == 1) {
+                    fechaFinInput.value = fechaInicioInput.value; // Actualizamos fecha_fin con fecha_inicio
+                    fechaFinHiddenInput.value = fechaInicioInput.value; // Sincronizamos con el campo oculto
+                }
+            });
+
+            // Sincronizar fecha_fin con fecha_fin_hidden antes de enviar el formulario
+            form.addEventListener('submit', function () {
+                fechaFinHiddenInput.value = fechaFinInput.value;
             });
 
             // Inicializar flatpickr para los dos campos de fechas
@@ -157,16 +172,6 @@
                         return (date.getDay() === 0 || date.getDay() === 6);
                     }
                 ]
-            });
-
-            // Actualizar fecha_fin automáticamente cuando se elija fecha_inicio
-            fechaInicioInput.addEventListener('change', function () {
-                const tipoPermisoSelect = document.getElementById('tipo_permiso_id');
-                const duracionPermiso = tipoPermisoSelect.options[tipoPermisoSelect.selectedIndex].getAttribute('data-duracion');
-
-                if (duracionPermiso == 1) {
-                    fechaFinInput.value = fechaInicioInput.value; // Actualizamos fecha_fin con fecha_inicio
-                }
             });
         });
     </script>

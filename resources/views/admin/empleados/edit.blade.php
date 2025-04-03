@@ -24,7 +24,8 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label for="dn" class="form-label">DNI</label>
-                        <input type="text" class="form-control" name="dn" value="{{ old('dn', $empleado->dn) }}" required>
+                        <input type="text" class="form-control" name="dn" value="{{ old('dn', $empleado->dn) }}" required
+                            maxlength="15">
                     </div>
                     <div class="col-md-4">
                         <label for="nombre" class="form-label">Nombre</label>

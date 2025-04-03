@@ -6,18 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PAG LICENCIAS Y PERMISOS</title>
 
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <script src="https://unpkg.com/lucide@latest"></script>
-
     <!-- Bootstrap 5 -->
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -29,177 +18,161 @@
 
     <!-- Incluir fuente de Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="<?php echo e(asset('favicon.ico')); ?>" type="image/x-icon">
+
+
 
 
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            /* Cambia 'Roboto' por la fuente que desees */
             font-size: 16px;
             color: #333;
         }
 
         .comment-container {
             max-height: 120px;
-            /* Mantén esta propiedad para que puedas hacer scroll */
             overflow-y: auto;
             border: 1px solid #ddd;
             padding: 5px;
             border-radius: 5px;
             font-size: 12px;
             line-height: 1.0;
-            /* Ajusta la altura de línea para que no esté tan espaciado */
             white-space: pre-wrap;
             background-color: #f9f9f9;
         }
 
         .comment-line {
             margin-bottom: 0.5px;
-            /* Reduce el espacio entre comentarios */
         }
 
         .comment-container p {
             word-wrap: break-word;
-            /* Evita que el texto largo se desborde */
             margin: 0;
-            /* Elimina márgenes adicionales de los párrafos */
             padding: 0;
-            /* Elimina padding extra dentro de los párrafos */
         }
 
-
-        a {
+        aside p,
+        aside h3 {
             text-decoration: none !important;
-        }
-
-        a:hover {
             color: inherit !important;
-            /* El texto no cambia de color */
+        }
+
+        aside a {
+            color: white !important;
             text-decoration: none !important;
-            /* Asegura que no haya subrayado */
+            /* Asegúrate de que este estilo esté presente */
         }
 
-        /* Elimina el color azul al hacer clic o poner foco */
-        a:focus,
-        a:active {
-            color: inherit !important;
+        aside a:hover {
+            color: white !important;
             text-decoration: none !important;
         }
 
-        /* Contenedor del switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
+        aside a:focus,
+        aside a:active {
+            color: white !important;
+            text-decoration: none !important;
         }
 
-        /* Estilo del switch (fondo) */
-        .switch input {
-            opacity: 0;
-            /* Ocultar el input real */
-            width: 0;
-            height: 0;
+
+        .notify {
+            position: fixed;
+            top: 20px;
+            right: 5px;
+            width: 300px;
+            padding: 35px;
+            margin: 10px;
+            border-radius: 8px;
+            z-index: 9999;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: white;
+            opacity: 1 !important;
+            transition: opacity 3s ease;
         }
 
-        /* Estilo del fondo del switch */
-        .switch .slider {
+        /* Estilo de notificación de éxito */
+        .notify-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Estilo de notificación de error */
+        .notify-error {
+            background-color: #F44336;
+            color: white;
+        }
+
+        #dropdownNotificaciones {
             position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 50px;
-        }
-
-        /* Estilo de la palanca (circle) */
-        .switch .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            border-radius: 50px;
-            background-color: white;
-            transition: 0.4s;
-            left: 4px;
-            bottom: 4px;
-        }
-
-        /* Cuando el switch está activado (checked) */
-        .switch input:checked+.slider {
-            background-color: #007aff;
-            /* Azul similar al de iPhone */
-        }
-
-        /* Movimiento de la palanca cuando el switch está activado */
-        .switch input:checked+.slider:before {
-            transform: translateX(22px);
+            top: 100%;
+            /* Esto asegura que el dropdown siempre se despliegue hacia abajo */
         }
     </style>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
 
 <body class="bg-[rgb(232,236,237)]">
 
     <!-- Navbar lateral -->
-    <?php echo $__env->make('navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?> <!-- Aquí se incluye el navbar -->
+    <?php echo $__env->make('navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <!-- Header superior -->
-    <?php echo $__env->make('header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?> <!-- Aquí se incluye el header -->
+    <?php echo $__env->make('header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <!-- Contenido dinámico -->
     <main class="bg-[rgb(232,236,237)] lg:ml-64 mt-4 lg:mt-16 p-6">
         <?php echo $__env->yieldContent('content'); ?>
     </main>
 
+    <!-- Mover scripts a la parte inferior para no bloquear el renderizado -->
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.2/dist/echo.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/alpinejs"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <?php if (isset($component)) { $__componentOriginal7e3af9f9379b6dbd6b75bdde727bb38d = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal7e3af9f9379b6dbd6b75bdde727bb38d = $attributes; } ?>
+<?php $component = App\View\Components\NotifyMessages::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('notify-messages'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\NotifyMessages::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal7e3af9f9379b6dbd6b75bdde727bb38d)): ?>
+<?php $attributes = $__attributesOriginal7e3af9f9379b6dbd6b75bdde727bb38d; ?>
+<?php unset($__attributesOriginal7e3af9f9379b6dbd6b75bdde727bb38d); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal7e3af9f9379b6dbd6b75bdde727bb38d)): ?>
+<?php $component = $__componentOriginal7e3af9f9379b6dbd6b75bdde727bb38d; ?>
+<?php unset($__componentOriginal7e3af9f9379b6dbd6b75bdde727bb38d); ?>
+<?php endif; ?>
+    <?php echo notifyJs(); ?>
 
     <script>
-        // Toggle sidebar en pantallas pequeñas
-        document.getElementById('sidebarToggle').addEventListener('click', function () {
-            document.getElementById('sidebar').classList.toggle('hidden');
-        });
-
-        // Toggle Dropdown de usuario
-        document.getElementById('userMenuButton').addEventListener('click', function () {
-            document.getElementById('userDropdown').classList.toggle('hidden');
-        });
-
-        // Cierra el menú si haces clic fuera de él
         document.addEventListener('click', function (event) {
-            let dropdown = document.getElementById('userDropdown');
-            let button = document.getElementById('userMenuButton');
-            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
-                dropdown.classList.add('hidden');
+            let notifDropdown = document.getElementById('dropdownNotificaciones');
+            let notifButton = document.getElementById('notificacionesButton');
+
+            if (!notifDropdown.contains(event.target) && !notifButton.contains(event.target)) {
+                notifDropdown.classList.add('hidden');
             }
         });
     </script>
-
-    <script src="https://unpkg.com/feather-icons"></script>
-    <script>
-        feather.replace();
-    </script>
-
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- jQuery (si lo necesitas) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Incluye Heroicons desde CDN si no estás usando Laravel Mix o Vite -->
-    <script src="https://unpkg.com/feather-icons"></script>
-
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script src="//unpkg.com/alpinejs" defer></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <!-- Agregar el JS de Flatpickr -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
-
-
 
 </body>
 

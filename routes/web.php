@@ -106,9 +106,16 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
     Route::post('vacaciones/addComentario/{vacacion}', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
-    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
-    Route::get('/notificaciones/{id}/leer', [NotificacionController::class, 'leerNotificacion'])
-        ->name('notificaciones.leer');
+
+
+    Route::get('/notificaciones/permisos', [NotificacionController::class, 'indexPermisos'])
+        ->name('notificaciones.indexpermisos');
+
+    Route::get('/notificaciones/vacaciones', [NotificacionController::class, 'indexVacaciones'])
+        ->name('notificaciones.indexvacaciones');
+
+
+    Route::post('/notificaciones/marcar-como-leida', [NotificacionController::class, 'marcarComoLeida'])->name('notificaciones.marcarComoLeida');
 
 
 
@@ -178,6 +185,18 @@ Route::middleware(['auth', 'isAdmin'])->prefix('supervisor')->name('supervisor.'
     Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
+
+
+    Route::get('/notificaciones/permisos', [NotificacionController::class, 'indexPermisos'])
+        ->name('notificaciones.permisos');
+
+    Route::get('/notificaciones/vacaciones', [NotificacionController::class, 'indexVacaciones'])
+        ->name('notificaciones.vacaciones');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notificaciones/{id}/leer', [NotificacionController::class, 'leerNotificacion'])
+        ->name('notificaciones.leer');
 });
 
 
@@ -213,6 +232,9 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'declinar'])->name('vacaciones.declinar');
 
-    Route::get('notificaciones', [NotificacionController::class, 'index'])->name('empleado.notificaciones');
+    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+
+    Route::get('/notificaciones/{id}/leer', [NotificacionController::class, 'leerNotificacion'])
+        ->name('notificaciones.leer');
 });
 

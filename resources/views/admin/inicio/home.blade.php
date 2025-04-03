@@ -1,7 +1,28 @@
-{{-- resources/views/admin/inicio/home.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
+
+    <x-notify-messages :messages="session('notify', [])" />
+
+    <script>
+        // Cerrar las notificaciones después de un tiempo
+        document.addEventListener('DOMContentLoaded', function () {
+            const notifications = document.querySelectorAll('.notify');
+            notifications.forEach((notification) => {
+                setTimeout(() => {
+                    // Cambiar la opacidad a 0 para iniciar el desvanecimiento
+                    notification.style.opacity = 0;
+
+                    // Después de 3 segundos (para que coincida con la duración de la transición de opacidad)
+                    setTimeout(() => {
+                        notification.remove();  // Eliminar el elemento después de la animación
+                    }, 3000);  // 3 segundos, asegurando que la animación de opacidad termine primero
+                }, 5000); // Espera 5 segundos antes de comenzar la animación de desvanecimiento
+            });
+        });
+
+
+    </script>
 
     <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         <div class="bg-blue-500 text-white p-6 rounded-lg">
@@ -68,5 +89,4 @@
             @endif
         </div>
     </div>
-
 @endsection

@@ -2,51 +2,107 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Empleado;
+use App\Models\Vacacion;
+use App\Models\Permiso;
 
 class NotificacionController extends Controller
 {
-    // Método que muestra las notificaciones
-    public function index()
+    public function indexPermisos()
     {
-        $usuario = auth()->user(); // Obtener el usuario autenticado
+        $usuario = auth()->user();
 
-        // Obtener todas las notificaciones del usuario pero filtrando solo las de estado 'pendiente' o 'pendientes_aprobacion' y no leídas
-        $notificaciones = $usuario->notifications->filter(function ($notificacion) {
-            // Asegúrate de que la notificación tiene un 'estado', que esté en los estados deseados y que no esté leída
-            return isset($notificacion->data['estado']) && in_array($notificacion->data['estado'], ['pendiente', 'pendientes_aprobacion']) && !$notificacion->read_at;
-        });
-
-        // Redirigir a la vista correspondiente según el rol
         if ($usuario->hasRole('admin')) {
-            return view('admin.notificaciones.index', compact('notificaciones'));
+            $permisos = $this->getPermisosAdmin();
+            return view('admin.notificaciones.indexpermisos', compact('permisos'));
         }
 
         if ($usuario->hasRole('supervisor')) {
-            return view('supervisor.notificaciones.index', compact('notificaciones'));
+            $permisos = $this->getPermisosSupervisor($usuario);
+            return view('supervisor.notificaciones.indexpermisos', compact('permisos'));
         }
-
-        if ($usuario->hasRole('empleado')) {
-            return view('empleado.notificaciones.index', compact('notificaciones'));
-        }
-
-        // Si no tiene un rol asignado, redirigir o mostrar un error
-        return redirect()->route('home');
     }
 
+    public function indexVacaciones()
+    {
+        $usuario = auth()->user();
 
-    // Método que marca la notificación como leída y redirige
+        if ($usuario->hasRole('admin')) {
+            $vacaciones = $this->getVacacionesAdmin();
+            return view('admin.notificaciones.indexvacaciones', compact('vacaciones'));
+        }
+
+        if ($usuario->hasRole('supervisor')) {
+            $vacaciones = $this->getVacacionesSupervisor($usuario);
+            return view('supervisor.notificaciones.indexvacaciones', compact('vacaciones'));
+        }
+    }
+
+    private function getPermisosAdmin()
+    {
+        return Permiso::whereIn('estado', ['pendiente', 'pendientes_aprobacion'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
+    }
+
+    private function getVacacionesAdmin()
+    {
+        return Vacacion::whereIn('estado', ['pendiente', 'pendientes_aprobacion'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
+    }
+
+    private function getPermisosSupervisor($usuario)
+    {
+        $empleados = Empleado::where('supervisor_id', $usuario->id)->pluck('id');
+        return Permiso::whereIn('empleado_id', $empleados)
+            ->whereIn('estado', ['pendiente', 'pendientes_aprobacion'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    private function getVacacionesSupervisor($usuario)
+    {
+        $empleados = Empleado::where('supervisor_id', $usuario->id)->pluck('id');
+        return Vacacion::whereIn('empleado_id', $empleados)
+            ->whereIn('estado', ['pendiente', 'pendientes_aprobacion'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
     public function leerNotificacion($id)
     {
         $usuario = auth()->user();
         $notificacion = $usuario->notifications()->find($id);
 
         if ($notificacion) {
-            // Solo marcar como leída esta notificación
             $notificacion->markAsRead();
+
+            // Verifica ambos nombres de campos o estandariza a 'url'
+            if (isset($notificacion->data['url'])) {
+                return redirect($notificacion->data['url'])->with('success', 'Notificación marcada como leída.');
+            } elseif (isset($notificacion->data['link'])) {
+                return redirect($notificacion->data['link'])->with('success', 'Notificación marcada como leída.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'No se encontró la notificación.');
         }
 
-        // Redirigir a la vista admin.vacaciones.index después de marcarla como leída
-        return redirect()->route('admin.vacaciones.index');
+        return $this->redirectByRole($usuario);
     }
 
+    private function redirectByRole($usuario)
+    {
+        if ($usuario->hasRole('admin')) {
+            return redirect()->route('admin.vacaciones.index')->with('success', 'Notificación marcada como leída.');
+        }
+        if ($usuario->hasRole('supervisor')) {
+            return redirect()->route('supervisor.vacaciones.index')->with('success', 'Notificación marcada como leída.');
+        }
+        if ($usuario->hasRole('empleado')) {
+            return redirect()->route('empleado.notificaciones.index')->with('success', 'Notificación marcada como leída.');
+        }
+
+        return redirect()->route('home')->with('info', 'Notificación marcada como leída.');
+    }
 }

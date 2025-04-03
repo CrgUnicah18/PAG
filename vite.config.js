@@ -8,4 +8,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        host: 'pag.test', // Tu dominio personalizado
+        port: 5173, // Puerto que Vite usará
+        https: false, // Cambia a true si usas HTTPS
+    },
 });

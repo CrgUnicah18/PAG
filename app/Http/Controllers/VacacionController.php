@@ -295,7 +295,9 @@ class VacacionController extends Controller
                 $admins = User::role('admin')->get();
                 foreach ($admins as $admin) {
                     if (!$admin->notifications()->where('data->link', $vacacion->id)->exists()) {
-                        $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+                        // Notificar en cola
+                        Notification::send($admins, (new SolicitudPermisoNotificacion($vacacion))->delay(now()->addSeconds(2)));
+
                     }
                 }
 
@@ -343,7 +345,9 @@ class VacacionController extends Controller
                 $admins = User::role('admin')->get();
                 foreach ($admins as $admin) {
                     if (!$admin->notifications()->where('data->link', $vacacion->id)->exists()) {
-                        $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+                        // Notificar en cola
+                        Notification::send($admins, (new SolicitudPermisoNotificacion($vacacion))->delay(now()->addSeconds(2)));
+
                     }
                 }
 
@@ -363,7 +367,7 @@ class VacacionController extends Controller
                 $vacacion = Vacacion::create([
                     'empleado_id' => $request->empleado_id,
                     'fecha_inicio' => $fechaInicio->toDateString(),
-                    'fecha_fin' => $fechaFinl->toDateString(),
+                    'fecha_fin' => $fechaFin->toDateString(),
                     'duracion_dias' => $diasParaSolicitar,
                     'estado' => 'pendiente', // Estado pendiente para que no pase a aprobado
                     'tipo_permiso_id' => $request->tipo_permiso_id,
@@ -385,7 +389,9 @@ class VacacionController extends Controller
                 // Enviar notificación a todos los administradores
                 $admins = User::role('admin')->get(); // Obtener todos los admins
                 foreach ($admins as $admin) {
-                    $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+                    // Notificar en cola
+                    Notification::send($admins, (new SolicitudPermisoNotificacion($vacacion))->delay(now()->addSeconds(2)));
+
                 }
             }
 
@@ -421,7 +427,9 @@ class VacacionController extends Controller
             // Enviar notificación a todos los administradores
             $admins = User::role('admin')->get(); // Obtener todos los admins
             foreach ($admins as $admin) {
-                $admin->notify(new SolicitudPermisoNotificacion($vacacion));
+                // Notificar en cola
+                Notification::send($admins, (new SolicitudPermisoNotificacion($vacacion))->delay(now()->addSeconds(2)));
+
             }
 
             return redirect()->route('empleado.vacaciones.index')->with('success', 'Solicitud de vacaciones enviada correctamente.');
@@ -579,6 +587,8 @@ class VacacionController extends Controller
                     // Cambiar estado a rechazadas
                     $vacacion->estado = 'rechazadas';
                     $vacacion->save();
+                    // Notificar al empleado sobre el estado de la solicitud
+                    $vacacion->empleado->user->notify(new EstadoSolicitudNotificacion($vacacion, 'rechazadas'));
 
                     return redirect()->route('supervisor.vacaciones.index')
                         ->with('success', 'Vacaciones rechazadas exitosamente por el supervisor.');

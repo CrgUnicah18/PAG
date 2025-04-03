@@ -6,9 +6,10 @@
 <aside
     class="<?php echo e($bgColor); ?> text-white w-64 h-screen fixed top-0 left-0 flex flex-col z-20 lg:w-64 sm:w-full  sm:fixed sm:top-0 sm:left-0">
     <!-- Sección de la imagen (bloque superior) -->
-    <!--<div class="p-4 text-center border-b-4" style="border-color: rgb(196, 112, 48);">
-        <img src="<?php echo e(asset('images/logopag2.png')); ?>" alt="Logo de Aldea Global" class="mx-auto w-32 h-auto">
-    </div>>-->
+    <div class="p-4 text-center border-b-4" style="border-color: rgb(196, 112, 48);">
+        <img src="<?php echo e(asset('images/logopag2.png')); ?>" alt="Logo de Aldea Global" class="mx-auto w-32 h-auto"
+            loading="lazy">
+    </div>
 
     <!-- Sección de navegación (bloque inferior) -->
     <nav class="flex-1 p-4">

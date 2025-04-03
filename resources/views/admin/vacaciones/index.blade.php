@@ -18,21 +18,21 @@
             <!-- Asignar Vacaciones (usamos icono "plus-circle" que sí carga bien) -->
             <button type="button" onclick="openVacacionesModal()"
                 class="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-lg px-4 py-2 shadow-sm transition duration-300">
-                <i data-feather="plus-circle" class="w-4 h-4"></i>
+                <i class="fas fa-users w-4 h-4"></i>
                 <span>Asignar</span>
             </button>
 
             <!-- Solicitar Vacaciones (edit-3 funciona bien) -->
             <a href="{{ route('admin.vacaciones.create') }}"
                 class="flex items-center gap-2 text-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 rounded-lg px-4 py-2 shadow-sm transition duration-300">
-                <i data-feather="edit-3" class="w-4 h-4"></i>
+                <i class="fas fa-plus w-4 h-4"></i>
                 <span>Solicitar</span>
             </a>
 
             <!-- Generar Reporte (file-text funciona bien) -->
             <a href="{{ route('admin.vacaciones.reporte') }}"
                 class="flex items-center gap-2 text-sm text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-lg px-4 py-2 shadow-sm transition duration-300">
-                <i data-feather="file-text" class="w-4 h-4"></i>
+                <i class="fas fa-list w-4 h-4"></i>
                 <span>Reporte</span>
             </a>
         </div>

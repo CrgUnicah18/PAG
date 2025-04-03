@@ -126,7 +126,7 @@ class EmpleadoController extends Controller
             'documento_contrato.mimes' => 'El documento del contrato debe ser un archivo PDF, DOC o DOCX.',
             'dn.required' => 'El DNI es obligatorio.',
             'dn.max' => 'El DNI no puede tener más de 15 caracteres.',
-            'dn_file.required' => 'El archivo del DNI es obligatorio.',
+            'dn_file.required' => 'La fotografia del DNI es obligatorio.',
             'dn_file.mimes' => 'El archivo del DNI debe ser un archivo PDF, JPEG, JPG o PNG.',
         ]);
 

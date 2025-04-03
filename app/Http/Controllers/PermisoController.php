@@ -8,6 +8,11 @@ use App\Models\TipoPermiso;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\PDF;
+use App\Notifications\SolicitudPermisosNotificacion;
+use Illuminate\Support\Facades\Notification;
+use App\Models\User;
+use App\Events\MyEvent;
+use App\Events\NotificacionCreada;
 
 class PermisoController extends Controller
 {
@@ -48,14 +53,50 @@ class PermisoController extends Controller
                         return $query->where('estado', $estado);
                     })
                     ->orderBy('created_at', 'desc')
-                    ->paginate(10);
+                    ->paginate(6);
+
+                // Calcular los días laborables para cada permiso
+                foreach ($permisosEmpleados as $permiso) {
+                    $fechaInicio = Carbon::parse($permiso->fecha_inicio);
+                    $fechaFin = Carbon::parse($permiso->fecha_fin);
+
+                    $diasLaborables = 0;
+                    $fechaAuxiliar = $fechaInicio->copy();
+
+                    while ($fechaAuxiliar->lte($fechaFin)) {
+                        if (!$fechaAuxiliar->isWeekend()) {
+                            $diasLaborables++;
+                        }
+                        $fechaAuxiliar->addDay();
+                    }
+
+                    $permiso->dias_laborables = $diasLaborables; // Agregar el cálculo al objeto
+                }
             } else {
                 $permisosEmpleados = collect();
             }
 
             $permisosSupervisor = Permiso::where('empleado_id', $empleado->id)
                 ->orderBy('created_at', 'desc')
-                ->paginate(10);
+                ->paginate(6);
+
+            // Calcular los días laborables para permisos del supervisor
+            foreach ($permisosSupervisor as $permiso) {
+                $fechaInicio = Carbon::parse($permiso->fecha_inicio);
+                $fechaFin = Carbon::parse($permiso->fecha_fin);
+
+                $diasLaborables = 0;
+                $fechaAuxiliar = $fechaInicio->copy();
+
+                while ($fechaAuxiliar->lte($fechaFin)) {
+                    if (!$fechaAuxiliar->isWeekend()) {
+                        $diasLaborables++;
+                    }
+                    $fechaAuxiliar->addDay();
+                }
+
+                $permiso->dias_laborables = $diasLaborables; // Agregar el cálculo al objeto
+            }
 
             return view('supervisor.permisos.index', compact('empleadosBajoSupervision', 'permisosSupervisor', 'permisosEmpleados', 'empleados'));
         }
@@ -64,9 +105,27 @@ class PermisoController extends Controller
         if ($user->hasRole('empleado')) {
             $permisosEmpleado = Permiso::where('empleado_id', $empleado->id)
                 ->orderBy('created_at', 'desc')
-                ->paginate(10);
+                ->get();
 
-            return view('empleado.permisos.index', compact('permisosEmpleado', 'empleados'));
+            // Calcular los días laborables para cada permiso
+            foreach ($permisosEmpleado as $permiso) {
+                $fechaInicio = Carbon::parse($permiso->fecha_inicio);
+                $fechaFin = Carbon::parse($permiso->fecha_fin);
+
+                $diasLaborables = 0;
+                $fechaAuxiliar = $fechaInicio->copy();
+
+                while ($fechaAuxiliar->lte($fechaFin)) {
+                    if (!$fechaAuxiliar->isWeekend()) {
+                        $diasLaborables++;
+                    }
+                    $fechaAuxiliar->addDay();
+                }
+
+                $permiso->dias_laborables = $diasLaborables; // Agregar el cálculo al objeto
+            }
+
+            return view('empleado.permisos.index', compact('permisosEmpleado'));
         }
 
         // ADMIN
@@ -86,13 +145,29 @@ class PermisoController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
-            return view('admin.permisos.index', compact('permisos', 'permisosAdmin', 'empleados', 'nombreEmpleado', 'estado'));
+            // Calcular los días laborables para cada permiso
+            foreach ($permisos as $permiso) {
+                $fechaInicio = Carbon::parse($permiso->fecha_inicio);
+                $fechaFin = Carbon::parse($permiso->fecha_fin);
+
+                $diasLaborables = 0;
+                $fechaAuxiliar = $fechaInicio->copy();
+
+                while ($fechaAuxiliar->lte($fechaFin)) {
+                    if (!$fechaAuxiliar->isWeekend()) {
+                        $diasLaborables++;
+                    }
+                    $fechaAuxiliar->addDay();
+                }
+
+                $permiso->dias_laborables = $diasLaborables; // Agregar el cálculo al objeto
+            }
+
+            return view('admin.permisos.index', compact('permisosAdmin', 'permisos', 'empleados', 'nombreEmpleado', 'estado'));
         }
 
         return redirect()->back()->with('error', 'No tienes acceso a esta sección.');
     }
-
-
 
     // FIXME: Mostrar el formulario para solicitar un permiso
     public function create()
@@ -130,10 +205,9 @@ class PermisoController extends Controller
         return redirect()->back()->with('error', 'No tienes acceso a esta sección.');
     }
 
-
-
     public function store(Request $request)
     {
+
         // Validar los campos de la solicitud
         $request->validate([
             'tipo_permiso_id' => 'required|exists:tipo_permisos,id',
@@ -190,7 +264,6 @@ class PermisoController extends Controller
             return redirect()->back()->with('error', 'Ya has alcanzado el límite de 15 permisos aprobados por año.');
         }
 
-
         // Si el tipo de permiso no es vacación, verificar duración
         if ($tipoPermiso && $tipoPermiso->es_vacacion == 0) {
             // Si fecha_fin está vacía, asignamos el mismo valor de fecha_inicio
@@ -213,26 +286,32 @@ class PermisoController extends Controller
                 $fechaAuxiliar->addDay();
             }
 
-            // Si la duración supera los días permitidos
-            $diasMaximos = $tipoPermiso->dias;
-            if ($diasDuracion > $diasMaximos) {
-                return redirect()->back()->with('error', 'El permiso no puede exceder los ' . $diasMaximos . ' días laborables.');
-            }
-
             // Ajustar la fecha de fin según la duración del permiso, considerando los días laborables
-            $diasRestantes = $diasDuracion;
-            $fechaFinAjustada = $fechaInicio;
+            $diasRestantes = $diasDuracion - 1; // Restamos 1 porque el día de inicio ya cuenta como un día laborable
+            $fechaFinAjustada = $fechaInicio->copy();
 
-            while ($diasRestantes > 0) {
-                $fechaFinAjustada->addDay(); // Avanzamos un día
-                if (!$fechaFinAjustada->isWeekend()) { // Si no es fin de semana
-                    $diasRestantes--;
+            if ($diasDuracion == 1) {
+                $fechaFinAjustada = $fechaInicio;
+            } else {
+                while ($diasRestantes > 0) {
+                    $fechaFinAjustada->addDay();
+                    if (!$fechaFinAjustada->isWeekend()) {
+                        $diasRestantes--;
+                    }
                 }
             }
 
             // Actualizar la fecha de fin en la solicitud
             $request->merge(['fecha_fin' => $fechaFinAjustada->format('Y-m-d')]);
+
+            /*dd([
+                'fecha_inicio' => $fechaInicio->format('Y-m-d'),
+                'fecha_fin' => $fechaFin->format('Y-m-d'),
+                'dias_duracion' => $diasDuracion,
+            ]);*/
         }
+
+        //dd($request->fecha_inicio, $request->fecha_fin);
 
         // Verificar si hay permisos pendientes o pendientes_aprobacion con fechas sobrepuestas
         $fechasSobrepuestas = Permiso::where('empleado_id', $empleado->id)
@@ -267,7 +346,6 @@ class PermisoController extends Controller
                 $archivoSubsidio = $archivo->storeAs('subsidios', $nombreArchivo, 'public');
             }
         }
-
         // Crear el nuevo permiso
         $permiso = new Permiso();
         $permiso->empleado_id = $empleado->id;
@@ -279,21 +357,49 @@ class PermisoController extends Controller
         $permiso->subsidio_archivo = $archivoSubsidio;
         $permiso->save();
 
-        // Redirigir según el rol del usuario
+        $mensaje = "Nueva solicitud de permiso de " . $empleado->nombre;
+        $url = route('admin.permisos.index'); // URL a la que redirigir después de la notificación
+
+        event(new MyEvent('hello world', "admin.permisos.index"));
+
+        // Obtener los administradores
+        $admins = User::role('admin')->get(); // Obtener todos los admins
+
+        // Obtener el supervisor del empleado (si tiene)
+        $supervisor = $empleado->supervisor ? $empleado->supervisor->user : null;
+
+        // Combinar los destinatarios en una colección
+        $destinatarios = $admins->concat($supervisor ? collect([$supervisor]) : collect())->unique('id');
+
+        // Enviar la notificación a los destinatarios
+        Notification::send($destinatarios, new SolicitudPermisosNotificacion($permiso));
+
+        // Redirigir según el rol del usuario y agregar notificación flash para admins
         if ($user->hasRole('supervisor')) {
+            session()->flash('notify', [
+                ['type' => 'success', 'message' => '¡Permiso Creado!'],
+            ]);
             return redirect()->route('supervisor.permisos.index')->with('success', 'Solicitud de permiso enviada.');
         }
+
         if ($user->hasRole('empleado')) {
+            session()->flash('notify', [
+                ['type' => 'success', 'message' => '¡Permiso Creado!'],
+            ]);
             return redirect()->route('empleado.permisos.index')->with('success', 'Solicitud de permiso enviada.');
         }
+
         if ($user->hasRole('admin')) {
+            session()->flash('notify', [
+                ['type' => 'success', 'message' => '¡Nueva solicitud de permiso creada!'],
+            ]);
+            event(new NotificacionCreada($mensaje, $url)); // Aquí puede ser tu evento de notificación adicional
             return redirect()->route('admin.permisos.index')->with('success', 'Solicitud de permiso enviada.');
         }
 
         return redirect()->back()->with('error', 'No tienes acceso para crear un permiso.');
+
     }
-
-
 
     // FIXME: Aprobar un permiso (Supervisor o Admin)
     public function aprobar($id)
@@ -329,7 +435,6 @@ class PermisoController extends Controller
         // Si no se cumplen las condiciones
         return redirect()->back()->with('error', 'Este permiso no puede ser aprobado en este momento.');
     }
-
 
     // Rechazar un permiso (Supervisor o Admin)
     public function declinar($id)
@@ -398,7 +503,6 @@ class PermisoController extends Controller
         // Redirigir con mensaje de éxito
         return redirect()->back()->with('success', 'Comentario guardado exitosamente.');
     }
-
 
     public function actualizarEstadoEmpleados()
     {
@@ -486,7 +590,6 @@ class PermisoController extends Controller
         return view('admin.permisos.reporte_pdf', compact('permisosAgrupados', 'empleado', 'empleadoId', 'tipoPermisoId', 'mes', 'anio', 'isPdf', 'permisos', 'totalPermisos', 'estado'));
     }
 
-
     public function descargarPDF(Request $request)
     {
 
@@ -540,15 +643,12 @@ class PermisoController extends Controller
         // Calcular el total general de permisos
         $totalPermisos = $permisos->count();
 
-
         // Generar el PDF con la vista
         $pdf = PDF::loadView('admin.permisos.pdf_reporte', compact('permisosAgrupados', 'empleado', 'mes', 'anio', 'empleadoId', 'tipoPermisoId', 'tiposPermiso', 'estado', 'totalPermisos'));
 
         // Descargar el PDF
         return $pdf->download('reporte_permisos.pdf');
     }
-
-
 
     public function listaSupervisor()
     {
@@ -566,4 +666,8 @@ class PermisoController extends Controller
         return view('empleado.permisos.lista', compact('tiposPermiso'));
     }
 
+    public function calcularDias($permiso)
+    {
+        return Carbon::parse($permiso->fecha_inicio)->diffInDays(Carbon::parse($permiso->fecha_fin)) + 1;
+    }
 }
