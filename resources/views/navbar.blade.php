@@ -55,6 +55,21 @@
             @endif
             @if(auth()->user()->hasRole('admin'))
                 <li>
+                    <a href="{{ route('admin.notificaciones.indexvacaciones') }}"
+                        class="block p-2 rounded-lg hover:bg-[rgb(255,255,255)] hover:text-black hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
+                        🔔 Notificaciones Vacaciones
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.notificaciones.indexpermisos') }}"
+                        class="block p-2 rounded-lg hover:bg-[rgb(255,255,255)] hover:text-black hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
+                        🔔 Notificaciones Permisos
+                    </a>
+                </li>
+            @endif
+
+            @if(auth()->user()->hasRole('admin'))
+                <li>
                     <a href="{{ route('admin.configuracion.index') }}"
                         class="block p-2 rounded-lg hover:bg-[rgb(255,255,255)] hover:text-black hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
                         ⚙️ Configuración

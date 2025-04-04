@@ -70,6 +70,12 @@
             font-size: 11px;
             color: #999;
         }
+
+        .totales {
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +95,9 @@
         <thead>
             <tr>
                 @foreach($camposSeleccionados as $campo)
-                    <th>{{ ucfirst(str_replace('_', ' ', $campo)) }}</th>
+                    @if ($campo !== 'vacaciones_restantes') <!-- Excluir vacaciones_restantes de la tabla -->
+                        <th>{{ ucfirst(str_replace('_', ' ', $campo)) }}</th>
+                    @endif
                 @endforeach
             </tr>
         </thead>
@@ -97,36 +105,57 @@
             @foreach($vacaciones as $vacacion)
                 <tr>
                     @foreach($camposSeleccionados as $campo)
-                        <td>
-                            @switch($campo)
-                                @case('empleado_id')
-                                    {{ $vacacion->empleado->nombre }}
-                                    @break
-                                @case('tipo_permiso_id')
-                                    {{ $vacacion->tipoPermiso->nombre }}
-                                    @break
-                                @case('fecha_inicio')
-                                    {{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('Y-m-d') }}
-                                    @break
-                                @case('fecha_fin')
-                                    {{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('Y-m-d') }}
-                                    @break
-                                @case('duracion_dias')
-                                    {{ $vacacion->duracion_dias }}
-                                    @break
-                                @case('estado')
-                                    {{ $vacacion->estado }}
-                                    @break
-                                @case('comentario')
-                                    {{ $vacacion->comentario }}
-                                    @break
-                            @endswitch
-                        </td>
+                        @if ($campo !== 'vacaciones_restantes') <!-- Excluir vacaciones_restantes de la tabla -->
+                            <td>
+                                @switch($campo)
+                                    @case('empleado_id')
+                                        {{ $vacacion->empleado->nombre . ' ' . $vacacion->empleado->apellido }}
+                                        @break
+                                    @case('tipo_permiso_id')
+                                        {{ $vacacion->tipoPermiso->nombre }}
+                                        @break
+                                    @case('fecha_inicio')
+                                        {{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('Y-m-d') }}
+                                        @break
+                                    @case('fecha_fin')
+                                        {{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('Y-m-d') }}
+                                        @break
+                                    @case('duracion_dias')
+                                        {{ $vacacion->duracion_dias }}
+                                        @break
+                                    @case('periodo')
+                                        {{ $vacacion->periodo }}
+                                        @break
+                                    @case('estado')
+                                        {{ $vacacion->estado }}
+                                        @break
+                                    @case('comentario')
+                                        {{ $vacacion->comentario }}
+                                        @break
+                                    @default
+                                        {{ $vacacion->$campo ?? 'N/A' }}
+                                @endswitch
+                            </td>
+                        @endif
                     @endforeach
                 </tr>
             @endforeach
         </tbody>
     </table>
+
+    <!-- Mostrar los totales fuera de la tabla -->
+    <div class="totales">
+        <!-- Total de Vacaciones Restantes -->
+        @if ($empleadoSeleccionado) <!-- Mostrar solo si se seleccionó un empleado específico -->
+            Total de Vacaciones Restantes: 
+            {{ $vacaciones->first()->empleado->vacaciones_restantes ?? 'N/A' }}
+            <br>
+        @endif
+
+        <!-- Total de Vacaciones Aprobadas -->
+        Total de Vacaciones Aprobadas (Duración en días): 
+        {{ $vacaciones->where('estado', 'aprobadas')->sum('duracion_dias') }}
+    </div>
 
     <div class="footer">
         <p>Reporte generado automáticamente por el Sistema de Recursos Humanos - Aldea Global.</p>

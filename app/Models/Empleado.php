@@ -37,6 +37,7 @@ class Empleado extends Model
         'dn',
         'dn_file',
         'supervisor_id',
+        'cargo',
     ];
     // Relación con Oficina
     public function oficina()
@@ -84,31 +85,43 @@ class Empleado extends Model
 
     public function calcularBalanceVacaciones()
     {
-        $fechaIngreso = new DateTime($this->fecha_ingreso);
-        $fechaActual = new DateTime();
-        $intervalo = $fechaIngreso->diff($fechaActual);
-        $anosTrabajados = $intervalo->y;
+        $fechaIngreso = Carbon::parse($this->fecha_ingreso); // Fecha de ingreso del empleado
+        $fechaActual = Carbon::now(); // Fecha actual
+        $diasTotales = 0; // Total de días legales que puede tomar en el año
+        $vacacionesRestantes = 0; // Días disponibles acumulados o completos
+
+        // Calcular los años trabajados
+        $anosTrabajados = $fechaIngreso->diffInYears($fechaActual);
 
         \Log::info("Años trabajados: " . $anosTrabajados);
 
-        // Calcular los días totales de vacaciones según los años trabajados
+        // Lógica según los años trabajados
         if ($anosTrabajados < 1) {
-            $mesIngreso = (int) $fechaIngreso->format('n');
-            $mesesRestantesDelAno = 12 - $mesIngreso;
-            $vacacionesProporcionales = round(($mesesRestantesDelAno / 12) * 10);
-            $diasTotales = 10;
-            $vacacionesRestantes = $vacacionesProporcionales;
+            // Empleado con menos de un año de trabajo
+            $mesIngreso = $fechaIngreso->month; // Mes de ingreso
+            $mesActual = $fechaActual->month; // Mes actual
+            $mesesTrabajados = $mesActual - $mesIngreso; // Meses trabajados desde el ingreso
+            $mesesRestantesDelAno = 12 - $mesIngreso; // Meses restantes del año desde el ingreso
+
+            // Vacaciones proporcionales hasta diciembre
+            $diasTotales = round(($mesesRestantesDelAno / 12) * 10); // Total de días legales hasta diciembre
+            $vacacionesRestantes = round(($mesesTrabajados / 12) * 10); // Días acumulados hasta el mes actual
+
+            \Log::info("Meses trabajados: " . $mesesTrabajados);
+            \Log::info("Meses restantes del año: " . $mesesRestantesDelAno);
+            \Log::info("Vacaciones proporcionales acumuladas: " . $vacacionesRestantes);
         } elseif ($anosTrabajados >= 1 && $anosTrabajados < 2) {
-            $diasTotales = 10;
-            $vacacionesRestantes = $diasTotales;
+            // Empleado con 1 año de trabajo
+            $diasTotales = 10; // Vacaciones completas
+            $vacacionesRestantes = $diasTotales; // Disponibilidad completa
         } elseif ($anosTrabajados >= 2 && $anosTrabajados < 3) {
-            $diasTotales = 12;
+            $diasTotales = 12; // Vacaciones completas
             $vacacionesRestantes = $diasTotales;
         } elseif ($anosTrabajados >= 3 && $anosTrabajados < 4) {
-            $diasTotales = 15;
+            $diasTotales = 15; // Vacaciones completas
             $vacacionesRestantes = $diasTotales;
         } else {
-            $diasTotales = 20;
+            $diasTotales = 20; // Vacaciones completas
             $vacacionesRestantes = $diasTotales;
         }
 
@@ -142,8 +155,9 @@ class Empleado extends Model
 
         \Log::info("Vacaciones Restantes después de la resta: " . $vacacionesRestantes);
 
+        // Actualizar los campos del modelo
         $this->vacaciones_restantes = $vacacionesRestantes;
-        $this->vacaciones_tomadas = $diasTotales;
+        $this->vacaciones_tomadas = $diasTotales; // Total de días legales del año
         $this->save();
 
         return [
@@ -151,10 +165,6 @@ class Empleado extends Model
             'vacaciones_tomadas' => $diasTotales,
         ];
     }
-
-
-
-
 
     public function restaurarVacaciones($dias)
     {

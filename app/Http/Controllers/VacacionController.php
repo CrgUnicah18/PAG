@@ -139,6 +139,7 @@ class VacacionController extends Controller
 
     public function store(Request $request)
     {
+        $currentYear = date('Y');
         // Validación común para todos los tipos de solicitud de vacaciones
         $validated = $request->validate(
             [
@@ -183,6 +184,11 @@ class VacacionController extends Controller
         // Si la fecha de fin está vacía, asignamos la fecha de inicio
         if (empty($request->fecha_fin)) {
             $request->merge(['fecha_fin' => $request->fecha_inicio]);
+        }
+        // Cálculo del día de reintegro automático
+        $reintegro = $fechaFin->copy()->addDay();
+        while ($reintegro->isWeekend()) {
+            $reintegro->addDay();
         }
 
         // Calcular la duración de las vacaciones solo contando los días laborables
@@ -267,6 +273,8 @@ class VacacionController extends Controller
                         'estado' => 'pendiente',
                         'tipo_permiso_id' => $request->tipo_permiso_id,
                         'comentario' => $request->comentario,
+                        'periodo' => $request->periodo,
+                        'reintegro' => $reintegro->toDateString(),
                     ]);
                     // Antes de actualizar las fechas y días restantes, realizamos un debugging
 
@@ -318,6 +326,8 @@ class VacacionController extends Controller
                         'estado' => 'aprobadas',
                         'tipo_permiso_id' => $request->tipo_permiso_id,
                         'comentario' => $request->comentario,
+                        'periodo' => $request->periodo,
+                        'reintegro' => $reintegro->toDateString(),
                     ]);
 
                     // Actualizar las fechas y días restantes
@@ -372,6 +382,8 @@ class VacacionController extends Controller
                     'estado' => 'pendiente', // Estado pendiente para que no pase a aprobado
                     'tipo_permiso_id' => $request->tipo_permiso_id,
                     'comentario' => $request->comentario,
+                    'periodo' => $request->periodo,
+                    'reintegro' => $reintegro->toDateString(),
                 ]);
 
                 // Actualizar las fechas y días restantes
@@ -413,6 +425,8 @@ class VacacionController extends Controller
                     'estado' => 'pendiente',
                     'tipo_permiso_id' => $request->tipo_permiso_id,
                     'comentario' => $request->comentario,
+                    'periodo' => $request->periodo,
+                    'reintegro' => $reintegro->toDateString(),
                 ]);
 
                 // Actualizar las fechas y días restantes
@@ -683,7 +697,7 @@ class VacacionController extends Controller
     // Generar el reporte según los filtros seleccionados
     public function generarReporte(Request $request)
     {
-        $query = Vacacion::query();
+        $query = Vacacion::with('empleado'); // Cargar la relación con Empleado
 
         // Si se seleccionó un empleado, filtrar por empleado
         if ($request->filled('empleado_id')) {
@@ -697,11 +711,17 @@ class VacacionController extends Controller
 
         // Si se seleccionó un estado, filtrar por estado
         if ($request->filled('estado')) {
-            $query->whereIn('estado', $request->estado); // Cambié `where` por `whereIn` para múltiples estados
+            $query->whereIn('estado', $request->estado);
         }
 
         // Obtener los resultados de las vacaciones con paginación
         $vacaciones = $query->paginate(10);
+
+        // Concatenar el nombre completo del empleado
+        $vacaciones->map(function ($vacacion) {
+            $vacacion->empleado->nombre_completo = $vacacion->empleado->nombre . ' ' . $vacacion->empleado->apellido;
+            return $vacacion;
+        });
 
         // Campos seleccionados para mostrar en el reporte
         $camposSeleccionados = $request->input('campos', [
@@ -711,7 +731,10 @@ class VacacionController extends Controller
             'duracion_dias',
             'estado',
             'tipo_permiso_id',
-            'comentario'
+            'comentario',
+            'vacaciones_restantes', // Campo de la tabla Empleado
+            'vacaciones_tomadas',   // Campo de la tabla Empleado
+            'periodo', // Campo de la tabla Vacacion
         ]);
 
         // Pasar los resultados a la vista
@@ -721,14 +744,13 @@ class VacacionController extends Controller
 
     public function exportarPDF(Request $request)
     {
-        // Aplicar los filtros de la misma manera que en generarReporte
-        $query = Vacacion::query();
+        $query = Vacacion::with('empleado'); // Cargar la relación con Empleado
 
         $empleadoSeleccionado = null;
         if ($request->filled('empleado_id')) {
             $empleadoSeleccionado = Empleado::find($request->empleado_id);
+            $query->where('empleado_id', $request->empleado_id);
         }
-
 
         if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
             $query->whereBetween('fecha_inicio', [$request->fecha_inicio, $request->fecha_fin]);
@@ -738,8 +760,14 @@ class VacacionController extends Controller
             $query->whereIn('estado', $request->estado);
         }
 
-        // Obtener las vacaciones filtradas con paginación
-        $vacaciones = $query->get(); // Usamos paginación aquí
+        // Obtener las vacaciones filtradas
+        $vacaciones = $query->get();
+
+        // Concatenar el nombre completo del empleado
+        $vacaciones->map(function ($vacacion) {
+            $vacacion->empleado->nombre_completo = $vacacion->empleado->nombre . ' ' . $vacacion->empleado->apellido;
+            return $vacacion;
+        });
 
         // Obtener los campos seleccionados, o usar valores predeterminados
         $camposSeleccionados = $request->input('campos', [
@@ -749,17 +777,18 @@ class VacacionController extends Controller
             'duracion_dias',
             'estado',
             'tipo_permiso_id',
-            'comentario'
+            'comentario',
+            'vacaciones_restantes', // Campo de la tabla Empleado
+            'vacaciones_tomadas',   // Campo de la tabla Empleado
+            'periodo', // Campo de la tabla Vacacion
         ]);
 
-        // Pasar los datos a la vista para generar el PDF
         // Generar el PDF usando la vista exclusiva con los campos seleccionados
         $pdf = PDF::loadView('admin.vacaciones.reporte_pdf', [
             'vacaciones' => $vacaciones,
             'camposSeleccionados' => $camposSeleccionados,
-            'empleadoSeleccionado' => $empleadoSeleccionado ?? null, // le pasás null si no hay filtro por empleado
+            'empleadoSeleccionado' => $empleadoSeleccionado,
         ]);
-
 
         // Descargar el PDF
         return $pdf->download('reporte_vacaciones.pdf');
@@ -768,6 +797,7 @@ class VacacionController extends Controller
 
     public function exportarExcel(Request $request)
     {
+        // Concatenar el nombre completo del empleado en la clase VacacionesExport
         return Excel::download(new VacacionesExport($request), 'reporte_vacaciones.xlsx');
     }
 

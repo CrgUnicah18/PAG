@@ -68,6 +68,9 @@ class EmpleadosExportExcel implements FromCollection, WithHeadings, WithMapping,
             'tipo_contrato' => 'Tipo de Contrato',
             'rol' => 'Rol',
             'email' => 'Email',
+            'cargo' => 'Cargo',
+            'vacaciones_tomadas' => 'Vacaciones Tomadas',
+            'vacaciones_restantes' => 'Vacaciones Restantes',
         ];
 
         return array_map(function ($campo) use ($nombres) {
@@ -207,6 +210,9 @@ class EmpleadosExportExcel implements FromCollection, WithHeadings, WithMapping,
             'tipo_contrato' => 'Tipo de Contrato',
             'rol' => 'Rol',
             'email' => 'Email',
+            'cargo' => 'Cargo',
+            'vacaciones_tomadas' => 'Vacaciones Tomadas',
+            'vacaciones_restantes' => 'Vacaciones Restantes',
         ];
 
         return $nombres[$campo] ?? $campo;

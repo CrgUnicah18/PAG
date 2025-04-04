@@ -18,6 +18,8 @@
 
     <!-- Incluir fuente de Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
     <link rel="icon" href="<?php echo e(asset('favicon.ico')); ?>" type="image/x-icon">
 
 
@@ -107,6 +109,98 @@
             position: absolute;
             top: 100%;
             /* Esto asegura que el dropdown siempre se despliegue hacia abajo */
+        }
+
+        .toggle-switch {
+            appearance: none;
+            width: 2.5rem;
+            height: 1.4rem;
+            background: #d1d5db;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .toggle-switch:checked {
+            background: #3b82f6;
+        }
+
+        .toggle-switch::before {
+            content: "";
+            position: absolute;
+            width: 1.1rem;
+            height: 1.1rem;
+            background: white;
+            border-radius: 50%;
+            top: 0.15rem;
+            left: 0.2rem;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch:checked::before {
+            transform: translateX(1.1rem);
+        }
+
+        /* Estilo para el switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            margin-right: 10px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #38b2ac;
+            /* Color teal (Tailwind: teal-500) */
+        }
+
+        input:focus+.slider {
+            box-shadow: 0 0 1px #38b2ac;
+        }
+
+        input:checked+.slider::before {
+            transform: translateX(22px);
+        }
+
+        /* Estilo para el slider redondo */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round::before {
+            border-radius: 50%;
         }
     </style>
 

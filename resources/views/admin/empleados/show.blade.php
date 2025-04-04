@@ -13,9 +13,17 @@
             <h4 class="mt-4 text-center text-xl font-semibold text-gray-900">{{ $empleado->nombre }}
                 {{ $empleado->apellido }}
             </h4>
+            <h4 class="mt-4 text-center text-xl font-semibold text-gray-900">{{ $empleado->cargo }}
+            </h4>
             <div class="mt-6 bg-gray-50 p-4 rounded-lg shadow-inner">
                 <table class="w-full text-gray-800 text-sm">
                     <tbody>
+                        <tr class="border-b">
+                            <th class="text-left py-2 font-semibold">Correo Electrónico</th>
+                            <td class="py-2">
+                                {{ $empleado->user ? $empleado->user->email : 'No asignado' }}
+                            </td>
+                        </tr>
                         <tr class="border-b">
                             <th class="text-left py-2 font-semibold">DNI</th>
                             <td class="py-2">{{ $empleado->dn }}</td>

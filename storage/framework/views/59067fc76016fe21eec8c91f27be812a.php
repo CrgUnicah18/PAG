@@ -55,6 +55,21 @@
             <?php endif; ?>
             <?php if(auth()->user()->hasRole('admin')): ?>
                 <li>
+                    <a href="<?php echo e(route('admin.notificaciones.indexvacaciones')); ?>"
+                        class="block p-2 rounded-lg hover:bg-[rgb(255,255,255)] hover:text-black hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
+                        🔔 Notificaciones Vacaciones
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo e(route('admin.notificaciones.indexpermisos')); ?>"
+                        class="block p-2 rounded-lg hover:bg-[rgb(255,255,255)] hover:text-black hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
+                        🔔 Notificaciones Permisos
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if(auth()->user()->hasRole('admin')): ?>
+                <li>
                     <a href="<?php echo e(route('admin.configuracion.index')); ?>"
                         class="block p-2 rounded-lg hover:bg-[rgb(255,255,255)] hover:text-black hover:border-none hover:shadow-xl hover:no-underline transition-all duration-300">
                         ⚙️ Configuración

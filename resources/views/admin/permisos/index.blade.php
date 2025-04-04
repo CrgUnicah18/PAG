@@ -26,7 +26,7 @@
         });
     </script>
 
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-1 py-6">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-3xl font-semibold text-gray-800">Solicitudes de Permisos</h2>
             <div class="flex space-x-6"> <!-- Espacio entre los botones sin separarlos tanto -->
@@ -90,35 +90,39 @@
             <table class="min-w-full bg-white border border-gray-200">
                 <thead class="bg-indigo-600 text-white text-center">
                     <tr>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Empleado</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Tipo de Permiso</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Fechas</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Días</th> <!-- Nueva columna -->
-                        <th class="px-6 py-3 text-left text-sm font-medium">Estado</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Comentario</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Acciones</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Empleado</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Cargo</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Tipo de Permiso</th>
+                        <th class="px-600 py-4 text-left text-sm font-medium">Fechas</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Días</th> <!-- Nueva columna -->
+                        <th class="px-8 py-4 text-left text-sm font-medium">Reintegro</th> <!-- Nueva columna -->
+                        <th class="px-8 py-4 text-left text-sm font-medium">Estado</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Comentario</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($permisos as $permiso)
                         <tr class="border-b border-gray-200">
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $permiso->empleado->nombre }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $permiso->tipoPermiso->nombre }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $permiso->fecha_inicio }} - {{ $permiso->fecha_fin }}
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->empleado->nombre . " " . $permiso->empleado->apellido }}</td>
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->empleado->cargo }}</td>
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->tipoPermiso->nombre }}</td>
+                            <td class="px-600 py-4 text-sm text-gray-700">{{ $permiso->fecha_inicio }} - {{ $permiso->fecha_fin }}
                             </td>
-                            <td class="px-4 py-3">{{ $permiso->dias_laborables }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
+                            <td class="px-8 py-4">{{ $permiso->dias_laborables }}</td>
+                            <td class="px-8 py-4">{{ $permiso->reintegro }}</td>
+                            <td class="px-8 py-4 text-sm text-gray-700">
                                 @if($permiso->estado == 'pendiente')
-                                    <span class="px-2 py-1 rounded-full text-white bg-yellow-500">Pendiente</span>
+                                    <span class="px-3 py-1 rounded-full text-white bg-yellow-500">Pendiente</span>
                                 @elseif($permiso->estado == 'pendiente_aprobacion')
-                                    <span class="px-2 py-1 rounded-full text-white bg-blue-500">Pendiente</span>
+                                    <span class="px-3 py-1 rounded-full text-white bg-blue-500">Pendiente</span>
                                 @elseif($permiso->estado == 'aprobado')
-                                    <span class="px-2 py-1 rounded-full text-white bg-green-500">Aprobado</span>
+                                    <span class="px-3 py-1 rounded-full text-white bg-green-500">Aprobado</span>
                                 @else
-                                    <span class="px-2 py-1 rounded-full text-white bg-red-500">Rechazado</span>
+                                    <span class="px-3 py-1 rounded-full text-white bg-red-500">Rechazado</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
+                            <td class="px-8 py-4 text-sm text-gray-600">
                                 @if($permiso->comentario)
                                     <div class="comment-container">
                                         {{-- Dividiendo los comentarios si es necesario para mayor claridad --}}

@@ -207,6 +207,7 @@ class PermisoController extends Controller
 
     public function store(Request $request)
     {
+        $currentYear = date('Y');
 
         // Validar los campos de la solicitud
         $request->validate([
@@ -274,6 +275,11 @@ class PermisoController extends Controller
             // Calcular la duración del permiso solo contando los días laborables
             $fechaInicio = Carbon::parse($request->fecha_inicio);
             $fechaFin = Carbon::parse($request->fecha_fin);
+
+            $reintegro = $fechaFin->copy()->addDay();
+            while ($reintegro->isWeekend()) {
+                $reintegro->addDay();
+            }
 
             $diasDuracion = 0;
             $fechaAuxiliar = $fechaInicio->copy();
@@ -354,7 +360,9 @@ class PermisoController extends Controller
         $permiso->fecha_fin = $request->fecha_fin;
         $permiso->estado = 'pendiente';
         $permiso->comentario = $request->comentario;
+        $permiso->periodo = $currentYear;  // Asignamos el año actual al campo periodo
         $permiso->subsidio_archivo = $archivoSubsidio;
+        $permiso->reintegro = $reintegro; // Asignar la fecha de reintegro
         $permiso->save();
 
         $mensaje = "Nueva solicitud de permiso de " . $empleado->nombre;

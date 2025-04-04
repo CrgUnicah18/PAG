@@ -97,6 +97,8 @@
                             <td>
                                 @if($campo == 'nombre')
                                     {{ $empleado->nombre }}
+                                @elseif($campo == 'dn')
+                                    {{ $empleado->dn }}
                                 @elseif($campo == 'apellido')
                                     {{ $empleado->apellido }}
                                 @elseif($campo == 'direccion')
@@ -119,6 +121,12 @@
                                     @endforeach
                                 @elseif($campo == 'email')
                                     {{ $empleado->email }}
+                                @elseif($campo == 'cargo')
+                                    {{ $empleado->cargo }}
+                                @elseif($campo == 'vacaciones_tomadas')
+                                    {{ $empleado->vacaciones_tomadas }}
+                                @elseif($campo == 'vacaciones_restantes')
+                                    {{ $empleado->vacaciones_restantes }}
                                 @endif
                             </td>
                         @endforeach

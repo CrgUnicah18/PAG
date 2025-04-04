@@ -30,6 +30,14 @@
                                 id="nombre" placeholder="Nombre del empleado" required
                                 oninput="this.value = this.value.toUpperCase()">
                         </div>
+                        <!-- Cargo -->
+                        <div class="col-md-6">
+                            <label for="cargo" class="form-label">Cargo <span class="text-red-500">*</span></label>
+                            <input type="text" name="cargo"
+                                class="form-control border-2 border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                id="cargo" placeholder="Cargo del empleado" required
+                                oninput="this.value = this.value.toUpperCase()">
+                        </div>
 
                         <!-- Campo de DN -->
                         <div class="col-md-6">
@@ -211,13 +219,38 @@
                         </select>
                     </div>
 
-
-                    <div class="row">
+                    <div class="flex justify-center gap-4 mt-6">
                         <!-- Botón de Enviar -->
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary w-100 py-2">Guardar Empleado</button>
-                        </div>
+                        <button type="submit" id="btn-submit"
+                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md inline-flex items-center transition-all duration-300">
+                            <svg id="spinner" class="animate-spin h-5 w-5 mr-2 hidden" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                            </svg>
+                            <span id="btn-text">Crear empleado</span>
+                        </button>
+
+                        <!-- Botón Cancelar -->
+                        <a href="{{ route('admin.empleados.index') }}"
+                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300">
+                            Cancelar
+                        </a>
                     </div>
+
+                    <script>
+                        const form = document.querySelector('form');
+                        const btn = document.getElementById('btn-submit');
+                        const spinner = document.getElementById('spinner');
+                        const btnText = document.getElementById('btn-text');
+
+                        form.addEventListener('submit', function () {
+                            btn.disabled = true;
+                            spinner.classList.remove('hidden');
+                            btnText.textContent = 'Guardando...';
+                        });
+                    </script>
+
                 </form>
             </div>
         </div>

@@ -33,6 +33,11 @@
                             required>
                     </div>
                     <div class="col-md-4">
+                        <label for="cargo" class="form-label">Cargo</label>
+                        <input type="text" class="form-control" name="cargo" value="{{ old('cargo', $empleado->cargo) }}"
+                            required>
+                    </div>
+                    <div class="col-md-4">
                         <label for="apellido" class="form-label">Apellido</label>
                         <input type="text" class="form-control" name="apellido"
                             value="{{ old('apellido', $empleado->apellido) }}" required>
@@ -144,7 +149,7 @@
                         @if($empleado->dn_file)
                             <div class="mt-2">
                                 <img src="{{ asset('empleados/img_contratos/' . $empleado->dn_file) }}" alt="Dni" width="100"
-                                    class="rounded">
+                                    class="rounded" value="{{ old('dn_file', $empleado->dn_file) }}">
                             </div>
                         @endif
                     </div>
