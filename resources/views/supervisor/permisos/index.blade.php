@@ -16,14 +16,14 @@
             <a href="{{ route('supervisor.permisos.create') }}"
                 class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition"
                 style="background-color: rgb(231, 173, 33); color: white; padding: 10px 20px; border: none; border-radius: 8px;">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <i class="fas fa-plus-circle w-5 h-5"></i>
                 Solicitar Permiso
             </a>
 
             {{-- Botón para ver lista de permisos --}}
             <a href="{{ route('supervisor.permisos.lista') }}"
                 class="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg shadow-md transition">
-                <i data-lucide="list" class="w-5 h-5"></i>
+                <i class="fas fa-list w-5 h-5"></i>
                 Ver Lista de tipos de permisos
             </a>
         </div>
@@ -59,6 +59,7 @@
                             <th class="py-2 px-4 border-b text-left">Tipo de Permiso</th>
                             <th class="py-2 px-4 border-b text-left">Fecha de Inicio</th>
                             <th class="py-2 px-4 border-b text-left">Fecha de Fin</th>
+                            <th class="py-2 px-4 border-b text-left">Días</th>
                             <th class="py-2 px-4 border-b text-left">Estado</th>
                             <th class="py-2 px-4 border-b text-left rounded-tr-lg">Acciones</th>
                         </tr>
@@ -73,6 +74,7 @@
                                 </td>
                                 <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}
                                 </td>
+                                <td class="py-2 px-4 border-b">{{ $permiso->dias_laborables }}</td>
                                 <td class="py-2 px-4 border-b">
                                     @if($permiso->estado == 'pendiente')
                                         <span class="badge bg-warning text-white">Pendiente</span>
@@ -129,6 +131,7 @@
                         <th class="py-2 px-4 border-b text-left">Tipo de Permiso</th>
                         <th class="py-2 px-4 border-b text-left">Fecha de Inicio</th>
                         <th class="py-2 px-4 border-b text-left">Fecha de Fin</th>
+                        <th class="py-2 px-4 border-b text-left">Días</th>
                         <th class="py-2 px-4 border-b text-left">Estado</th>
                         <th class="py-2 px-4 border-b text-left">Comentario</th>
                         <th class="py-2 px-4 border-b text-left rounded-tr-lg">Acciones</th>
@@ -144,6 +147,7 @@
                             </td>
                             <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}
                             </td>
+                            <td class="py-2 px-4 border-b">{{ $permiso->dias_laborables }}</td>
                             <td class="py-2 px-4 border-b">
                                 @if($permiso->estado == 'pendiente')
                                     <span class="badge bg-warning text-white">Pendiente</span>

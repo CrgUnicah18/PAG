@@ -18,21 +18,21 @@
             <!-- Asignar Vacaciones (usamos icono "plus-circle" que sí carga bien) -->
             <button type="button" onclick="openVacacionesModal()"
                 class="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-lg px-4 py-2 shadow-sm transition duration-300">
-                <i data-feather="plus-circle" class="w-4 h-4"></i>
+                <i class="fas fa-users w-4 h-4"></i>
                 <span>Asignar</span>
             </button>
 
             <!-- Solicitar Vacaciones (edit-3 funciona bien) -->
             <a href="{{ route('admin.vacaciones.create') }}"
                 class="flex items-center gap-2 text-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 rounded-lg px-4 py-2 shadow-sm transition duration-300">
-                <i data-feather="edit-3" class="w-4 h-4"></i>
+                <i class="fas fa-plus w-4 h-4"></i>
                 <span>Solicitar</span>
             </a>
 
             <!-- Generar Reporte (file-text funciona bien) -->
             <a href="{{ route('admin.vacaciones.reporte') }}"
                 class="flex items-center gap-2 text-sm text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-lg px-4 py-2 shadow-sm transition duration-300">
-                <i data-feather="file-text" class="w-4 h-4"></i>
+                <i class="fas fa-list w-4 h-4"></i>
                 <span>Reporte</span>
             </a>
         </div>
@@ -79,33 +79,39 @@
         </div>
 
         <!-- Tabla de Vacaciones -->
-        <table class="table table-hover table-bordered text-center rounded-lg shadow-md"
+        <table class="min-w-full bg-white border border-gray-200 overflow-x-auto shadow-md sm:rounded-lg mb-6"
             style="background-color: rgb(255, 255, 255);">
-            <thead style="background-color: rgb(36, 94, 167);" class="text-white">
+            <thead style="background-color: rgb(36, 94, 167);" class="text-white text-center">
                 <tr>
-                    <th class="rounded-tl-lg">Empleado</th>
-                    <th>Fecha Inicio</th>
-                    <th>Fecha Fin</th>
-                    <th>Duración</th>
-                    <th>Estado</th>
-                    <th>Comentario</th>
-                    <th class="rounded-tr-lg">Acciones</th>
+                    <th class="rounded-tl-lg px-8 py-4 text-left text-sm font-medium">Empleado</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium">Fecha Inicio</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium">Fecha Fin</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium">Duración</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium">Periodo</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium">Estado</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium">Reintegro</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium">Comentario</th>
+                    <th class="px-8 py-4 text-left text-sm font-medium rounded-tr-lg">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($vacacionesGenerales as $vacacion)
-                        <tr>
-                            <td>{{ $vacacion->empleado->nombre }} {{ $vacacion->empleado->apellido }}</td>
-                            <td>{{ $vacacion->fecha_inicio }}</td>
-                            <td>{{ $vacacion->fecha_fin }}</td>
-                            <td>{{ $vacacion->duracion_dias }} días</td>
-                            <td>
+                        <tr class="border-b border-gray-200">
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->empleado->nombre }}
+                                {{ $vacacion->empleado->apellido }}
+                            </td>
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->fecha_inicio }}</td>
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->fecha_fin }}</td>
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->duracion_dias }} días</td>
+                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->periodo }}</td>
+                            <td class="px-8 py-4 text-sm text-gray-700">
                                 <span class="badge bg-{{ $vacacion->estado == 'pendiente' ? 'warning' :
                     ($vacacion->estado == 'aprobadas' ? 'success' :
                         ($vacacion->estado == 'pendientes_aprobacion' ? 'primary' : 'danger')) }}">
                                     {{ ucfirst(str_replace('_', ' ', $vacacion->estado)) }}
                                 </span>
                             </td>
+                            <td class="px-10 py-4 text-sm text-gray-700">{{ $vacacion->reintegro }}</td>
                             <td>{{ $vacacion->comentario ?? 'Sin comentario' }}</td>
                             <td>
                                 @if($vacacion->estado == 'pendiente' || $vacacion->estado == 'pendientes_aprobacion')
@@ -144,7 +150,9 @@
                 <th class="rounded-tl-lg">Fecha Inicio</th>
                 <th>Fecha Fin</th>
                 <th>Duración</th>
+                <th>Periodo</th>
                 <th>Estado</th>
+                <th>Reintegro</th>
                 <th class="rounded-tr-lg">Comentario</th>
             </tr>
         </thead>
@@ -154,6 +162,7 @@
                     <td>{{ $vacacion->fecha_inicio }}</td>
                     <td>{{ $vacacion->fecha_fin }}</td>
                     <td>{{ $vacacion->duracion_dias }} días</td>
+                    <td>{{ $vacacion->periodo }}</td>
                     <td>
                         <span class="badge bg-{{ $vacacion->estado == 'pendiente' ? 'warning' :
                 ($vacacion->estado == 'aprobadas' ? 'success' :
@@ -161,6 +170,7 @@
                             {{ ucfirst(str_replace('_', ' ', $vacacion->estado)) }}
                         </span>
                     </td>
+                    <td>{{ $vacacion->reintegro}}</td>
                     <td>{{ $vacacion->comentario ?? 'Sin comentario' }}</td>
                 </tr>
             @endforeach

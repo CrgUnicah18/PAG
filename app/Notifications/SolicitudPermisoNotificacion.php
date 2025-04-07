@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\DatabaseMessage;
 
-class SolicitudPermisoNotificacion extends Notification
+class SolicitudPermisoNotificacion extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -46,7 +46,11 @@ class SolicitudPermisoNotificacion extends Notification
             'fecha_inicio' => \Carbon\Carbon::parse($this->vacacion->fecha_inicio)->toFormattedDateString(),
             'fecha_fin' => \Carbon\Carbon::parse($this->vacacion->fecha_fin)->toFormattedDateString(),
             'link' => url('/admin/notificaciones'),
-            'estado' => $this->vacacion->estado // Aquí agregamos el estado de la solicitud de vacaciones
+            'estado' => $this->vacacion->estado, // Aquí agregamos el estado de la solicitud de vacaciones
+            'empleado_id' => $this->vacacion->empleado->id,  // Agrega el empleado_id
         ];
+
+
     }
+
 }

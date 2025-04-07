@@ -84,7 +84,7 @@ class EmpleadoController extends Controller
     public function show($id)
     {
         $user = auth()->user(); // Obtiene el usuario autenticado
-        $empleado = Empleado::findOrFail($id);
+        $empleado = Empleado::with('user')->findOrFail($id); // Carga la relación 'user'
         $oficinas = Oficina::all();
         $grupos = Grupo::all();
         $tiposContratos = TipoContrato::all();
@@ -117,6 +117,7 @@ class EmpleadoController extends Controller
             'documento_contrato' => 'nullable|mimes:pdf,doc,docx|max:2048',
             'dn' => 'required|string|max:15',
             'dn_file' => 'required|mimes:pdf,jpeg,jpg,png|max:2048',
+            'cargo' => 'required|string|max:50',
         ], [
             'fecha_ingreso.before_or_equal' => 'La fecha de ingreso no puede ser en el futuro.',
             'estado.required' => 'El estado es obligatorio.',
@@ -126,8 +127,10 @@ class EmpleadoController extends Controller
             'documento_contrato.mimes' => 'El documento del contrato debe ser un archivo PDF, DOC o DOCX.',
             'dn.required' => 'El DNI es obligatorio.',
             'dn.max' => 'El DNI no puede tener más de 15 caracteres.',
-            'dn_file.required' => 'El archivo del DNI es obligatorio.',
+            'dn_file.required' => 'La fotografia del DNI es obligatorio.',
             'dn_file.mimes' => 'El archivo del DNI debe ser un archivo PDF, JPEG, JPG o PNG.',
+            'cargo.required' => 'El cargo es obligatorio.',
+            'cargo.max' => 'El cargo no puede tener más de 50 caracteres.',
         ]);
 
         // Inicia la transacción
@@ -154,6 +157,7 @@ class EmpleadoController extends Controller
             $empleado->genero = $request->genero;
             $empleado->dn = $request->dn;
             $empleado->dn_file = $request->dn_file;
+            $empleado->cargo = $request->cargo; // Guardar el cargo
 
             // Subir foto de perfil
             if ($request->hasFile('foto_perfil')) {
@@ -263,22 +267,25 @@ class EmpleadoController extends Controller
         $empleado = Empleado::findOrFail($id);
 
         // Validación de los datos del formulario
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'genero' => 'required|in:M,F',
-            'telefono' => 'required|string|max:255',
-            'grupo_id' => 'required|exists:grupos,id',
-            'oficina_id' => 'required|exists:oficinas,id',
-            'supervisor_id' => 'nullable|exists:empleados,id',                          // ! ESTAS LINDSIMA NAYE, LOVE U <3
-            'estado' => 'required|in:activo,inactivo',
-            'tipo_contrato_id' => 'required|exists:tipo_contratos,id',
-            'fecha_ingreso' => 'required|date',
-            'foto_peril' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'documento_contrato' => 'nullable|mimes:pdf,doc,docx,zip|max:2048', // Solo PDF, DOC, DOCX, ZIP
-            'dn' => 'required|string|max:15|unique:empleados,dn,' . $empleado->id, // Validación para el DN
-            'dn_file' => 'required|mimes:pdf,jpeg,jpg,png|max:2048', // Para almacenar el archivo (fotografía o PDF)
-        ]);
+        $request->validate(
+            [
+                'nombre' => 'required|string|max:255',
+                'apellido' => 'required|string|max:255',
+                'genero' => 'required|in:M,F',
+                'telefono' => 'required|string|max:255',
+                'grupo_id' => 'required|exists:grupos,id',
+                'oficina_id' => 'required|exists:oficinas,id',
+                'supervisor_id' => 'nullable|exists:empleados,id',
+                'estado' => 'required|in:activo,inactivo',
+                'tipo_contrato_id' => 'required|exists:tipo_contratos,id',
+                'fecha_ingreso' => 'required|date',
+                'foto_peril' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'documento_contrato' => 'nullable|mimes:pdf,doc,docx,zip|max:2048',
+                'dn' => 'required|string|max:15|unique:empleados,dn,' . $empleado->id,
+                'dn_file' => 'nullable|mimes:pdf,jpeg,jpg,png|max:2048', // Para almacenar el archivo (fotografía o PDF)
+                'cargo' => 'required|string|max:50',
+            ]
+        );
 
         // Actualización de los datos del empleado
         $empleado->nombre = $request->nombre;
@@ -292,25 +299,25 @@ class EmpleadoController extends Controller
         $empleado->fecha_ingreso = $request->fecha_ingreso;
         $empleado->genero = $request->genero;
         $empleado->dn = $request->dn;
-        $empleado->dn_file = $request->dn_file;
+        $empleado->cargo = $request->cargo;  // Guardar el cargo
 
         // Subir foto de perfil
         if ($request->hasFile('foto_perfil')) {
             $imageName = time() . '-' . $request->file('foto_perfil')->getClientOriginalName();
-            $path = public_path('empleados/img');  // Ruta donde se guardará el archivo
-            $request->file('foto_perfil')->move($path, $imageName);  // Mover el archivo a la carpeta deseada
-            $empleado->foto_perfil = 'empleados/img/' . $imageName;  // Guardar la ruta en la base de datos sin 'public/'
+            $path = public_path('empleados/img');
+            $request->file('foto_perfil')->move($path, $imageName);
+            $empleado->foto_perfil = 'empleados/img/' . $imageName;
         }
 
         // Subir contrato
         if ($request->hasFile('documento_contrato')) {
             $documentName = time() . '-' . $request->file('documento_contrato')->getClientOriginalName();
-            $path = public_path('empleados/img_contratos');  // Ruta donde se guardará el archivo
-            $request->file('documento_contrato')->move($path, $documentName);  // Mover el archivo a la carpeta deseada
-            $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;  // Guardar la ruta en la base de datos sin 'public/'
+            $path = public_path('empleados/img_contratos');
+            $request->file('documento_contrato')->move($path, $documentName);
+            $empleado->documento_contrato = 'empleados/img_contratos/' . $documentName;
         }
 
-        // Subir dni
+        // Subir dni solo si se sube un archivo nuevo
         if ($request->hasFile('dn_file')) {
             $imageName = time() . '-' . $request->file('dn_file')->getClientOriginalName();
             $path = public_path('empleados/dni');
@@ -323,6 +330,7 @@ class EmpleadoController extends Controller
 
         return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente');
     }
+
 
     public function mostrarFormularioReporte()
     {
@@ -341,6 +349,9 @@ class EmpleadoController extends Controller
             'tipo_contrato' => 'Tipo de Contrato',
             'rol' => 'Rol',
             'email' => 'Email',
+            'cargo' => 'Cargo',
+            'vacaciones_restantes' => 'Vacaciones Restantes',
+            'vacaciones_tomadas' => 'Vacaciones Tomadas',
         ];
 
         return view('admin.empleados.reporte_form', compact('campos'));
@@ -370,6 +381,9 @@ class EmpleadoController extends Controller
             'tipo_contrato' => 'Tipo de Contrato',
             'rol' => 'Rol',
             'email' => 'Email',  // Agregar email
+            'cargo' => 'Cargo',
+            'vacaciones_restantes' => 'Vacaciones Restantes',
+            'vacaciones_tomadas' => 'Vacaciones Tomadas',
         ];
 
         $relaciones = [];

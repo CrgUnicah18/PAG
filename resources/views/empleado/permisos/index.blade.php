@@ -25,14 +25,14 @@
         <div class="flex justify-center gap-4 mb-6">
             <a href="{{ route('empleado.permisos.lista') }}"
                 class="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg shadow-md transition">
-                <i data-lucide="list" class="w-5 h-5"></i>
+                <i class="fas fa-list w-5 h-5"></i>
                 Ver tipos de permisos
             </a>
 
             <a href="{{ route('empleado.permisos.create') }}"
                 class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition"
                 style="background-color: rgb(231, 173, 33); color: white; padding: 10px 20px; border: none; border-radius: 8px;">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <i class="fas fa-plus-circle w-5 h-5"></i>
                 Solicitar Permiso
             </a>
         </div>
@@ -46,6 +46,7 @@
                         <th class="px-4 py-3 text-left text-white">Tipo de Permiso</th>
                         <th class="px-4 py-3 text-left text-white">Fecha de Inicio</th>
                         <th class="px-4 py-3 text-left text-white">Fecha de Fin</th>
+                        <th class="px-4 py-3 text-left text-white">Días</th>
                         <th class="px-4 py-3 text-left text-white">Estado</th>
                         <th class="px-4 py-3 text-left text-white">Comentario</th>
                         <th class="px-4 py-3 text-center text-white">Acciones</th>
@@ -58,6 +59,7 @@
                             <td class="px-4 py-3">{{ $permiso->tipoPermiso->nombre }}</td>
                             <td class="px-4 py-3">{{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
                             <td class="px-4 py-3">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
+                            <td class="px-4 py-3">{{ $permiso->dias_laborables }}</td>
                             <td class="px-4 py-3">
                                 @if($permiso->estado == 'pendiente')
                                     <span
@@ -76,7 +78,6 @@
                             <td class="px-4 py-3">
                                 @if($permiso->comentario)
                                     <div class="comment-container">
-                                        {{-- Dividiendo los comentarios si es necesario para mayor claridad --}}
                                         @foreach(explode("\n", $permiso->comentario) as $line)
                                             <p class="comment-line">{{ $line }}</p>
                                         @endforeach
@@ -91,46 +92,36 @@
                                     <i class="fas fa-comment-dots text-xl"></i> Comentar
                                 </button>
                             </td>
-
-                            <!-- Modal de Comentario -->
-                            @foreach($permisosEmpleado as $permiso)
-                                <div class="modal fade" id="commentModal{{ $permiso->id }}" tabindex="-1"
-                                    aria-labelledby="commentModalLabel{{ $permiso->id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="commentModalLabel{{ $permiso->id }}">Agregar Comentario
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form action="{{ route('empleado.permisos.comentar', $permiso->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    <div class="mb-3">
-                                                        <label for="comentario" class="form-label">Comentario</label>
-                                                        <textarea class="form-control" id="comentario" name="comentario" rows="3"
-                                                            required></textarea> <!-- Esto ahora estará vacío -->
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary">Guardar Comentario</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
                         </tr>
                     @endforeach
-
-
-                    {{-- Paginación --}}
-                    <div class="mt-6 text-center">
-                        {{ $permisosEmpleado->links() }}
-                    </div>
+                </tbody>
+            </table>
         </div>
 
-        <script>
-            lucide.createIcons();
-        </script>
+        {{-- Modales de comentario --}}
+        @foreach($permisosEmpleado as $permiso)
+            <div class="modal fade" id="commentModal{{ $permiso->id }}" tabindex="-1"
+                aria-labelledby="commentModalLabel{{ $permiso->id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="commentModalLabel{{ $permiso->id }}">Agregar Comentario</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('empleado.permisos.comentar', $permiso->id) }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="comentario" class="form-label">Comentario</label>
+                                    <textarea class="form-control" id="comentario" name="comentario" rows="3"
+                                        required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Guardar Comentario</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        @endforeach
 @endsection

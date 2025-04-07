@@ -24,11 +24,17 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label for="dn" class="form-label">DNI</label>
-                        <input type="text" class="form-control" name="dn" value="{{ old('dn', $empleado->dn) }}" required>
+                        <input type="text" class="form-control" name="dn" value="{{ old('dn', $empleado->dn) }}" required
+                            maxlength="15">
                     </div>
                     <div class="col-md-4">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" name="nombre" value="{{ old('nombre', $empleado->nombre) }}"
+                            required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cargo" class="form-label">Cargo</label>
+                        <input type="text" class="form-control" name="cargo" value="{{ old('cargo', $empleado->cargo) }}"
                             required>
                     </div>
                     <div class="col-md-4">
@@ -143,7 +149,7 @@
                         @if($empleado->dn_file)
                             <div class="mt-2">
                                 <img src="{{ asset('empleados/img_contratos/' . $empleado->dn_file) }}" alt="Dni" width="100"
-                                    class="rounded">
+                                    class="rounded" value="{{ old('dn_file', $empleado->dn_file) }}">
                             </div>
                         @endif
                     </div>

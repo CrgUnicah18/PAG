@@ -42,6 +42,7 @@ class RegisterController extends Controller
             'foto_perfil' => 'nullable|image',
             'dn' => 'required|string|max:15|unique:empleados,dn', // Validación para el DN
             'dn_file' => 'required|mimes:pdf,jpeg,jpg,png|max:2048', // Para almacenar el archivo (fotografía o PDF)
+            'cargo' => 'required|string|max:50', // Validación para el cargo
         ], [
             'estado.required' => 'El estado es obligatorio.',
             'estado.in' => 'El estado debe ser uno de los siguientes: activo, inactivo.',
@@ -50,6 +51,8 @@ class RegisterController extends Controller
             'dn.unique' => 'El DN ya ha sido registrado.',
             'dn.max' => 'El DN no puede tener más de 15 caracteres.',
             'dn_file.required' => 'La fotografia o pdf del DN es obligatorio.',
+            'cargo.required' => 'El cargo es obligatorio.',
+            'cargo.max' => 'El cargo no puede tener más de 50 caracteres.',
         ]);
 
         // Si la validación falla, redirigir de vuelta con errores
@@ -87,6 +90,7 @@ class RegisterController extends Controller
             'vacaciones_restantes' => 0, // Inicializamos las vacaciones restantes
             'dn' => $request->dn, // Agregar el DN
             'dn_file' => $request->dn_file, // Agregar el archivo del DN
+            'cargo' => $request->cargo, // Agregar el cargo
         ]);
 
         // Redirigir a la vista para la creación del usuario

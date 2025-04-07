@@ -137,6 +137,8 @@ class InicioController extends Controller
             $vacacionesProximas = Vacacion::where('estado', 'aprobadas') // Filtrar solo las vacaciones aprobadas
                 ->where('fecha_inicio', '>=', now())->count();
 
+
+            
             // Retornar vista con los datos correspondientes
             return view('admin.inicio.home', compact(
                 'permisosPendientes',

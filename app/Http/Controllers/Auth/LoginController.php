@@ -45,12 +45,26 @@ class LoginController extends Controller
 
             // Redirigir al usuario según su rol después de autenticarse
             if ($user->hasRole('admin')) {
+                session()->flash('notify', [
+                    ['type' => 'success', 'message' => '¡Bienvenido!'],
+                ]);
+
                 return redirect()->route('admin.inicio.home');
             } elseif ($user->hasRole('supervisor')) {
+                session()->flash('notify', [
+                    ['type' => 'success', 'message' => 'Bienvenido!'],
+                ]);
                 return redirect()->route('supervisor.inicio.home');
             } elseif ($user->hasRole('empleado')) {
+                session()->flash('notify', [
+                    ['type' => 'success', 'message' => 'Bienvenido!'],
+                ]);
                 return redirect()->route('empleado.inicio.home');
             }
+
+            session()->flash('notify', [
+                ['type' => 'error', 'message' => 'Comuniquese con soporte.'],
+            ]);
 
             // Si el usuario no tiene un rol específico, redirigir a una ruta por defecto
             return redirect()->intended('/');

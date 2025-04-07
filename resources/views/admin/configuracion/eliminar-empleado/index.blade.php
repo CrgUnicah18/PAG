@@ -81,6 +81,7 @@
                 <thead class="bg-gray-200">
                     <tr>
                         <th class="p-3 text-left">Nombre Completo</th>
+                        <th class="p-3 text-left">Cargo</th>
                         <th class="p-3 text-left">Oficina</th>
                         <th class="p-3 text-left">Programa</th>
                         <th class="p-3 text-left">Estado</th>
@@ -91,6 +92,7 @@
                     @foreach($empleados as $empleado)
                         <tr class="border-b hover:bg-gray-100">
                             <td class="p-3">{{ $empleado->nombre }} {{ $empleado->apellido }}</td>
+                            <td class="p-3">{{ $empleado->cargo }}</td>
                             <td class="p-3">{{ $empleado->oficina->nombre }}</td>
                             <td class="p-3">{{ $empleado->grupo->nombre }}</td>
                             <td class="p-3">

@@ -10,11 +10,16 @@ class Vacacion extends Model
     use HasFactory;
     // Especifica el nombre de la tabla si no es el plural del modelo
     protected $table = 'vacaciones';
-    protected $fillable = ['empleado_id', 'fecha_inicio', 'fecha_fin', 'duracion_dias', 'estado', 'tipo_permiso_id', 'comentario'];
+    protected $fillable = ['empleado_id', 'fecha_inicio', 'fecha_fin', 'duracion_dias', 'estado', 'tipo_permiso_id', 'comentario', 'reintegro', 'periodo'];
 
     public function empleado()
     {
         return $this->belongsTo(Empleado::class);
+    }
+    // Aseguramos que el periodo esté siempre actualizado
+    public function setPeriodoAttribute($value)
+    {
+        $this->attributes['periodo'] = $value ?? date('Y');  // Si no se pasa un valor, usamos el año actual
     }
 
     // Relación inversa con TipoPermiso

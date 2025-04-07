@@ -5,9 +5,11 @@ namespace App\Exports;
 use App\Models\Vacacion;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use Carbon\Carbon;
 
-class VacacionesExport implements FromCollection, WithHeadings
+class VacacionesExport implements FromCollection, WithHeadings, WithEvents
 {
     protected $request;
 
@@ -45,7 +47,7 @@ class VacacionesExport implements FromCollection, WithHeadings
 
             // Verificar qué campos se han seleccionado y agregar solo esos
             if (in_array('empleado_id', $this->request->campos)) {
-                $data['empleado_id'] = $vacacion->empleado->nombre;
+                $data['empleado_id'] = $vacacion->empleado->nombre . ' ' . $vacacion->empleado->apellido;
             }
 
             if (in_array('tipo_permiso_id', $this->request->campos)) {
@@ -71,13 +73,15 @@ class VacacionesExport implements FromCollection, WithHeadings
                 $data['comentario'] = $vacacion->comentario;
             }
 
+            if (in_array('periodo', $this->request->campos)) {
+                $data['periodo'] = $vacacion->periodo;
+            }
+
             return $data;
         });
 
         return $exportData;
     }
-
-
 
     public function headings(): array
     {
@@ -112,6 +116,10 @@ class VacacionesExport implements FromCollection, WithHeadings
             $headings[] = 'Comentario';
         }
 
+        if (in_array('periodo', $this->request->campos)) {
+            $headings[] = 'Periodo';
+        }
+
         // Estilo para los encabezados
         $headings = array_map(function ($heading) {
             return strtoupper($heading); // Poner los encabezados en mayúsculas
@@ -120,4 +128,37 @@ class VacacionesExport implements FromCollection, WithHeadings
         return $headings;
     }
 
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $query = Vacacion::query();
+
+                // Filtrar por empleado si se seleccionó
+                if ($this->request->filled('empleado_id')) {
+                    $query->where('empleado_id', $this->request->empleado_id);
+                }
+
+                // Obtener todas las vacaciones filtradas
+                $vacaciones = $query->get();
+
+                // Calcular totales
+                $totalVacacionesRestantes = $this->request->filled('empleado_id')
+                    ? $vacaciones->first()->empleado->vacaciones_restantes ?? 'N/A'
+                    : 'N/A';
+
+                $totalDiasAprobados = $vacaciones->where('estado', 'aprobadas')->sum('duracion_dias');
+
+                // Agregar los totales al final de la hoja
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestRow() + 2; // Obtener la última fila y dejar un espacio
+    
+                $sheet->setCellValue("A{$lastRow}", 'Totales:');
+                $sheet->setCellValue("A" . ($lastRow + 1), 'Total de Vacaciones Restantes:');
+                $sheet->setCellValue("B" . ($lastRow + 1), $totalVacacionesRestantes);
+                $sheet->setCellValue("A" . ($lastRow + 2), 'Total de Vacaciones Aprobadas (Duración en días):');
+                $sheet->setCellValue("B" . ($lastRow + 2), $totalDiasAprobados);
+            },
+        ];
+    }
 }

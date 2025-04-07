@@ -81,32 +81,32 @@
                 <thead class="bg-indigo-600 text-white text-center">
                     <tr>
                         <th>Nombre Completo</th>
+                        <th>Cargo</th>
                         <th>Teléfono</th>
                         <th>Programa</th>
                         <th>Oficina</th>
                         <th>Supervisor</th>
-                        <th>Email</th>
                         <th>Rol</th>
                         <th>Estado</th>
-                        <th style="width: 150px;">Acciones</th> <!-- Aumento del ancho de la columna -->
+                        <th style="width: 100px;">Acciones</th> <!-- Aumento del ancho de la columna -->
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($empleados as $empleado)
                         <tr class="text-center">
                             <td>{{ $empleado->nombre }} {{ $empleado->apellido }}</td>
+                            <td>{{ $empleado->cargo }}</td>
                             <td>{{ $empleado->telefono }}</td>
                             <td>{{ $empleado->grupo->nombre }}</td>
                             <td>{{ $empleado->oficina->nombre }}</td>
                             <td>{{ $empleado->supervisor ? $empleado->supervisor->nombre : 'N/A' }}</td>
-                            <td>{{ $empleado->user ? $empleado->user->email : 'No asignado' }}</td>
                             <td>
                                 @foreach(optional($empleado->user)->roles ?? collect() as $rol)
                                     {{ $rol->name }} @if (!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td>
-                            <span class="badge 
+                            <span class="badge rounded-pill
                                 {{ 
                                     $empleado->estado == 'activo' ? 'bg-success' : 
                                     ($empleado->estado == 'inactivo' ? 'bg-warning' : 

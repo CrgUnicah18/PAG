@@ -18,11 +18,18 @@ class Permiso extends Model
         'fecha_fin',
         'comentario',
         'subsidio_archivo',
+        'reintegro',
+        'periodo',
     ];
 
     public function empleado()
     {
         return $this->belongsTo(Empleado::class);
+    }
+    // Aseguramos que el periodo esté siempre actualizado
+    public function setPeriodoAttribute($value)
+    {
+        $this->attributes['periodo'] = $value ?? date('Y');  // Si no se pasa un valor, usamos el año actual
     }
 
     public function tipoPermiso()

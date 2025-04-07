@@ -29,33 +29,38 @@
                     <tr>
                         <!-- Aquí estamos reemplazando los nombres de los campos por los nombres más amigables -->
                         @foreach ($camposSeleccionados as $campo)
-                            <th class="px-6 py-3 text-left text-gray-600">
-                                @switch($campo)
-                                    @case('empleado_id')
-                                        Empleado
-                                        @break
-                                    @case('tipo_permiso_id')
-                                        Tipo de Permiso
-                                        @break
-                                    @case('fecha_inicio')
-                                        Fecha de Inicio
-                                        @break
-                                    @case('fecha_fin')
-                                        Fecha de Fin
-                                        @break
-                                    @case('duracion_dias')
-                                        Duración (días)
-                                        @break
-                                    @case('estado')
-                                        Estado
-                                        @break
-                                    @case('comentario')
-                                        Comentario
-                                        @break
-                                    @default
-                                        {{ ucfirst(str_replace('_', ' ', $campo)) }}
-                                @endswitch
-                            </th>
+                            @if ($campo !== 'vacaciones_restantes') <!-- Excluir vacaciones_restantes de la tabla -->
+                                <th class="px-6 py-3 text-left text-gray-600">
+                                    @switch($campo)
+                                        @case('empleado_id')
+                                            Empleado
+                                            @break
+                                        @case('tipo_permiso_id')
+                                            Tipo de Permiso
+                                            @break
+                                        @case('fecha_inicio')
+                                            Fecha de Inicio
+                                            @break
+                                        @case('fecha_fin')
+                                            Fecha de Fin
+                                            @break
+                                        @case('duracion_dias')
+                                            Duración (días)
+                                            @break
+                                        @case('periodo')
+                                            Período
+                                            @break
+                                        @case('estado')
+                                            Estado
+                                            @break
+                                        @case('comentario')
+                                            Comentario
+                                            @break
+                                        @default
+                                            {{ ucfirst(str_replace('_', ' ', $campo)) }}
+                                    @endswitch
+                                </th>
+                            @endif
                         @endforeach
                     </tr>
                 </thead>
@@ -63,46 +68,68 @@
                     @foreach ($vacaciones as $vacacion)
                         <tr>
                             @foreach ($camposSeleccionados as $campo)
-                                <td class="px-6 py-4 border-t text-gray-600">
-                                    @if($campo == 'empleado_id')
-                                        {{ $vacacion->empleado->nombre }}
-                                    @elseif($campo == 'tipo_permiso_id')
-                                        {{ $vacacion->tipoPermiso->nombre }}
-                                    @elseif($campo == 'estado')
-                                        @php
-                                            $estadoClase = '';
-                                            $estadoTexto = ucfirst($vacacion->estado);
+                                @if ($campo !== 'vacaciones_restantes') <!-- Excluir vacaciones_restantes de la tabla -->
+                                    <td class="px-6 py-4 border-t text-gray-600">
+                                        @if ($campo == 'empleado_id')
+                                            {{ $vacacion->empleado->nombre . " ". $vacacion->empleado->apellido }}
+                                        @elseif ($campo == 'tipo_permiso_id')
+                                            {{ $vacacion->tipoPermiso->nombre }}
+                                        @elseif ($campo == 'estado')
+                                            @php
+                                                $estadoClase = '';
+                                                $estadoTexto = ucfirst($vacacion->estado);
 
-                                            // Asignar colores según el estado
-                                            switch ($vacacion->estado) {
-                                                case 'pendiente':
-                                                    $estadoClase = 'bg-yellow-100 text-yellow-800'; // Amarillo para pendientes
-                                                    break;
-                                                case 'pendientes_aprobacion':
-                                                    $estadoClase = 'bg-blue-100 text-blue-800'; // Azul para pendientes de aprobación
-                                                    break;
-                                                case 'aprobadas':
-                                                    $estadoClase = 'bg-green-100 text-green-800'; // Verde para aprobadas
-                                                    break;
-                                                case 'rechazadas':
-                                                    $estadoClase = 'bg-red-100 text-red-800'; // Rojo para rechazadas
-                                                    break;
-                                                default:
-                                                    $estadoClase = 'bg-gray-100 text-gray-800'; // Gris por defecto
-                                            }
-                                        @endphp
-                                        <span class="px-4 py-2 rounded-full {{ $estadoClase }}">
-                                            {{ $estadoTexto }}
-                                        </span>
-                                    @else
-                                        {{ $vacacion->$campo }}
-                                    @endif
-                                </td>
+                                                // Asignar colores según el estado
+                                                switch ($vacacion->estado) {
+                                                    case 'pendiente':
+                                                        $estadoClase = 'bg-yellow-100 text-yellow-800'; // Amarillo para pendientes
+                                                        break;
+                                                    case 'pendientes_aprobacion':
+                                                        $estadoClase = 'bg-blue-100 text-blue-800'; // Azul para pendientes de aprobación
+                                                        break;
+                                                    case 'aprobadas':
+                                                        $estadoClase = 'bg-green-100 text-green-800'; // Verde para aprobadas
+                                                        break;
+                                                    case 'rechazadas':
+                                                        $estadoClase = 'bg-red-100 text-red-800'; // Rojo para rechazadas
+                                                        break;
+                                                    default:
+                                                        $estadoClase = 'bg-gray-100 text-gray-800'; // Gris por defecto
+                                                }
+                                            @endphp
+                                            <span class="px-4 py-2 rounded-full {{ $estadoClase }}">
+                                                {{ $estadoTexto }}
+                                            </span>
+                                        @else
+                                            {{ $vacacion->$campo }}
+                                        @endif
+                                    </td>
+                                @endif
                             @endforeach
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Mostrar los totales fuera de la tabla -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold">Totales:</h3>
+                <ul class="list-disc list-inside">
+                    <!-- Total de Vacaciones Restantes -->
+                    @if (request('empleado_id')) <!-- Mostrar solo si se seleccionó un empleado específico -->
+                        <li>
+                            <strong>Total de Vacaciones Restantes:</strong>
+                            {{ $vacaciones->first()->empleado->vacaciones_restantes ?? 'N/A' }}
+                        </li>
+                    @endif
+
+                    <!-- Total de Vacaciones Aprobadas -->
+                    <li>
+                        <strong>Total de Vacaciones Aprobadas (Duración en días):</strong>
+                        {{ $vacaciones->where('estado', 'aprobadas')->sum('duracion_dias') }}
+                    </li>
+                </ul>
+            </div>
 
             <!-- Paginación -->
             <div class="mt-6">

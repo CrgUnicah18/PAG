@@ -12,7 +12,9 @@
                     class="form-control mt-2 block w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="todos">Todos</option>
                     @foreach ($empleados as $empleado)
-                        <option value="{{ $empleado->id }}">{{ $empleado->nombre }}</option>
+                        <option value="{{ $empleado->id }}">
+                            {{ $empleado->nombre . ' ' . $empleado->apellido }}
+                        </option>
                     @endforeach
                 </select>
             </div>

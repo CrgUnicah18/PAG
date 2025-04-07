@@ -1,4 +1,15 @@
 <?php return array (
+  'barryvdh/laravel-debugbar' => 
+  array (
+    'aliases' => 
+    array (
+      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
+    ),
+    'providers' => 
+    array (
+      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
+    ),
+  ),
   'barryvdh/laravel-dompdf' => 
   array (
     'aliases' => 
@@ -39,6 +50,13 @@
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
     ),
   ),
+  'laravel/ui' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Ui\\UiServiceProvider',
+    ),
+  ),
   'maatwebsite/excel' => 
   array (
     'aliases' => 
@@ -48,6 +66,17 @@
     'providers' => 
     array (
       0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+    ),
+  ),
+  'mckenziearts/laravel-notify' => 
+  array (
+    'aliases' => 
+    array (
+      'Notify' => 'Mckenziearts\\Notify\\Facades\\LaravelNotify',
+    ),
+    'providers' => 
+    array (
+      0 => 'Mckenziearts\\Notify\\LaravelNotifyServiceProvider',
     ),
   ),
   'nesbot/carbon' => 
