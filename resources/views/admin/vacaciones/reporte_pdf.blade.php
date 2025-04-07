@@ -81,22 +81,33 @@
 <body>
 
     <div class="header">
-        <!-- Logo a la izquierda -->
         <img src="{{ public_path('images/logopag2.png') }}" alt="Logo Empresa" class="logo">
 
-        <!-- Título y subtítulo a la derecha del logo -->
         <div class="title-block">
             <h1>Reporte de Vacaciones de {{ $empleadoSeleccionado ? $empleadoSeleccionado->nombre : 'Todos los Empleados' }}</h1>
             <p>Generado el {{ now()->format('d-m-Y H:i:s') }}</p>
         </div>
     </div>
 
+    @php
+        $aliasCampos = [
+            'empleado_id' => 'Empleado',
+            'tipo_permiso_id' => 'Tipo Permiso',
+            'fecha_inicio' => 'Fecha Inicio',
+            'fecha_fin' => 'Fecha Fin',
+            'duracion_dias' => 'Duración (días)',
+            'periodo' => 'Periodo',
+            'estado' => 'Estado',
+            'comentario' => 'Comentario',
+        ];
+    @endphp
+
     <table>
         <thead>
             <tr>
                 @foreach($camposSeleccionados as $campo)
-                    @if ($campo !== 'vacaciones_restantes') <!-- Excluir vacaciones_restantes de la tabla -->
-                        <th>{{ ucfirst(str_replace('_', ' ', $campo)) }}</th>
+                    @if ($campo !== 'vacaciones_restantes')
+                        <th>{{ $aliasCampos[$campo] ?? ucfirst(str_replace('_', ' ', $campo)) }}</th>
                     @endif
                 @endforeach
             </tr>
@@ -105,7 +116,7 @@
             @foreach($vacaciones as $vacacion)
                 <tr>
                     @foreach($camposSeleccionados as $campo)
-                        @if ($campo !== 'vacaciones_restantes') <!-- Excluir vacaciones_restantes de la tabla -->
+                        @if ($campo !== 'vacaciones_restantes')
                             <td>
                                 @switch($campo)
                                     @case('empleado_id')
@@ -143,16 +154,13 @@
         </tbody>
     </table>
 
-    <!-- Mostrar los totales fuera de la tabla -->
     <div class="totales">
-        <!-- Total de Vacaciones Restantes -->
-        @if ($empleadoSeleccionado) <!-- Mostrar solo si se seleccionó un empleado específico -->
+        @if ($empleadoSeleccionado)
             Total de Vacaciones Restantes: 
             {{ $vacaciones->first()->empleado->vacaciones_restantes ?? 'N/A' }}
             <br>
         @endif
 
-        <!-- Total de Vacaciones Aprobadas -->
         Total de Vacaciones Aprobadas (Duración en días): 
         {{ $vacaciones->where('estado', 'aprobadas')->sum('duracion_dias') }}
     </div>

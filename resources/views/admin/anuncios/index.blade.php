@@ -50,6 +50,17 @@
                     <button @click="showModal = true" class="text-blue-600 hover:underline font-medium focus:outline-none">
                         {{ $anuncio->conteo_reacciones }}
                     </button>
+                    <!-- Botón de Reacción con ícono de 'Me gusta' -->
+                    @if(!$anuncio->reactions->contains('empleado_id', auth()->user()->empleado->id))
+                        <form action="{{ route('admin.anuncios.react', $anuncio->id) }}" method="POST" class="inline-block">
+                            @csrf
+                            <button type="submit" class="text-red-500 hover:text-red-600">
+                                <i class="fas fa-heart text-xl"></i> <!-- Ícono de corazón -->
+                            </button>
+                        </form>
+                    @else
+                        <span class="text-green-500 font-semibold">Ya has reaccionado a este anuncio</span>
+                    @endif
 
                     <!-- Modal -->
                     <div x-show="showModal" x-transition

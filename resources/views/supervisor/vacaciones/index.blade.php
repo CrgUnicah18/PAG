@@ -38,6 +38,7 @@
                         <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Inicio</th>
                         <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Fin</th>
                         <th class="px-4 py-2 text-left text-gray-600 text-white">Estado</th>
+                        <th class="px-4 py-2 text-left text-gray-600 text-white">Reintegro</th>
                         <th class="px-4 py-2 text-left text-gray-600 text-white">Comentario</th>
                         <th class="px-4 py-2 text-left text-gray-600 text-white">Acciones</th>
                     </tr>
@@ -60,6 +61,7 @@
                                     <span class="px-2 py-1 text-blue-800 bg-blue-200 rounded-full">Pendiente</span>
                                 @endif
                             </td>
+                            <td class="px-4 py-2 whitespace-nowrap">{{ $vacacion->reintegro }}</td>
                             <td class="px-4 py-2">
                                 @if($vacacion->comentario)
                                     {{ $vacacion->comentario }}
@@ -99,6 +101,7 @@
                             <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Inicio</th>
                             <th class="px-4 py-2 text-left text-gray-600 text-white">Fecha de Fin</th>
                             <th class="px-4 py-2 text-left text-gray-600 text-white">Estado</th>
+                            <th class="px-4 py-2 text-left text-gray-600 text-white">Reintegro</th>
                             <th class="px-4 py-2 text-left text-gray-600 text-white">Comentario</th>
                             <th class="px-4 py-2 text-left text-gray-600 w-32 text-white rounded-tr-lg">Acciones</th>
                             <!-- Ajusta el ancho de la columna -->
@@ -107,7 +110,8 @@
                     <tbody>
                         @foreach($vacacionesGenerales as $vacacion)
                             <tr class="border-b">
-                                <td class="px-4 py-2">{{ $vacacion->empleado->nombre }} {{ $vacacion->empleado->apellido }}</td>
+                                <td class="px-4 py-2 whitespace-nowrap">{{ $vacacion->empleado->nombre }}
+                                    {{ $vacacion->empleado->apellido }}</td>
                                 <td class="px-4 py-2">{{ \Carbon\Carbon::parse($vacacion->fecha_inicio)->format('d/m/Y') }}</td>
                                 <td class="px-4 py-2">{{ \Carbon\Carbon::parse($vacacion->fecha_fin)->format('d/m/Y') }}</td>
                                 <td class="px-4 py-2">
@@ -121,6 +125,7 @@
                                         <span class="px-2 py-1 text-xs text-yellow-800 bg-yellow-200 rounded-full">Pendiente</span>
                                     @endif
                                 </td>
+                                <td class="px-4 py-2 whitespace-nowrap">{{ $vacacion->reintegro }}</td>
                                 <td class="px-4 py-2">
                                     @if($vacacion->comentario)
                                         {{ $vacacion->comentario }}

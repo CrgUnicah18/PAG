@@ -222,6 +222,7 @@
         <?php echo $__env->yieldContent('content'); ?>
     </main>
 
+
     <!-- Mover scripts a la parte inferior para no bloquear el renderizado -->
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.2/dist/echo.iife.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

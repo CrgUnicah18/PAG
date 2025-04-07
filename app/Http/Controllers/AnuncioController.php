@@ -118,6 +118,8 @@ class AnuncioController extends Controller
         $anuncio->fecha_hora = now(); // Fecha y hora actual
         $anuncio->fecha_expiracion = $request->fecha_expiracion;
         $anuncio->prioridad = $request->prioridad;
+        // Guardar el anuncio
+        $anuncio->save();
 
         // Guardar los grupos seleccionados (si hay)
         if ($request->audiencia === 'grupo' || $request->audiencia === 'todos') {
@@ -129,8 +131,7 @@ class AnuncioController extends Controller
             $anuncio->oficinas()->sync($request->oficinas);
         }
 
-        // Guardar el anuncio
-        $anuncio->save();
+
 
         return redirect()->route('admin.anuncios.index')->with('success', 'Anuncio creado con éxito.');
     }
@@ -195,5 +196,27 @@ class AnuncioController extends Controller
 
         // Redirigir con mensaje de éxito
         return redirect()->route('admin.anuncios.index')->with('success', 'Anuncio actualizado exitosamente');
+    }
+    public function reactToAnuncio(Request $request, Anuncio $anuncio)
+    {
+        $empleadoId = auth()->user()->empleado->id;
+
+        // Verificar si ya reaccionó (ya marcó como visto)
+        $yaReacciono = Reaccion::where('anuncio_id', $anuncio->id)
+            ->where('empleado_id', $empleadoId)
+            ->exists();
+
+        if ($yaReacciono) {
+            return redirect()->back()->with('info', 'Ya has reaccionado a este anuncio.');
+        }
+
+        // Crear la reacción con el campo 'visto' en true (1)
+        Reaccion::create([
+            'anuncio_id' => $anuncio->id,
+            'empleado_id' => $empleadoId,
+            'visto' => true,
+        ]);
+
+        return redirect()->back()->with('success', '¡Gracias por reaccionar al anuncio!');
     }
 }

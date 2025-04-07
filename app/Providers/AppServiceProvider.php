@@ -4,10 +4,11 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\View;
 use App\Models\Permiso;
 use App\Models\Vacacion;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Middleware\IsAdmin;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,40 +30,74 @@ class AppServiceProvider extends ServiceProvider
         // Registrar el middleware 'admin' directamente desde el AppServiceProvider
         Route::aliasMiddleware('supervisor', \App\Http\Middleware\IsAdmin::class);
 
+
         View::composer('*', function ($view) {
-            // Obtener el conteo de las notificaciones pendientes
-            $notificacionesCount = Permiso::where('estado', 'pendiente')->count() +
-                Vacacion::where('estado', 'pendiente')->count();
+            $user = Auth::user();
 
-            // Obtener las notificaciones de permisos
-            $notificacionesPermisos = Permiso::where('estado', 'pendiente')
-                ->with('empleado') // Asegúrate de cargar la relación de empleado
-                ->get()
-                ->map(function ($permiso) {
-                    return [
-                        'mensaje' => "{$permiso->empleado->nombre} {$permiso->empleado->apellido} solicitó un permiso",
-                        'url' => url('/admin/permisos')
-                    ];
-                });
+            if (!$user || !$user->empleado) {
+                $view->with('notificacionesCount', 0)->with('notificaciones', collect([]));
+                return;
+            }
 
-            // Obtener las notificaciones de vacaciones
-            $notificacionesVacaciones = Vacacion::where('estado', 'pendiente')
-                ->with('empleado') // Asegúrate de cargar la relación de empleado
-                ->get()
-                ->map(function ($vacacion) {
-                    return [
-                        'mensaje' => "{$vacacion->empleado->nombre} {$vacacion->empleado->apellido} solicitó vacaciones",
-                        'url' => url('/admin/vacaciones')
-                    ];
-                });
+            $empleadoActual = $user->empleado;
 
-            // Combina las dos colecciones usando concat
+            // Inicializamos variables
+            $permisos = collect();
+            $vacaciones = collect();
+
+            if ($user->hasRole('admin')) {
+                // Admin ve todo
+                $permisos = Permiso::where('estado', 'pendiente')->with('empleado')->get();
+                $vacaciones = Vacacion::where('estado', 'pendiente')->with('empleado')->get();
+
+            } elseif ($user->hasRole('supervisor')) {
+                // Supervisor solo ve solicitudes de sus empleados
+                $permisos = Permiso::where('estado', 'pendiente')
+                    ->whereHas('empleado', function ($query) use ($empleadoActual) {
+                        $query->where('supervisor_id', $empleadoActual->id);
+                    })
+                    ->with('empleado')
+                    ->get();
+
+                $vacaciones = Vacacion::where('estado', 'pendiente')
+                    ->whereHas('empleado', function ($query) use ($empleadoActual) {
+                        $query->where('supervisor_id', $empleadoActual->id);
+                    })
+                    ->with('empleado')
+                    ->get();
+
+            } elseif ($user->hasRole('empleado')) {
+                // Empleado solo ve sus propias solicitudes
+                $permisos = Permiso::where('estado', 'pendiente')
+                    ->where('empleado_id', $empleadoActual->id)
+                    ->with('empleado')
+                    ->get();
+
+                $vacaciones = Vacacion::where('estado', 'pendiente')
+                    ->where('empleado_id', $empleadoActual->id)
+                    ->with('empleado')
+                    ->get();
+            }
+
+            // Formatear notificaciones
+            $notificacionesPermisos = $permisos->map(function ($permiso) {
+                return [
+                    'mensaje' => "{$permiso->empleado->nombre} {$permiso->empleado->apellido} solicitó un permiso",
+                    'url' => url('/admin/permisos')
+                ];
+            });
+
+            $notificacionesVacaciones = $vacaciones->map(function ($vacacion) {
+                return [
+                    'mensaje' => "{$vacacion->empleado->nombre} {$vacacion->empleado->apellido} solicitó vacaciones",
+                    'url' => url('/admin/vacaciones')
+                ];
+            });
+
+            // Combinar y contar
             $notificaciones = $notificacionesPermisos->concat($notificacionesVacaciones);
+            $notificacionesCount = $notificaciones->count();
 
-            // Si no hay notificaciones, asegurarse de que $notificaciones sea una colección vacía
-            $notificaciones = $notificaciones->isEmpty() ? collect([]) : $notificaciones;
-
-            // Pasar las variables a las vistas
             $view->with('notificacionesCount', $notificacionesCount)
                 ->with('notificaciones', $notificaciones);
         });

@@ -30,33 +30,62 @@
 
                 <!-- Datos personales del empleado -->
                 <div class="mb-6">
-                    <label for="nombre" class="block text-sm font-medium text-gray-600">Nombre</label>
+                    <label for="nombre" class="block text-sm font-medium text-red-600">Nombre</label>
                     <input id="nombre" type="text" name="nombre"
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="{{ old('nombre') }}"
-                        required autofocus oninput="this.value = this.value.toUpperCase()">
+                        required autofocus oninput="this.value = this.value.toUpperCase()"
+                        placeholder="Nombres completos">
                 </div>
 
-                <div class=" mb-6">
-                    <label for="apellido" class="block text-sm font-medium text-gray-600">Apellido</label>
+                <div class="mb-6">
+                    <label for="apellido" class="block text-sm font-medium text-red-600">Apellido</label>
                     <input id="apellido" type="text" name="apellido"
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="{{ old('apellido') }}"
-                        required oninput="this.value = this.value.toUpperCase()">
+                        required oninput="this.value = this.value.toUpperCase()" placeholder="Apellidos completos">
                 </div>
+
                 <!-- Campo de DN -->
                 <div class="mb-6">
-                    <label for="dn" class="block text-sm font-medium text-gray-600">Número de Identidad (DN)</label>
+                    <label for="dn" class="block text-sm font-medium text-red-600">Número de Identidad (DN)</label>
                     <input id="dn" type="text" name="dn" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                        value="{{ old('dn') }}" required maxlength="15">
+                        value="{{ old('dn') }}" required maxlength="15" oninput="formatDN(event)"
+                        placeholder="xxxx-xxxx-xxxxx">
                 </div>
+
+                <script>
+                    // Función para formatear el Número de Identidad
+                    function formatDN(event) {
+                        let input = event.target;
+                        let value = input.value;
+
+                        // Elimina todos los caracteres no numéricos
+                        value = value.replace(/\D/g, '');
+
+                        // Formatea el valor con guiones en el formato: xxxx-xxxx-xxxxx
+                        if (value.length <= 4) {
+                            input.value = value;
+                        } else if (value.length <= 8) {
+                            input.value = value.slice(0, 4) + '-' + value.slice(4);
+                        } else {
+                            input.value = value.slice(0, 4) + '-' + value.slice(4, 8) + '-' + value.slice(8, 13);
+                        }
+                    }
+                </script>
 
                 <!-- Subir documento (Fotografía/PDF) -->
                 <div class="mb-6">
-                    <label for="dn_file" class="block text-sm font-medium text-gray-600">Subir Documento
+                    <label for="dn_file" class="block text-sm font-medium text-green-600">Subir Documento
                         (Fotografía/PDF) del DNI</label>
                     <input id="dn_file" type="file" name="dn_file"
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 </div>
 
+                <div class="mb-6">
+                    <label for="cargo" class="block text-sm font-medium text-gray-600">Cargo</label>
+                    <input id="cargo" type="text" name="cargo"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="{{ old('cargo') }}"
+                        required>
+                </div>
 
                 <!-- Datos generales -->
                 <div class="mb-6 grid grid-cols-2 gap-4">
@@ -166,7 +195,6 @@
             </div>
         </div>
     </div>
-
 </body>
 
 </html>
