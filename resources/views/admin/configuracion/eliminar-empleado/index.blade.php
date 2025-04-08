@@ -93,7 +93,7 @@
                         <tr class="border-b hover:bg-gray-100">
                             <td class="p-3">{{ $empleado->nombre }} {{ $empleado->apellido }}</td>
                             <td class="p-3">{{ $empleado->cargo }}</td>
-                            <td class="p-3">{{ $empleado->oficina->nombre }}</td>
+                            <td class="p-3 whitespace-nowrap">{{ $empleado->oficina->nombre }}</td>
                             <td class="p-3">{{ $empleado->grupo->nombre }}</td>
                             <td class="p-3">
                                 <span

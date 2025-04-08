@@ -82,7 +82,7 @@
 
             <!-- Subsidio archivo: este campo se habilita solo si el tipo de permiso requiere subsidio -->
             <div class="form-group" id="subsidio_archivo_div" style="display: none;">
-                <label for="subsidio_archivo" class="text-lg font-medium text-gray-700">Archivo de Subsidio (PDF o
+                <label for="subsidio_archivo" class="text-lg font-medium text-gray-700">Archivo de Refrendamiento (PDF o
                     Imagen)</label>
                 <input type="file" name="subsidio_archivo" id="subsidio_archivo"
                     class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

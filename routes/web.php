@@ -141,10 +141,15 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
         Route::get('/oficinas', [OficinaController::class, 'index'])->name('oficinas.index');
         Route::get('/crear-oficina', [OficinaController::class, 'create'])->name('crear_oficina.create');
         Route::post('/crear-oficina', [OficinaController::class, 'store'])->name('store_oficina.store');
+        Route::get('/crear-oficina/{id}/edit', [OficinaController::class, 'edit'])->name('edit_oficina.edit');
+        Route::put('/crear-oficina/{id}', [OficinaController::class, 'update'])->name('update_oficina.update');
+
 
         // Rutas para grupos
         Route::get('listar-grupos', [GrupoController::class, 'index'])->name('crear_grupo.index');
         Route::get('/crear-grupo', [GrupoController::class, 'create'])->name('crear_grupo.create');
+        Route::get('/crear-grupo/{id}/edit', [GrupoController::class, 'edit'])->name('edit_grupo.edit');
+        Route::put('/crear-grupo/{id}', [GrupoController::class, 'update'])->name('update_grupo.update');
         Route::post('/crear-grupo', [GrupoController::class, 'store'])->name('store_grupo.store');
 
         // Rutas para tipos de contrato

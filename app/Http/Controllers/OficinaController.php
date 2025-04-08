@@ -37,9 +37,28 @@ class OficinaController extends Controller
 
         // Redirigir a la lista de oficinas con un mensaje de éxito
         return redirect()->route('admin.configuracion.oficinas.index')->with('success', 'Oficina creada con éxito');
-
-
+    }
+    public function edit($id)
+    {
+        $oficina = Oficina::findOrFail($id);
+        return view('admin.configuracion.crear_oficina.edit', compact('oficina'));
 
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'required|string|max:255',  // Validar que la dirección esté incluida
+        ]);
+
+        $oficina = Oficina::findOrFail($id);
+        $oficina->nombre = $request->nombre;
+        $oficina->direccion = $request->direccion;  // Actualizar la dirección
+        $oficina->save();
+
+        return redirect()->route('admin.configuracion.oficinas.index')->with('success', 'Oficina actualizada correctamente.');
+    }
+
 
 }
