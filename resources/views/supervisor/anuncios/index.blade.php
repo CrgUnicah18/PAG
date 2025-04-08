@@ -29,7 +29,7 @@
 
                 <!-- Botón de Reacción con ícono de 'Me gusta' -->
                 @if(!$anuncio->reactions->contains('empleado_id', auth()->user()->empleado->id))
-                    <form action="{{ route('empleado.anuncios.react', $anuncio->id) }}" method="POST" class="inline-block">
+                    <form action="{{ route('supervisor.anuncios.react', $anuncio->id) }}" method="POST" class="inline-block">
                         @csrf
                         <button type="submit" class="text-red-500 hover:text-red-600">
                             <i class="fas fa-heart text-xl"></i> <!-- Ícono de corazón -->

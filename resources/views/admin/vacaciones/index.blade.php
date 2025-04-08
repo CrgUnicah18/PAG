@@ -77,63 +77,65 @@
                 </div>
             </form>
         </div>
+        <div class="overflow-x-auto">
+            <!-- Tabla de Vacaciones -->
+            <table class="min-w-full bg-white border border-gray-200 overflow-x-auto shadow-md sm:rounded-lg mb-6"
+                style="background-color: rgb(255, 255, 255);">
+                <thead style="background-color: rgb(36, 94, 167);" class="text-white text-center">
+                    <tr>
+                        <th class="rounded-tl-lg px-8 py-4 text-left text-sm font-medium">Empleado</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Fecha Inicio</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Fecha Fin</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Duración</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Periodo</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Estado</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Reintegro</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium">Comentario</th>
+                        <th class="px-8 py-4 text-left text-sm font-medium rounded-tr-lg">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($vacacionesGenerales as $vacacion)
+                                <tr class="border-b border-gray-200">
+                                    <td class="px-8 py-4 text-sm text-gray-700 whitespace-nowrap">{{ $vacacion->empleado->nombre }}
+                                        {{ $vacacion->empleado->apellido }}
+                                    </td>
+                                    <td class="px-8 py-4 text-sm text-gray-700 whitespace-nowrap">{{ $vacacion->fecha_inicio }}</td>
+                                    <td class="px-8 py-4 text-sm text-gray-700 whitespace-nowrap">{{ $vacacion->fecha_fin }}</td>
+                                    <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->duracion_dias }} días</td>
+                                    <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->periodo }}</td>
+                                    <td class="px-8 py-4 text-sm text-gray-700">
+                                        <span class="badge bg-{{ $vacacion->estado == 'pendiente' ? 'warning' :
+                        ($vacacion->estado == 'aprobadas' ? 'success' :
+                            ($vacacion->estado == 'pendientes_aprobacion' ? 'primary' : 'danger')) }}">
+                                            {{ ucfirst(str_replace('_', ' ', $vacacion->estado)) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-10 py-4 text-sm text-gray-700 whitespace-nowrap">{{ $vacacion->reintegro }}</td>
+                                    <td>{{ $vacacion->comentario ?? 'Sin comentario' }}</td>
+                                    <td>
+                                        @if($vacacion->estado == 'pendiente' || $vacacion->estado == 'pendientes_aprobacion')
+                                            <button class="btn btn-outline-success btn-sm me-1" data-bs-toggle="tooltip"
+                                                title="Aprobar Solicitud" onclick="confirmAction('aprobar', {{ $vacacion->id }})">
+                                                <i class="fas fa-check"></i>
+                                            </button>
 
-        <!-- Tabla de Vacaciones -->
-        <table class="min-w-full bg-white border border-gray-200 overflow-x-auto shadow-md sm:rounded-lg mb-6"
-            style="background-color: rgb(255, 255, 255);">
-            <thead style="background-color: rgb(36, 94, 167);" class="text-white text-center">
-                <tr>
-                    <th class="rounded-tl-lg px-8 py-4 text-left text-sm font-medium">Empleado</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium">Fecha Inicio</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium">Fecha Fin</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium">Duración</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium">Periodo</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium">Estado</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium">Reintegro</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium">Comentario</th>
-                    <th class="px-8 py-4 text-left text-sm font-medium rounded-tr-lg">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($vacacionesGenerales as $vacacion)
-                        <tr class="border-b border-gray-200">
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->empleado->nombre }}
-                                {{ $vacacion->empleado->apellido }}
-                            </td>
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->fecha_inicio }}</td>
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->fecha_fin }}</td>
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->duracion_dias }} días</td>
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $vacacion->periodo }}</td>
-                            <td class="px-8 py-4 text-sm text-gray-700">
-                                <span class="badge bg-{{ $vacacion->estado == 'pendiente' ? 'warning' :
-                    ($vacacion->estado == 'aprobadas' ? 'success' :
-                        ($vacacion->estado == 'pendientes_aprobacion' ? 'primary' : 'danger')) }}">
-                                    {{ ucfirst(str_replace('_', ' ', $vacacion->estado)) }}
-                                </span>
-                            </td>
-                            <td class="px-10 py-4 text-sm text-gray-700">{{ $vacacion->reintegro }}</td>
-                            <td>{{ $vacacion->comentario ?? 'Sin comentario' }}</td>
-                            <td>
-                                @if($vacacion->estado == 'pendiente' || $vacacion->estado == 'pendientes_aprobacion')
-                                    <button class="btn btn-outline-success btn-sm me-1" data-bs-toggle="tooltip"
-                                        title="Aprobar Solicitud" onclick="confirmAction('aprobar', {{ $vacacion->id }})">
-                                        <i class="fas fa-check"></i>
-                                    </button>
+                                            <button class="btn btn-outline-danger btn-sm me-1" data-bs-toggle="tooltip"
+                                                title="Rechazar Solicitud" onclick="confirmAction('rechazar', {{ $vacacion->id }})">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        @endif
+                                        <button class="btn btn-outline-info btn-sm" onclick="openCommentModal({{ $vacacion->id }})"
+                                            title="Agregar Comentario">
+                                            <i class="fas fa-comment"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
-                                    <button class="btn btn-outline-danger btn-sm me-1" data-bs-toggle="tooltip"
-                                        title="Rechazar Solicitud" onclick="confirmAction('rechazar', {{ $vacacion->id }})">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                @endif
-                                <button class="btn btn-outline-info btn-sm" onclick="openCommentModal({{ $vacacion->id }})"
-                                    title="Agregar Comentario">
-                                    <i class="fas fa-comment"></i>
-                                </button>
-                            </td>
-                        </tr>
-                @endforeach
-            </tbody>
-        </table>
         <!-- Paginación -->
         <div class="d-flex justify-content-center">
             {{ $vacacionesGenerales->appends(request()->query())->links() }}

@@ -40,6 +40,44 @@
                 {{ session('error') }}
             </div>
         @endif
+        {{-- Filtros --}}
+        <div class="mb-6">
+            <form action="{{ route('supervisor.permisos.index') }}" method="GET" class="flex flex-wrap gap-4">
+                {{-- Filtro por nombre de empleado --}}
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre del Empleado:</label>
+                    <input type="text" name="nombre" id="nombre" value="{{ request('nombre') }}"
+                        class="form-control mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nombre del empleado">
+                </div>
+
+                {{-- Filtro por estado --}}
+                <div>
+                    <label for="estado" class="block text-sm font-medium text-gray-700">Estado:</label>
+                    <select name="estado" id="estado"
+                        class="form-control mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                        <option value="pendiente_aprobacion" {{ request('estado') == 'pendiente_aprobacion' ? 'selected' : '' }}>Pendiente de Aprobación</option>
+                        <option value="aprobado" {{ request('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
+                        <option value="rechazado" {{ request('estado') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                    </select>
+                </div>
+
+                {{-- Botón de buscar --}}
+                <div class="flex items-end gap-2">
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition">
+                        Filtrar
+                    </button>
+                    <a href="{{ route('supervisor.permisos.index') }}"
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition">
+                        Limpiar Filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+
+
 
         <!-- // TODO: Tabla de los empleados bajo su cargo -->
 
@@ -60,6 +98,7 @@
                             <th class="py-2 px-4 border-b text-left">Fecha de Inicio</th>
                             <th class="py-2 px-4 border-b text-left">Fecha de Fin</th>
                             <th class="py-2 px-4 border-b text-left">Días</th>
+                            <th class="px-2 py-4 text-left text-sm font-medium">Reintegro</th>
                             <th class="py-2 px-4 border-b text-left">Estado</th>
                             <th class="py-2 px-4 border-b text-left rounded-tr-lg">Acciones</th>
                         </tr>
@@ -75,6 +114,7 @@
                                 <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}
                                 </td>
                                 <td class="py-2 px-4 border-b">{{ $permiso->dias_laborables }}</td>
+                                <td class="px-2 py-4 whitespace-nowrap">{{ $permiso->reintegro }}</td>
                                 <td class="py-2 px-4 border-b">
                                     @if($permiso->estado == 'pendiente')
                                         <span class="badge bg-warning text-white">Pendiente</span>
@@ -132,6 +172,7 @@
                         <th class="py-2 px-4 border-b text-left">Fecha de Inicio</th>
                         <th class="py-2 px-4 border-b text-left">Fecha de Fin</th>
                         <th class="py-2 px-4 border-b text-left">Días</th>
+                        <th class="px-2 py-4 text-left text-sm font-medium">Reintegro</th>
                         <th class="py-2 px-4 border-b text-left">Estado</th>
                         <th class="py-2 px-4 border-b text-left">Comentario</th>
                         <th class="py-2 px-4 border-b text-left rounded-tr-lg">Acciones</th>
@@ -148,6 +189,7 @@
                             <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}
                             </td>
                             <td class="py-2 px-4 border-b">{{ $permiso->dias_laborables }}</td>
+                            <td class="px-2 py-4 whitespace-nowrap">{{ $permiso->reintegro }}</td>
                             <td class="py-2 px-4 border-b">
                                 @if($permiso->estado == 'pendiente')
                                     <span class="badge bg-warning text-white">Pendiente</span>

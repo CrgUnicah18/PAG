@@ -76,6 +76,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::get('/anuncios', [AnuncioController::class, 'index'])->name('anuncios.index');
     Route::get('/anuncios/crear', [AnuncioController::class, 'create'])->name('anuncios.create');
     Route::post('/anuncios', [AnuncioController::class, 'store'])->name('anuncios.store');
+    // Ruta para reaccionar a un anuncio
+    Route::post('/anuncios/{anuncio}/reaccionar', [AnuncioController::class, 'reactToAnuncio'])->name('anuncios.react');
 
     // Rutas para empleados
     Route::resource('empleados', EmpleadoController::class);
@@ -164,6 +166,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('supervisor')->name('supervisor.'
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio.home');
 
     Route::get('/anuncios', [AnuncioController::class, 'index'])->name('anuncios.index');
+    // Ruta para reaccionar a un anuncio
+    Route::post('/anuncios/{anuncio}/reaccionar', [AnuncioController::class, 'reactToAnuncio'])->name('anuncios.react');
 
     // Rutas para empleados (solo vista de empleados, no creación ni edición)
     Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');

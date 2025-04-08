@@ -82,7 +82,6 @@ class Empleado extends Model
     {
         return $this->hasMany(Reaccion::class, 'empleado_id');
     }
-
     public function calcularBalanceVacaciones()
     {
         $fechaIngreso = Carbon::parse($this->fecha_ingreso); // Fecha de ingreso del empleado
@@ -93,71 +92,84 @@ class Empleado extends Model
         // Calcular los años trabajados
         $anosTrabajados = $fechaIngreso->diffInYears($fechaActual);
 
-        \Log::info("Años trabajados: " . $anosTrabajados);
+        // Verificar si el empleado ha cumplido un año
+        // Usamos clone para evitar modificar la fecha de ingreso original
+        $fechaCumpleUnAno = $fechaIngreso->copy()->addYear(1);
+        $hasCumplidoUnAno = $fechaCumpleUnAno->lte($fechaActual);
 
-        // Lógica según los años trabajados
-        if ($anosTrabajados < 1) {
-            // Empleado con menos de un año de trabajo
-            $mesIngreso = $fechaIngreso->month; // Mes de ingreso
-            $mesActual = $fechaActual->month; // Mes actual
-            $mesesTrabajados = $mesActual - $mesIngreso; // Meses trabajados desde el ingreso
-            $mesesRestantesDelAno = 12 - $mesIngreso; // Meses restantes del año desde el ingreso
+        \Log::info("Fecha de ingreso: " . $fechaIngreso->format('Y-m-d'));
+        \Log::info("¿Ha cumplido un año?: " . ($hasCumplidoUnAno ? 'Sí' : 'No'));
 
-            // Vacaciones proporcionales hasta diciembre
-            $diasTotales = round(($mesesRestantesDelAno / 12) * 10); // Total de días legales hasta diciembre
-            $vacacionesRestantes = round(($mesesTrabajados / 12) * 10); // Días acumulados hasta el mes actual
+        // Caso 1: Si no ha cumplido un año, se calcula proporcional
+        if (!$hasCumplidoUnAno) {
+            // Si el empleado ingresó el año pasado, contamos desde enero
+            if ($fechaIngreso->year < $fechaActual->year) {
+                // Calcular meses trabajados desde enero hasta la fecha actual
+                $mesesTrabajados = $fechaActual->month;
+                \Log::info("Meses trabajados (desde enero): " . $mesesTrabajados);
+            } else {
+                // Calcular meses trabajados desde el ingreso hasta la fecha actual
+                $mesesTrabajados = $fechaIngreso->diffInMonths($fechaActual) + 1;
+                \Log::info("Meses trabajados (desde ingreso): " . $mesesTrabajados);
+            }
 
-            \Log::info("Meses trabajados: " . $mesesTrabajados);
-            \Log::info("Meses restantes del año: " . $mesesRestantesDelAno);
-            \Log::info("Vacaciones proporcionales acumuladas: " . $vacacionesRestantes);
-        } elseif ($anosTrabajados >= 1 && $anosTrabajados < 2) {
-            // Empleado con 1 año de trabajo
-            $diasTotales = 10; // Vacaciones completas
-            $vacacionesRestantes = $diasTotales; // Disponibilidad completa
-        } elseif ($anosTrabajados >= 2 && $anosTrabajados < 3) {
-            $diasTotales = 12; // Vacaciones completas
-            $vacacionesRestantes = $diasTotales;
-        } elseif ($anosTrabajados >= 3 && $anosTrabajados < 4) {
-            $diasTotales = 15; // Vacaciones completas
-            $vacacionesRestantes = $diasTotales;
-        } else {
-            $diasTotales = 20; // Vacaciones completas
-            $vacacionesRestantes = $diasTotales;
+            $diasTotales = 10; // Base para cálculo proporcional
+            $vacacionesRestantes = ceil(($mesesTrabajados / 12) * $diasTotales);
+            \Log::info("Cálculo proporcional: " . $mesesTrabajados . "/12 * 10 = " . $vacacionesRestantes);
+        }
+        // Caso 2: Si ya cumplió un año o más, asignar días completos según antigüedad
+        else {
+            if ($anosTrabajados < 2) {
+                $diasTotales = 10; // 10 días completos después de 1 año
+                $vacacionesRestantes = 10;
+            } elseif ($anosTrabajados < 3) {
+                $diasTotales = 12; // 12 días completos después de 2 años
+                $vacacionesRestantes = 12;
+            } elseif ($anosTrabajados < 4) {
+                $diasTotales = 15; // 15 días completos después de 3 años
+                $vacacionesRestantes = 15;
+            } else {
+                $diasTotales = 20; // 20 días completos después de 4 años o más
+                $vacacionesRestantes = 20;
+            }
+            \Log::info("Vacaciones asignadas por antigüedad: " . $vacacionesRestantes);
         }
 
-        \Log::info("Vacaciones Totales: " . $diasTotales);
-        \Log::info("Vacaciones Restantes antes de restar: " . $vacacionesRestantes);
-
-        // Obtener las vacaciones no rechazadas y contar solo los días hábiles
+        // Calcular los días que ya ha tomado en el año actual
         $vacacionesNoRechazadas = $this->vacaciones()
             ->whereIn('estado', ['aprobadas', 'pendiente', 'pendientes_aprobacion'])
+            ->whereYear('fecha_inicio', $fechaActual->year) // Solo del año actual
             ->get();
 
         $diasTomados = 0;
 
+        // Contar los días hábiles tomados
         foreach ($vacacionesNoRechazadas as $vacacion) {
             $inicio = Carbon::parse($vacacion->fecha_inicio);
             $fin = Carbon::parse($vacacion->fecha_fin);
 
-            while ($inicio->lte($fin)) { // Mientras el inicio sea menor o igual al fin
-                if ($inicio->isWeekday()) { // Solo contar lunes a viernes
+            \Log::info("Solicitud de Vacaciones: De " . $vacacion->fecha_inicio . " a " . $vacacion->fecha_fin);
+
+            while ($inicio->lte($fin)) {
+                if ($inicio->isWeekday()) {
                     $diasTomados++;
                 }
                 $inicio->addDay();
             }
         }
 
-        \Log::info("Vacaciones No Rechazadas (solo días hábiles): " . $diasTomados);
+        \Log::info("Total de Días Tomados en " . $fechaActual->year . ": " . $diasTomados);
 
-        // Restar los días hábiles tomados de las vacaciones restantes
-        $vacacionesRestantes -= min($diasTomados, $vacacionesRestantes);
-        $vacacionesRestantes = max($vacacionesRestantes, 0);
+        // Restar los días tomados de las vacaciones restantes
+        $vacacionesRestantes -= $diasTomados;
+        $vacacionesRestantes = max($vacacionesRestantes, 0); // Evitar valores negativos
 
-        \Log::info("Vacaciones Restantes después de la resta: " . $vacacionesRestantes);
+        \Log::info("Vacaciones Anuales Totales: " . $diasTotales);
+        \Log::info("Vacaciones Restantes: " . $vacacionesRestantes);
 
         // Actualizar los campos del modelo
         $this->vacaciones_restantes = $vacacionesRestantes;
-        $this->vacaciones_tomadas = $diasTotales; // Total de días legales del año
+        $this->vacaciones_tomadas = $diasTomados; // Días tomados este año
         $this->save();
 
         return [
@@ -165,6 +177,8 @@ class Empleado extends Model
             'vacaciones_tomadas' => $diasTotales,
         ];
     }
+
+
 
     public function restaurarVacaciones($dias)
     {

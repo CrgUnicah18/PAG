@@ -21,8 +21,15 @@ class PermisoController extends Controller
         $user = auth()->user();
         $empleado = Empleado::find($user->empleado_id);
 
+        // Obtener los filtros desde la solicitud
         $estado = $request->input('estado');
-        $nombreEmpleado = $request->nombreEmpleado;
+        $nombreEmpleado = $request->input('nombreEmpleado');
+
+        // Guardar los filtros en la sesión para mantenerlos
+        session([
+            'estado' => $estado,
+            'nombreEmpleado' => $nombreEmpleado,
+        ]);
 
         if (!$empleado) {
             return redirect()->back()->with('error', 'El empleado no existe en el sistema.');
@@ -45,8 +52,9 @@ class PermisoController extends Controller
             if ($empleadosBajoSupervision->isNotEmpty()) {
                 $permisosEmpleados = Permiso::whereIn('empleado_id', $empleadosBajoSupervision->pluck('id'))
                     ->when($nombreEmpleado, function ($query, $nombreEmpleado) {
-                        return $query->whereHas('empleado', function ($query) use ($nombreEmpleado) {
-                            $query->where('nombre', 'like', '%' . $nombreEmpleado . '%');
+                        return $query->whereHas('empleado', function ($q) use ($nombreEmpleado) {
+                            $q->where('nombre', 'like', '%' . $nombreEmpleado . '%')
+                                ->orWhere('apellido', 'like', '%' . $nombreEmpleado . '%');
                         });
                     })
                     ->when($estado, function ($query, $estado) {
@@ -168,6 +176,7 @@ class PermisoController extends Controller
 
         return redirect()->back()->with('error', 'No tienes acceso a esta sección.');
     }
+
 
     // FIXME: Mostrar el formulario para solicitar un permiso
     public function create()

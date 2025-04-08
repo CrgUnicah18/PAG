@@ -50,7 +50,7 @@
                 class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
 
                 {{-- Input de búsqueda por nombre --}}
-                <input type="text" name="nombreEmpleado" value="{{ request('nombreEmpleado') }}"
+                <input type="text" name="nombreEmpleado" value="{{ session('nombreEmpleado') }}"
                     class="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="Buscar por nombre de empleado">
 
@@ -60,11 +60,11 @@
                     <select name="estado" id="estado"
                         class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="">Todos</option>
-                        <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                        <option value="pendiente_aprobacion" {{ request('estado') == 'pendiente_aprobacion' ? 'selected' : '' }}>
+                        <option value="pendiente" {{ session('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                        <option value="pendiente_aprobacion" {{ session('estado') == 'pendiente_aprobacion' ? 'selected' : '' }}>
                             Pendiente de Aprobación</option>
-                        <option value="aprobado" {{ request('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
-                        <option value="rechazado" {{ request('estado') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                        <option value="aprobado" {{ session('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
+                        <option value="rechazado" {{ session('estado') == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
                     </select>
                 </div>
 
@@ -87,148 +87,162 @@
         {{-- Tabla de todos los permisos --}}
         <h3 class="text-2xl font-semibold text-gray-800 mb-4">Permisos de Todos los Empleados</h3>
         <div class="overflow-x-auto shadow-md sm:rounded-lg mb-6">
-            <table class="min-w-full bg-white border border-gray-200">
-                <thead class="bg-indigo-600 text-white text-center">
-                    <tr>
-                        <th class="px-8 py-4 text-left text-sm font-medium">Empleado</th>
-                        <th class="px-8 py-4 text-left text-sm font-medium">Cargo</th>
-                        <th class="px-8 py-4 text-left text-sm font-medium">Tipo de Permiso</th>
-                        <th class="px-600 py-4 text-left text-sm font-medium">Fechas</th>
-                        <th class="px-8 py-4 text-left text-sm font-medium">Días</th> <!-- Nueva columna -->
-                        <th class="px-8 py-4 text-left text-sm font-medium">Reintegro</th> <!-- Nueva columna -->
-                        <th class="px-8 py-4 text-left text-sm font-medium">Estado</th>
-                        <th class="px-8 py-4 text-left text-sm font-medium">Comentario</th>
-                        <th class="px-8 py-4 text-left text-sm font-medium">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($permisos as $permiso)
-                        <tr class="border-b border-gray-200">
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->empleado->nombre . " " . $permiso->empleado->apellido }}</td>
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->empleado->cargo }}</td>
-                            <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->tipoPermiso->nombre }}</td>
-                            <td class="px-600 py-4 text-sm text-gray-700">{{ $permiso->fecha_inicio }} - {{ $permiso->fecha_fin }}
-                            </td>
-                            <td class="px-8 py-4">{{ $permiso->dias_laborables }}</td>
-                            <td class="px-8 py-4">{{ $permiso->reintegro }}</td>
-                            <td class="px-8 py-4 text-sm text-gray-700">
-                                @if($permiso->estado == 'pendiente')
-                                    <span class="px-3 py-1 rounded-full text-white bg-yellow-500">Pendiente</span>
-                                @elseif($permiso->estado == 'pendiente_aprobacion')
-                                    <span class="px-3 py-1 rounded-full text-white bg-blue-500">Pendiente</span>
-                                @elseif($permiso->estado == 'aprobado')
-                                    <span class="px-3 py-1 rounded-full text-white bg-green-500">Aprobado</span>
-                                @else
-                                    <span class="px-3 py-1 rounded-full text-white bg-red-500">Rechazado</span>
-                                @endif
-                            </td>
-                            <td class="px-8 py-4 text-sm text-gray-600">
-                                @if($permiso->comentario)
-                                    <div class="comment-container">
-                                        {{-- Dividiendo los comentarios si es necesario para mayor claridad --}}
-                                        @foreach(explode("\n", $permiso->comentario) as $line)
-                                            <p class="comment-line">{{ $line }}</p>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <span class="text-gray-400 italic">Sin comentario</span>
-                                @endif
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead class="bg-indigo-600 text-white text-center">
+                        <tr>
+                            <th class="px-8 py-4 text-left text-sm font-medium">Empleado</th>
+                            <th class="px-8 py-4 text-left text-sm font-medium">Cargo</th>
+                            <th class="px-8 py-4 text-left text-sm font-medium">Tipo de Permiso</th>
+                            <th class="px-8 py-4 text-left text-sm font-medium w-48">Fechas</th>
+                            <th class="px-8 py-4 text-left text-sm font-medium">Días</th> <!-- Nueva columna -->
+                            <th class="px-8 py-4 text-left text-sm font-medium">Reintegro</th> <!-- Nueva columna -->
+                            <th class="px-8 py-4 text-left text-sm font-medium">Estado</th>
+                            <th class="px-8 py-4 text-left text-sm font-medium">Comentario</th>
+                            <th class="px-8 py-4 text-left text-sm font-medium">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($permisos as $permiso)
+                            <tr class="border-b border-gray-200">
+                                <td class="px-8 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                    {{ $permiso->empleado->nombre . " " . $permiso->empleado->apellido }}
+                                </td>
+                                <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->empleado->cargo }}</td>
+                                <td class="px-8 py-4 text-sm text-gray-700">{{ $permiso->tipoPermiso->nombre }}</td>
+                                <td class="px-8 py-4 text-sm text-gray-700 whitespace-nowrap">{{ $permiso->fecha_inicio }} -
+                                    {{ $permiso->fecha_fin }}
+                                </td>
+                                <td class="px-8 py-4">{{ $permiso->dias_laborables }}</td>
+                                <td class="px-8 py-4 whitespace-nowrap">{{ $permiso->reintegro }}</td>
+                                <td class="px-8 py-4 text-sm text-gray-700">
+                                    @if($permiso->estado == 'pendiente')
+                                        <span class="px-3 py-1 rounded-full text-white bg-yellow-500">Pendiente</span>
+                                    @elseif($permiso->estado == 'pendiente_aprobacion')
+                                        <span class="px-3 py-1 rounded-full text-white bg-blue-500">Pendiente</span>
+                                    @elseif($permiso->estado == 'aprobado')
+                                        <span class="px-3 py-1 rounded-full text-white bg-green-500">Aprobado</span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full text-white bg-red-500">Rechazado</span>
+                                    @endif
+                                </td>
+                                <td class="px-8 py-4 text-sm text-gray-600">
+                                    @if($permiso->comentario)
+                                        <div class="comment-container">
+                                            {{-- Dividiendo los comentarios si es necesario para mayor claridad --}}
+                                            @foreach(explode("\n", $permiso->comentario) as $line)
+                                                <p class="comment-line">{{ $line }}</p>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400 italic">Sin comentario</span>
+                                    @endif
 
-                                {{-- Ver Subsidio --}}
-                                @if($permiso->subsidio_archivo)
-                                    <div class="mt-2">
-                                        <a href="{{ asset('storage/' . $permiso->subsidio_archivo) }}" target="_blank"
-                                            class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 hover:underline">
-                                            <i class="fa fa-file mr-1 text-red-600"></i> Refrendamiento
-                                        </a>
-                                    </div>
-                                @endif
-                            </td>
+                                    {{-- Ver Subsidio --}}
+                                    @if($permiso->subsidio_archivo)
+                                        <div class="mt-2">
+                                            <a href="{{ asset('storage/' . $permiso->subsidio_archivo) }}" target="_blank"
+                                                class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 hover:underline">
+                                                <i class="fa fa-file mr-1 text-red-600"></i> Refrendamiento
+                                            </a>
+                                        </div>
+                                    @endif
+                                </td>
 
 
-                            <td class="px-6 py-4 text-sm">
-                                <button data-bs-toggle="modal" data-bs-target="#commentModal{{ $permiso->id }}"
-                                    class="bg-yellow-500 text-white hover:bg-yellow-400 rounded-lg px-3 py-1 text-xs"
-                                    title="Comentario">
-                                    <i class="fas fa-comment-dots text-xl"></i>
-                                </button>
-
-                                @if($permiso->estado === 'pendiente' || $permiso->estado === 'pendiente_aprobacion')
-                                    <!-- Botón para abrir el modal de aprobación o rechazo -->
-                                    <button data-bs-toggle="modal" data-bs-target="#approveRejectModal{{ $permiso->id }}"
-                                        class="bg-blue-500 text-white hover:bg-blue-400 rounded-lg px-3 py-1 text-xs">
-                                        <i class="fas fa-check-circle text-xl"></i>
+                                <td class="px-6 py-4 text-sm whitespace-nowrap">
+                                    <button data-bs-toggle="modal" data-bs-target="#commentModal{{ $permiso->id }}"
+                                        class="bg-yellow-500 text-white hover:bg-yellow-400 rounded-lg px-3 py-1 text-xs"
+                                        title="Comentario">
+                                        <i class="fas fa-comment-dots text-xl"></i>
                                     </button>
 
-                                @endif
+                                    @if($permiso->estado === 'pendiente' || $permiso->estado === 'pendiente_aprobacion')
+                                        <!-- Botón para abrir el modal de aprobación o rechazo -->
+                                        <button data-bs-toggle="modal" data-bs-target="#approveRejectModal{{ $permiso->id }}"
+                                            class="bg-blue-500 text-white hover:bg-blue-400 rounded-lg px-3 py-1 text-xs ">
+                                            <i class="fas fa-check-circle text-xl"></i>
+                                        </button>
 
-                            </td>
+                                    @endif
 
-                        </tr>
-                        <!-- Modal de Aprobación/Rechazo -->
-                        <div class="modal fade" id="approveRejectModal{{ $permiso->id }}" tabindex="-1"
-                            aria-labelledby="approveRejectModalLabel{{ $permiso->id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="approveRejectModalLabel{{ $permiso->id }}">Aprobar o
-                                            Rechazar
-                                            Solicitud de Permiso</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>¿Estás seguro de que deseas aprobar o rechazar esta solicitud de permiso?</p>
+                                </td>
 
-                                        <form
-                                            action="{{ route('admin.permisos.aprobar', ['id' => $permiso->id, 'estado' => request('estado'), 'nombreEmpleado' => request('nombreEmpleado')]) }}"
-                                            method="POST">
-                                            @csrf
-                                            <button type="submit"
-                                                class="bg-green-500 text-white px-4 py-2 rounded-md">Aprobar</button>
-                                        </form>
+                            </tr>
+                            <!-- Modal de Aprobación/Rechazo -->
+                            <div class="modal fade" id="approveRejectModal{{ $permiso->id }}" tabindex="-1"
+                                aria-labelledby="approveRejectModalLabel{{ $permiso->id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="approveRejectModalLabel{{ $permiso->id }}">Aprobar o
+                                                Rechazar
+                                                Solicitud de Permiso</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="mb-4">¿Estás seguro de que deseas aprobar o rechazar esta solicitud de
+                                                permiso?</p>
 
-                                        <form
-                                            action="{{ route('admin.permisos.declinar', ['id' => $permiso->id, 'estado' => request('estado'), 'nombreEmpleado' => request('nombreEmpleado')]) }}"
-                                            method="POST">
-                                            @csrf
-                                            <button type="submit"
-                                                class="bg-red-500 text-white px-4 py-2 rounded-md">Rechazar</button>
-                                        </form>
+                                            <div class="flex space-x-4">
+                                                <form action="{{ route('admin.permisos.aprobar', ['id' => $permiso->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="estado" value="{{ session('NombreEmpleado') }}">
+                                                    <input type="hidden" name="nombreEmpleado"
+                                                        value="{{ request('nombreEmpleado') }}">
+                                                    <button type="submit"
+                                                        class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">Aprobar</button>
+                                                </form>
 
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                                <form action="{{ route('admin.permisos.declinar', ['id' => $permiso->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="estado" value="{{ session('estado')}}">
+                                                    <input type="hidden" name="nombreEmpleado"
+                                                        value="{{ request('nombreEmpleado') }}">
+                                                    <button type="submit"
+                                                        class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">Rechazar</button>
+                                                </form>
+                                            </div>
 
-                        <!-- Modal para Comentario -->
-                        <div class="modal fade" id="commentModal{{ $permiso->id }}" tabindex="-1"
-                            aria-labelledby="commentModalLabel{{ $permiso->id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="commentModalLabel{{ $permiso->id }}">Agregar un Comentario
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{ route('admin.permisos.comentar', $permiso->id) }}" method="POST">
-                                            @csrf
-                                            <textarea name="comentario" rows="4" class="px-4 py-2 border rounded-md w-full"
-                                                required></textarea>
-                                            <button type="submit"
-                                                class="bg-indigo-600 text-white px-4 py-2 rounded-md mt-2">Guardar
-                                                Comentario</button>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                    @endforeach
-                </tbody>
-            </table>
+                            <!-- Modal para Comentario -->
+                            <div class="modal fade" id="commentModal{{ $permiso->id }}" tabindex="-1"
+                                aria-labelledby="commentModalLabel{{ $permiso->id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="commentModalLabel{{ $permiso->id }}">Agregar un
+                                                Comentario
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="{{ route('admin.permisos.comentar', $permiso->id) }}" method="POST">
+                                                @csrf
+                                                <textarea name="comentario" rows="4" class="px-4 py-2 border rounded-md w-full"
+                                                    required></textarea>
+                                                <button type="submit"
+                                                    class="bg-indigo-600 text-white px-4 py-2 rounded-md mt-2">Guardar
+                                                    Comentario</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
             <!-- Paginación -->
             <div class="mt-6">
                 {{ $permisos->appends(['estado' => request('estado'), 'empleado' => request('empleado')])->links('vendor.pagination.tailwind') }}

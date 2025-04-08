@@ -47,6 +47,7 @@
                         <th class="px-4 py-3 text-left text-white">Fecha de Inicio</th>
                         <th class="px-4 py-3 text-left text-white">Fecha de Fin</th>
                         <th class="px-4 py-3 text-left text-white">Días</th>
+                        <th class="px-4 py-3 text-left text-white">Reintegro</th>
                         <th class="px-4 py-3 text-left text-white">Estado</th>
                         <th class="px-4 py-3 text-left text-white">Comentario</th>
                         <th class="px-4 py-3 text-center text-white">Acciones</th>
@@ -60,6 +61,8 @@
                             <td class="px-4 py-3">{{ \Carbon\Carbon::parse($permiso->fecha_inicio)->format('d/m/Y') }}</td>
                             <td class="px-4 py-3">{{ \Carbon\Carbon::parse($permiso->fecha_fin)->format('d/m/Y') }}</td>
                             <td class="px-4 py-3">{{ $permiso->dias_laborables }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ $permiso->reintegro }}</td>
+
                             <td class="px-4 py-3">
                                 @if($permiso->estado == 'pendiente')
                                     <span

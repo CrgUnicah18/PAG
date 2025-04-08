@@ -16,7 +16,7 @@
                     <label for="name" class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
                     <input type="text"
                         class="form-control mt-2 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        id="name" name="name" required>
+                        id="name" name="name" autocomplete="username" required>
                 </div>
 
                 <!-- Campo para el correo electrónico -->
@@ -24,7 +24,7 @@
                     <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                     <input type="email"
                         class="form-control mt-2 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        id="email" name="email" required>
+                        id="email" name="email" autocomplete="email" required>
                 </div>
 
                 <!-- Campo para la contraseña -->
@@ -32,7 +32,7 @@
                     <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                     <input type="password"
                         class="form-control mt-2 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        id="password" name="password" required>
+                        id="password" name="password" autocomplete="new-password" required>
                 </div>
 
                 <!-- Campo para confirmar la contraseña -->
@@ -41,7 +41,7 @@
                         Contraseña</label>
                     <input type="password"
                         class="form-control mt-2 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        id="password_confirmation" name="password_confirmation" required>
+                        id="password_confirmation" name="password_confirmation" autocomplete="new-password" required>
                 </div>
 
                 <!-- Campo oculto para el ID del empleado -->
