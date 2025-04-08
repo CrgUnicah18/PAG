@@ -5,42 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restablecer Contraseña</title>
+    <!-- Agregar una referencia a Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body style="font-family: Arial, sans-serif; padding: 20px;">
-    <h2>Restablecer Contraseña</h2>
-    <p>Para restablecer tu contraseña, ingresa el PIN que se te ha enviado por correo y tu nueva contraseña.</p>
+<body class="bg-gray-50 font-sans flex items-center justify-center min-h-screen p-6">
 
-    <!-- Formulario para ingresar el PIN y la nueva contraseña -->
-    <form action="{{ route('password.reset.submit') }}" method="POST">
-        @csrf
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96">
+        <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">Restablecer Contraseña</h2>
+        <p class="text-center text-gray-600 mb-6">Para restablecer tu contraseña, ingresa el PIN que se te ha enviado
+            por correo y tu nueva contraseña.</p>
 
-        <!-- Campo para el PIN -->
-        <div style="margin-bottom: 10px;">
-            <label for="pin">PIN</label>
-            <input type="text" name="pin" id="pin" required
-                style="padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px;">
-        </div>
+        <!-- Formulario para ingresar el PIN y la nueva contraseña -->
+        <form action="{{ route('password.reset.submit') }}" method="POST">
+            @csrf
 
-        <!-- Campo para la nueva contraseña -->
-        <div style="margin-bottom: 10px;">
-            <label for="new_password">Nueva Contraseña</label>
-            <input type="password" name="new_password" id="new_password" required
-                style="padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px;">
-        </div>
+            <!-- Campo para el PIN -->
+            <div class="mb-4">
+                <label for="pin" class="block text-sm font-medium text-gray-700">PIN</label>
+                <input type="text" name="pin" id="pin" required
+                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
 
-        <!-- Campo para confirmar la nueva contraseña -->
-        <div style="margin-bottom: 10px;">
-            <label for="new_password_confirmation">Confirmar Nueva Contraseña</label>
-            <input type="password" name="new_password_confirmation" id="new_password_confirmation" required
-                style="padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px;">
-        </div>
+            <!-- Campo para la nueva contraseña -->
+            <div class="mb-4">
+                <label for="new_password" class="block text-sm font-medium text-gray-700">Nueva Contraseña</label>
+                <input type="password" name="new_password" id="new_password" required
+                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
 
-        <button type="submit"
-            style="padding: 10px 20px; background-color: #007BFF; color: white; border: none; border-radius: 5px;">
-            Restablecer Contraseña
-        </button>
-    </form>
+            <!-- Campo para confirmar la nueva contraseña -->
+            <div class="mb-6">
+                <label for="new_password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar Nueva
+                    Contraseña</label>
+                <input type="password" name="new_password_confirmation" id="new_password_confirmation" required
+                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button type="submit"
+                class="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                Restablecer Contraseña
+            </button>
+        </form>
+    </div>
+
 </body>
 
 </html>

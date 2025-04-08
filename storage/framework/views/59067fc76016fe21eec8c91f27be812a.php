@@ -1,7 +1,9 @@
 <?php
-    $bgColor = auth()->user()->hasRole('admin') ? 'bg-[#B91C1C]' :
+    $bgColor = auth()->user()->hasRole('admin') ? 'bg-[#7C2569]' :
         (auth()->user()->hasRole('supervisor') ? 'bg-[#235EA7]' : 'bg-[#75B23B]');
 ?>
+
+
 
 <aside
     class="<?php echo e($bgColor); ?> text-white w-64 h-screen fixed top-0 left-0 flex flex-col z-20 lg:w-64 sm:w-full  sm:fixed sm:top-0 sm:left-0">

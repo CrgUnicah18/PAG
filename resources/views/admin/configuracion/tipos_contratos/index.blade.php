@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary mb-3">
+    <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary mb-3 mt-3">
         ← Volver al menú de configuración
     </a>
 
