@@ -100,6 +100,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::get('permisos/formulario', [PermisoController::class, 'mostrarFormulario'])->name('permisos.formulario');
     Route::match(['get', 'post'], 'permisos/reporte', [PermisoController::class, 'generarReporte'])->name('permisos.reporte');
     Route::get('permisos/reporte/pdf', [PermisoController::class, 'descargarPDF'])->name('permisos.reporte.pdf');
+    Route::get('permisos/{id}/formato', [PermisoController::class, 'generarFormatoPermiso'])->name('permisos.formato');
+
 
     // Rutas para vacaciones
     Route::get('vacaciones', [VacacionController::class, 'index'])->name('vacaciones.index');
@@ -108,6 +110,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'rechazar'])->name('vacaciones.declinar');
     Route::post('vacaciones/addComentario/{vacacion}', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
+    Route::get('vacaciones/formato/{id}', [VacacionController::class, 'generarFormatoVacacion'])->name('vacacion.formato');
 
 
     Route::get('/notificaciones/permisos', [NotificacionController::class, 'indexPermisos'])

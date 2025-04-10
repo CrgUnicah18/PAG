@@ -687,4 +687,39 @@ class PermisoController extends Controller
     {
         return Carbon::parse($permiso->fecha_inicio)->diffInDays(Carbon::parse($permiso->fecha_fin)) + 1;
     }
+
+    public function generarFormatoPermiso($permisoId)
+    {
+        // Obtener el permiso específico por su ID
+        $permiso = Permiso::findOrFail($permisoId);
+        // Obtener el tipo de permiso relacionado
+        $tipoPermiso = $permiso->tipoPermiso;
+
+        // Comprobar si el permiso está aprobado
+        if ($permiso->estado !== 'aprobado') {
+            return redirect()->back()->with('error', 'Este permiso no ha sido aprobado aún.');
+        }
+
+        // Calcular los días laborables para este permiso
+        $fechaInicio = Carbon::parse($permiso->fecha_inicio);
+        $fechaFin = Carbon::parse($permiso->fecha_fin);
+
+        $diasLaborables = 0;
+        $fechaAuxiliar = $fechaInicio->copy();
+
+        while ($fechaAuxiliar->lte($fechaFin)) {
+            if (!$fechaAuxiliar->isWeekend()) {
+                $diasLaborables++;
+            }
+            $fechaAuxiliar->addDay();
+        }
+
+        $permiso->dias_laborables = $diasLaborables; // Asignar el valor calculado a la propiedad del permiso
+        $permiso->periodo = Carbon::now()->year; // Asignar el año actual al campo periodo
+
+        $pdf = Pdf::loadView('admin.permisos.permiso_formato', compact('permiso', 'tipoPermiso'));
+
+        return $pdf->download('Solicitud de Permiso ' . $permiso->empleado->nombre . " " . $permiso->empleado->apellido . '.pdf');
+    }
+
 }
