@@ -43,6 +43,11 @@
             </div>
         @endif
 
+        @if(session('message'))
+            <div class="alert alert-warning">
+                {{ session('message') }}
+            </div>
+        @endif
 
         <!-- Formulario de Login -->
         <form method="POST" action="{{ route('login.submit') }}">

@@ -800,6 +800,23 @@ class VacacionController extends Controller
         // Concatenar el nombre completo del empleado en la clase VacacionesExport
         return Excel::download(new VacacionesExport($request), 'reporte_vacaciones.xlsx');
     }
+    public function generarFormatoVacacion($vacacionId)
+    {
+        // Obtener la vacación específica por su ID, incluyendo la relación con el empleado
+        $vacacion = Vacacion::with('empleado')->findOrFail($vacacionId);
+
+        // Obtener el tipo de permiso relacionado
+        $tipoPermiso = $vacacion->tipoPermiso;
+
+        // Calcular los días laborables para este permiso
+        $fechaInicio = Carbon::parse($vacacion->fecha_inicio);
+        $fechaFin = Carbon::parse($vacacion->fecha_fin);
+        $vacacion->periodo = Carbon::now()->year; // Asignar el año actual al campo periodo
+
+        $pdf = Pdf::loadView('admin.vacaciones.vacacion_formato', compact('vacacion', 'tipoPermiso'));
+
+        return $pdf->download('Solicitud de vacaciones ' . $vacacion->empleado->nombre . " " . $vacacion->empleado->apellido . '.pdf');
+    }
 
 
 

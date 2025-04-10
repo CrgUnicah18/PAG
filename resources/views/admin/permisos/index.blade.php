@@ -165,8 +165,21 @@
                                         </button>
 
                                     @endif
+                                    @if($permiso->estado === 'aprobado')
+                                        <!-- Botón para descargar el formato de permiso -->
+                                        <a href="{{ route('admin.permisos.formato', $permiso->id) }}"
+                                            class="bg-green-500 text-white hover:bg-green-400 rounded-lg px-3 py-1 text-xs mt-2">
+                                            <i class="fas fa-download text-xl"></i> Descargar Formato
+                                        </a>
+                                    @else
+                                        <!-- Botón deshabilitado si no está aprobado -->
+                                        <button class="bg-gray-400 text-white rounded-lg px-3 py-1 text-xs mt-2" disabled>
+                                            <i class="fas fa-download text-xl"></i> No disponible
+                                        </button>
+                                    @endif
 
                                 </td>
+
 
                             </tr>
                             <!-- Modal de Aprobación/Rechazo -->
@@ -237,7 +250,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         @endforeach
                     </tbody>
                 </table>

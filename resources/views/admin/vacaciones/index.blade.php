@@ -129,6 +129,18 @@
                                             title="Agregar Comentario">
                                             <i class="fas fa-comment"></i>
                                         </button>
+                                        @if($vacacion->estado === 'aprobadas')
+                                            <!-- Botón para descargar el formato de vacacion -->
+                                            <a href="{{ route('admin.vacacion.formato', $vacacion->id) }}"
+                                                class="bg-green-500 text-white hover:bg-green-400 rounded-lg px-3 py-1 text-xs mt-2">
+                                                <i class="fas fa-download text-sm"></i>
+                                            </a>
+                                        @else
+                                            <!-- Botón deshabilitado si no está aprobado -->
+                                            <button class="bg-gray-400 text-white rounded-lg px-3 py-1 text-xs mt-2" disabled>
+                                                <i class="fas fa-download text-sm"></i>
+                                            </button>
+                                        @endif
                                     </td>
                                 </tr>
                     @endforeach
