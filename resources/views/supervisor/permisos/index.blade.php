@@ -47,7 +47,8 @@
                 <div>
                     <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre del Empleado:</label>
                     <input type="text" name="nombre" id="nombre" value="{{ request('nombre') }}"
-                        class="form-control mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nombre del empleado">
+                        class="form-control mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Nombre del empleado">
                 </div>
 
                 {{-- Filtro por estado --}}
@@ -213,11 +214,26 @@
                                     <span class="text-gray-400 italic">Sin comentario</span>
                                 @endif
                             <td class="py-2 px-4 border-b">
-                                <button data-bs-toggle="modal" data-bs-target="#commentModal{{ $permiso->id }}"
-                                    class="bg-yellow-500 text-white hover:bg-yellow-400 rounded-lg px-3 py-1 text-xs">
-                                    <i class="fas fa-comment-dots text-xl"></i> Comentar
-                                </button>
+                                <div class="flex flex-col items-center space-y-2">
+                                    <button data-bs-toggle="modal" data-bs-target="#commentModal{{ $permiso->id }}"
+                                        class="bg-yellow-500 text-white hover:bg-yellow-400 rounded-lg px-3 py-1 text-xs">
+                                        <i class="fas fa-comment-dots text-xl"></i> Comentar
+                                    </button>
+                                    @if($permiso->estado === 'aprobado')
+                                        <!-- Botón para descargar el formato de permiso -->
+                                        <a href="{{ route('supervisor.permisos.formato', $permiso->id) }}"
+                                            class="bg-green-500 text-white hover:bg-green-400 rounded-lg px-3 py-1 text-xs">
+                                            <i class="fas fa-download text-xl"></i>
+                                        </a>
+                                    @else
+                                        <!-- Botón deshabilitado si no está aprobado -->
+                                        <button class="bg-gray-400 text-white rounded-lg px-3 py-1 text-xs" disabled>
+                                            <i class="fas fa-download text-xl"></i>
+                                        </button>
+                                    @endif
+                                </div>
                             </td>
+
                         </tr>
                     @endforeach
                 </tbody>

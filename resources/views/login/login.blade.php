@@ -19,7 +19,7 @@
     <div class="p-8 rounded-lg shadow-lg max-w-md w-full" style="background-color: rgb(255, 255, 255);">
         <!-- Logo -->
         <div class="flex justify-center mb-6">
-            <img src="http://pag.test/images/logopag2.png" alt="Logo de la empresa" class="h-16">
+            <img src="http://pag.test/images/PAG Vertical Logo.png" alt="Logo de la empresa" class="h-16">
         </div>
 
         <!-- Título -->

@@ -94,11 +94,27 @@
                                     class="bg-yellow-500 text-white hover:bg-yellow-400 rounded-lg px-3 py-1 text-xs">
                                     <i class="fas fa-comment-dots text-xl"></i> Comentar
                                 </button>
+                                @if($permiso->estado === 'aprobado')
+                                    <!-- Botón para descargar el formato de permiso -->
+                                    <a href="{{ route('empleado.permisos.formato', $permiso->id) }}"
+                                        class="bg-green-500 text-white hover:bg-green-400 rounded-lg px-3 py-1 text-xs mt-2">
+                                        <i class="fas fa-download text-xl"></i>
+                                    </a>
+                                @else
+                                    <!-- Botón deshabilitado si no está aprobado -->
+                                    <button class="bg-gray-400 text-white rounded-lg px-3 py-1 text-xs mt-2" disabled>
+                                        <i class="fas fa-download text-xl"></i>
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            <!-- Paginación -->
+            <div class="mt-6">
+                {{ $permisosEmpleado->appends(['estado' => request('estado'), 'empleado' => request('empleado')])->links('vendor.pagination.tailwind') }}
+            </div>
         </div>
 
         {{-- Modales de comentario --}}

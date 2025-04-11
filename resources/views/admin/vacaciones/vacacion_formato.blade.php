@@ -117,7 +117,8 @@
                 <td class="label">Dias disponibles</td>
                 <td>{{ $vacacion->empleado->vacaciones_restantes ?? 0 }} días</td>
                 <td class="label">Periodo</td>
-                <td>{{ $vacacion->periodo }}</td>
+                <td>{{ $vacacion->periodo }} - {{ $vacacion->periodo + 1 }}</td>
+
             </tr>
             <tr>
                 <td class="label">Motivo</td>
@@ -138,7 +139,6 @@
     <div class="section">
         <p><strong>Lugar:</strong> {{ $vacacion->empleado->oficina->direccion ?? '---' }} &nbsp;&nbsp;
             <strong>Fecha:</strong> {{ now()->format('d/m/Y') }} &nbsp;&nbsp;
-            <strong>Periodo:</strong> {{ $vacacion->periodo }}
         </p>
     </div>
 

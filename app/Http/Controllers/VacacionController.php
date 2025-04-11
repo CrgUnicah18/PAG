@@ -812,8 +812,11 @@ class VacacionController extends Controller
         $fechaInicio = Carbon::parse($vacacion->fecha_inicio);
         $fechaFin = Carbon::parse($vacacion->fecha_fin);
         $vacacion->periodo = Carbon::now()->year; // Asignar el año actual al campo periodo
+        $fechaRaw = $vacacion->empleado->fecha_ingreso;
+        $fechaIngreso = date('d/m/Y', strtotime($fechaRaw));
 
-        $pdf = Pdf::loadView('admin.vacaciones.vacacion_formato', compact('vacacion', 'tipoPermiso'));
+        $pdf = Pdf::loadView('admin.vacaciones.vacacion_formato', compact('vacacion', 'tipoPermiso', 'fechaIngreso'));
+        //dd($fechaIngreso);
 
         return $pdf->download('Solicitud de vacaciones ' . $vacacion->empleado->nombre . " " . $vacacion->empleado->apellido . '.pdf');
     }
