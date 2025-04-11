@@ -113,7 +113,7 @@ class PermisoController extends Controller
         if ($user->hasRole('empleado')) {
             $permisosEmpleado = Permiso::where('empleado_id', $empleado->id)
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->paginate(5);
 
             // Calcular los días laborables para cada permiso
             foreach ($permisosEmpleado as $permiso) {
@@ -716,8 +716,22 @@ class PermisoController extends Controller
 
         $permiso->dias_laborables = $diasLaborables; // Asignar el valor calculado a la propiedad del permiso
         $permiso->periodo = Carbon::now()->year; // Asignar el año actual al campo periodo
+        if (!$permiso->empleado) {
+            return response()->json(['error' => 'No se encontró el empleado del permiso.'], 500);
+        }
+        \Log::info('Empleado del permiso:', ['empleado' => $permiso->empleado]);
 
-        $pdf = Pdf::loadView('admin.permisos.permiso_formato', compact('permiso', 'tipoPermiso'));
+        // Cargar la vista del formato según el rol del usuario
+        if (auth()->user()->hasRole('admin')) {
+            $vista = 'admin.permisos.permiso_formato';
+        } elseif (auth()->user()->hasRole('supervisor')) {
+            $vista = 'supervisor.permisos.permiso_formato';
+        } else {
+            $vista = 'empleado.permisos.permiso_formato';
+        }
+
+        $pdf = Pdf::loadView($vista, compact('permiso', 'tipoPermiso'));
+
 
         return $pdf->download('Solicitud de Permiso ' . $permiso->empleado->nombre . " " . $permiso->empleado->apellido . '.pdf');
     }

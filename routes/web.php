@@ -188,6 +188,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('supervisor')->name('supervisor.'
     Route::post('/permisos/{permiso}/comentar', [PermisoController::class, 'comentar'])->name('permisos.comentar');
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
+    Route::get('permisos/{id}/formato', [PermisoController::class, 'generarFormatoPermiso'])->name('permisos.formato');
 
     // Ruta para la lista de permisos en la vista de empleado
     Route::get('/permisos/lista', [PermisoController::class, 'listaSupervisor'])->name('permisos.lista');
@@ -234,6 +235,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
     //Route::post('/permisos/{permiso}/addComentario', [PermisoController::class, 'addComentario'])->name('permisos.addComentario');
     Route::post('permisos/{id}/aprobar', [PermisoController::class, 'aprobar'])->name('permisos.aprobar');
     Route::post('permisos/{id}/declinar', [PermisoController::class, 'declinar'])->name('permisos.declinar');
+    Route::get('permisos/{id}/formato', [PermisoController::class, 'generarFormatoPermiso'])->name('permisos.formato');
 
     // Ruta para la lista de permisos en la vista de empleado
     Route::get('/permisos/lista', [PermisoController::class, 'listaEmpleado'])->name('permisos.lista');
@@ -243,6 +245,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('empleado')->name('empleado.')->g
     Route::post('vacaciones/{vacacion}/addComentario', [VacacionController::class, 'addComentario'])->name('vacaciones.addComentario');
     Route::post('vacaciones/aprobar/{vacacion}', [VacacionController::class, 'aprobar'])->name('vacaciones.aprobar');
     Route::post('vacaciones/declinar/{vacacion}', [VacacionController::class, 'declinar'])->name('vacaciones.declinar');
+    Route::get('vacaciones/formato/{id}', [VacacionController::class, 'generarFormatoVacacion'])->name('vacacion.formato');
 
     Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
 

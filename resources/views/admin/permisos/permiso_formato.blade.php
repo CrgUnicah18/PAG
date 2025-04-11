@@ -146,7 +146,7 @@
             </tr>
             <tr>
                 <td class="label">Motivo del Permiso</td>
-                <td colspan="3">{{ $permiso->comentario }}</td>
+                <td colspan="3">{{ $permiso->comentario ?? 'Sin comentario' }}</td>
             </tr>
             <tr>
                 <td class="label">Tipo de Permiso:</td>
@@ -158,7 +158,7 @@
     <div class="section">
         <p><strong>Lugar:</strong> {{ $permiso->empleado->oficina->direccion ?? '---' }} &nbsp;&nbsp;
             <strong>Fecha:</strong> {{ now()->format('d/m/Y') }}&nbsp;&nbsp;
-            <strong>Periodo:</strong> {{ $permiso->periodo }}
+            <strong>Periodo:</strong> {{ $permiso->periodo }} - {{ $permiso->periodo + 1}}
         </p>
     </div>
 

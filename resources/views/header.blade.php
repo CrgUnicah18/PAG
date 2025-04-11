@@ -44,7 +44,7 @@
         <!-- Contenedor del menú del usuario -->
         <div class="relative">
             <button id="userMenuButton" class="flex items-center gap-3 focus:outline-none">
-                <img src="{{ asset(Auth::user()->empleado->foto_perfil) }}" alt="Perfil"
+                <img src="{{ asset(Auth::user()->empleado->foto_perfil) }}" alt="Perfil" width="40" height="40"
                     class="w-10 h-10 rounded-full object-cover shadow-lg shadow-[rgb(255,255,255)]">
                 <h1 class="text-xl text-white">{{ Auth::user()->name }}</h1>
             </button>
