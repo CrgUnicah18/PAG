@@ -1,5 +1,11 @@
 @extends('layouts.app')
 
+@if (!config('app.activo'))
+    <div class="bg-red-200 text-red-800 p-4 rounded">
+        <strong>¡El sistema está desactivado!</strong> Algunas funciones podrían no estar disponibles.
+    </div>
+@endif
+
 @section('content')
 
     <x-notify-messages :messages="session('notify', [])" />
