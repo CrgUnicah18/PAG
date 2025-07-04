@@ -126,4 +126,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'activo' => env('APP_ACTIVO', true),
+
+
 ];
